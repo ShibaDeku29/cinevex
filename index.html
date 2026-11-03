@@ -259,7 +259,7 @@
     </div>
 
     <!-- SIDEBAR NAVIGATION DOCK (Hiện đại chuẩn Apple TV / Spatial UI) -->
-    <aside class="hidden lg:flex flex-col items-center justify-between w-20 shrink-0 glass-dock border-r border-vex-border py-6 z-50 sticky top-0 h-screen">
+    <aside class="hidden lg:flex flex-col items-center justify-between w-20 shrink-0 glass-dock border-r border-vex-border py-6 z-50 fixed inset-y-0 left-0 h-screen overflow-y-auto no-scrollbar">
         <!-- Brand Icon -->
         <a href="#" onclick="resetToHome(event)" class="group flex flex-col items-center gap-1">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-110 transition-transform">
@@ -339,8 +339,8 @@
         </button>
     </nav>
 
-    <!-- MAIN CONTENT WRAPPER -->
-    <div class="flex-1 flex flex-col min-w-0 relative z-10 pb-20 lg:pb-8">
+    <!-- MAIN CONTENT WRAPPER (Dành khoảng trống 80px cho fixed sidebar trên desktop) -->
+    <div class="flex-1 flex flex-col min-w-0 relative z-10 pb-20 lg:pb-8 lg:ml-20">
 
         <!-- TOP FLOATING HEADER & SMART SEARCH AUTOCOMPLETE -->
         <header class="sticky top-0 z-40 glass-panel border-b border-vex-border/80">
@@ -355,7 +355,7 @@
                             <span class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white">CINE<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">VEX</span></span>
                             <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">ULTRA 4K</span>
                         </div>
-                        <p class="text-[10px] text-slate-400 tracking-wider uppercase hidden sm:block">Next-Gen Cinema & OpenSubtitles Cloud</p>
+                        <p class="text-[10px] text-slate-400 tracking-wider uppercase hidden sm:block">Next-Gen Cinema Streaming</p>
                     </div>
                 </a>
 
@@ -402,7 +402,7 @@
                 <div class="hidden xl:flex items-center gap-3 shrink-0">
                     <div class="px-3.5 py-2 rounded-2xl bg-vex-surface border border-vex-border flex items-center gap-2.5 text-xs">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span class="text-slate-300 font-medium">OpenSubtitles v3</span>
+                        <span class="text-slate-300 font-medium">UltraHD 4K Cloud</span>
                         <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold text-[10px]">READY</span>
                     </div>
                     <button onclick="openGenresTab()" class="px-3.5 py-2 rounded-2xl bg-vex-surface border border-vex-border hover:border-emerald-400 text-emerald-300 text-xs font-semibold transition flex items-center gap-2">
@@ -870,14 +870,7 @@
             vttBlobUrl: null,
             watchlist: JSON.parse(localStorage.getItem('cinevex_watchlist') || '[]'),
             searchHistory: JSON.parse(localStorage.getItem('cinevex_search_history') || '["Hành Tinh Cát", "One Piece"]'),
-            suggestionIndex: -1,
-            subtitle: {
-                enabled: true,
-                activeTrackId: 'vi',
-                activeLabel: 'Vietsub',
-                offset: 0,
-                customCues: null
-            }
+            suggestionIndex: -1
         };
 
         // ==============================================================
@@ -897,7 +890,6 @@
             renderHeroThumbnails();
             renderTopTrending();
             applyFilters();
-            initSubtitleEngine();
 
             // 3. TIẾP TỤC ĐỒNG BỘ TỰ ĐỘNG NỀN
             initAutoSyncEngine();
