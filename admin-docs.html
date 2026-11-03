@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEVEX ACADEMY — Không Gian Tài Liệu Học Tập (Admin Portal)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        vex: {
+                            bg: '#04060d',
+                            surface: '#0b0f1c',
+                            card: '#101626',
+                            border: '#1d263b',
+                            cyan: '#06b6d4',
+                            violet: '#8b5cf6',
+                            emerald: '#10b981',
+                            amber: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #04060d; }
+        ::-webkit-scrollbar-thumb { background: #1d263b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+        }
+
+        .glass-panel {
+            background: rgba(16, 22, 38, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .neon-border-cyan {
+            box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.25);
+        }
+
+        .neon-border-amber {
+            box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-vex-bg text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
+
+    <!-- AURORA AMBIENT GLOWS -->
+    <div class="fixed -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
+    <div class="fixed top-1/3 -right-40 w-96 h-96 bg-violet-600/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-[999] max-w-sm w-full bg-vex-card/95 border border-vex-border rounded-2xl p-4 shadow-2xl backdrop-blur-xl transform translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 pointer-events-none">
+        <div id="toastIcon" class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <p id="toastMessage" class="text-xs text-slate-200 font-medium leading-snug">Thông báo hệ thống</p>
+        </div>
+    </div>
+
+    <!-- ==============================================================
+         1. CỔNG XÁC THỰC ADMIN LOCKSCREEN (HIỂN THỊ KHI CHƯA NHẬP KEYADMIN)
+         ============================================================== -->
+    <div id="adminLockScreen" class="fixed inset-0 z-50 bg-[#04060d]/95 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-[#0a0f1e] border border-cyan-500/40 rounded-3xl p-6 sm:p-8 neon-border-cyan text-center space-y-6 relative overflow-hidden">
+            <!-- Ambient Highlights -->
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-violet-600/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Icon Khóa Bảo Mật -->
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-cyan-500/20 via-violet-500/20 to-amber-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400 text-3xl shadow-xl shadow-cyan-500/20 animate-pulse">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+
+            <!-- Tiêu Đề -->
+            <div class="space-y-1.5">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-lock text-cyan-400"></i> Khu Vực Giới Hạn Quản Trị Viên
+                </div>
+                <h2 class="text-xl sm:text-2xl font-display font-black text-white tracking-wide">
+                    CINEVEX <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">ACADEMY</span>
+                </h2>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
+                    Trang tài liệu học tập nội bộ dành riêng cho Admin. Vui lòng nhập <strong>Key Admin</strong> để xác nhận quyền truy cập.
+                </p>
+            </div>
+
+            <!-- Form Nhập KeyAdmin -->
+            <div class="space-y-3.5 text-left">
+                <label class="block text-xs font-bold text-slate-300">
+                    <i class="fa-solid fa-key text-cyan-400 mr-1.5"></i>Khóa Quản Trị (Admin Key):
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="adminKeyInput" 
+                        placeholder="Nhập Key Admin tại đây..." 
+                        class="w-full bg-vex-bg border border-vex-border focus:border-cyan-400 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition pr-11"
+                        autocomplete="off"
+                        onkeydown="if(event.key==='Enter') verifyAdminKey()"
+                    >
+                    <button 
+                        type="button" 
+                        onclick="toggleKeyVisibility()" 
+                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-cyan-400 transition text-sm cursor-pointer p-1"
+                        title="Hiện/Ẩn Key"
+                    >
+                        <i id="keyVisibilityIcon" class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Thông báo lỗi khi nhập sai -->
+                <p id="keyErrorMsg" class="hidden text-xs text-rose-400 font-semibold flex items-center gap-1.5 pt-0.5">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Key Admin không chính xác. Vui lòng thử lại!</span>
+                </p>
+            </div>
+
+            <!-- Nút Xác Nhận & Trở Về -->
+            <div class="space-y-2.5 pt-2">
+                <button 
+                    onclick="verifyAdminKey()" 
+                    class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-violet-600 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                    <i class="fa-solid fa-unlock-keyhole"></i>
+                    <span>Xác Nhận & Mở Khóa Tài Liệu</span>
+                </button>
+
+                <a 
+                    href="index.html" 
+                    class="block w-full py-2.5 rounded-2xl bg-vex-card border border-vex-border hover:border-slate-600 text-slate-400 hover:text-white font-semibold text-xs transition text-center"
+                >
+                    <i class="fa-solid fa-arrow-left mr-1.5"></i>Quay lại Trang Chủ Xem Phim
+                </a>
+            </div>
+
+            <!-- Gợi ý bảo mật -->
+            <div class="pt-3 border-t border-vex-border/60 text-[11px] text-slate-400">
+                <i class="fa-solid fa-shield text-cyan-400/80 mr-1"></i> Key mặc định: <code class="text-cyan-300 font-mono font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded">keyadmin</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================
+         2. NỘI DUNG CHÍNH TRANG TÀI LIỆU HỌC TẬP (ADMIN DASHBOARD)
+         ============================================================== -->
+    <div id="adminMainContent" class="hidden flex-1 flex flex-col min-h-screen">
+        
+        <!-- HEADER ADMIN -->
+        <header class="sticky top-0 z-40 glass-panel border-b border-vex-border">
+            <div class="max-w-[1500px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
+                <!-- Logo & Badge -->
+                <div class="flex items-center gap-3">
+                    <a href="index.html" class="flex items-center gap-2 group">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition">
+                            A
+                        </div>
+                        <span class="font-display font-extrabold text-base sm:text-lg tracking-wider text-white">
+                            CINE<span class="text-cyan-400">VEX</span> <span class="text-xs sm:text-sm font-semibold text-violet-400">ACADEMY</span>
+                        </span>
+                    </a>
+                    <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold">
+                        <i class="fa-solid fa-crown text-amber-400"></i> Admin Verified
+                    </span>
+                </div>
+
+                <!-- Controls bên phải -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="openChangeKeyModal()" class="px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Đổi Key Admin">
+                        <i class="fa-solid fa-key text-cyan-400"></i>
+                        <span class="hidden sm:inline">Đổi Key</span>
+                    </button>
+
+                    <a href="index.html" class="px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-film text-cyan-400"></i>
+                        <span class="hidden sm:inline">Xem Phim</span>
+                    </a>
+
+                    <button onclick="logoutAdmin()" class="px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Đăng Xuất</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- NỘI DUNG TÀI LIỆU HỌC TẬP -->
+        <main class="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+
+            <!-- BANNER CHÀO MỪNG ADMIN -->
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#0d162d] via-[#111c38] to-[#0d162d] border border-cyan-500/30 p-6 sm:p-8 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="space-y-2 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-graduation-cap text-cyan-400"></i> Hệ Thống Tài Liệu Học Tập Dành Cho Admin
+                        </div>
+                        <h1 class="text-2xl sm:text-4xl font-display font-extrabold text-white tracking-tight">
+                            Không Gian Nghiên Cứu & Tri Thức
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            Trang riêng biệt được bảo vệ bởi lớp xác thực Key Admin. Hệ thống đã hoàn thiện sẵn sàng cấu trúc để tiếp nhận toàn bộ nội dung, bài học, giáo trình hoặc tài liệu theo yêu cầu của bạn.
+                        </p>
+                    </div>
+
+                    <!-- Thống kê nhanh -->
+                    <div class="grid grid-cols-3 gap-3 shrink-0">
+                        <div class="bg-vex-bg/80 border border-vex-border rounded-2xl p-3.5 text-center min-w-[90px]">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Chuyên Mục</span>
+                            <p class="text-lg sm:text-xl font-bold text-cyan-400 mt-0.5">Sẵn Sàng</p>
+                        </div>
+                        <div class="bg-vex-bg/80 border border-vex-border rounded-2xl p-3.5 text-center min-w-[90px]">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Quyền Hạn</span>
+                            <p class="text-lg sm:text-xl font-bold text-amber-400 mt-0.5">Full Admin</p>
+                        </div>
+                        <div class="bg-vex-bg/80 border border-vex-border rounded-2xl p-3.5 text-center min-w-[90px]">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Bảo Mật</span>
+                            <p class="text-lg sm:text-xl font-bold text-emerald-400 mt-0.5">Key Lock</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THANH TÌM KIẾM & BỘ LỌC CHUYÊN ĐỀ -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0" id="docCategoryTabs">
+                    <button class="px-3.5 py-2 rounded-xl text-xs font-bold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group mr-1.5"></i>Tất Cả Tài Liệu
+                    </button>
+                    <button class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-300 hover:border-cyan-400 whitespace-nowrap transition">
+                        <i class="fa-solid fa-code mr-1.5"></i>Công Nghệ & Lập Trình
+                    </button>
+                    <button class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-300 hover:border-cyan-400 whitespace-nowrap transition">
+                        <i class="fa-solid fa-book-open mr-1.5"></i>Giáo Trình & Ebook
+                    </button>
+                    <button class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-300 hover:border-cyan-400 whitespace-nowrap transition">
+                        <i class="fa-solid fa-video mr-1.5"></i>Video Bài Giảng
+                    </button>
+                </div>
+
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input 
+                        type="text" 
+                        placeholder="Tìm kiếm tài liệu học tập..." 
+                        class="w-full bg-vex-card border border-vex-border rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                    >
+                </div>
+            </div>
+
+            <!-- KHU VỰC HIỂN THỊ TÀI LIỆU (CONTAINER SẴN SÀNG NHẬN DỮ LIỆU) -->
+            <div id="studyDocsContainer" class="space-y-6">
+                <!-- Hộp thông điệp sẵn sàng -->
+                <div class="bg-vex-card border border-dashed border-cyan-500/40 rounded-3xl p-8 sm:p-12 text-center space-y-4">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div class="space-y-1.5">
+                        <h3 class="text-lg sm:text-xl font-display font-bold text-white">
+                            Hệ Thống Đã Khởi Tạo Thành Công & Sẵn Sàng!
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+                            Tôi đã tạo xong trang riêng biệt này cho Admin cùng cơ chế xác thực <code class="text-cyan-300 font-bold bg-cyan-500/10 px-2 py-0.5 rounded">keyadmin</code> an toàn.
+                        </p>
+                    </div>
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-400/40 text-cyan-300 font-bold text-xs">
+                        <i class="fa-solid fa-comment-dots text-sm animate-pulse text-cyan-400"></i>
+                        <span>Hãy cho tôi biết những tài liệu, danh mục hay nội dung cụ thể bạn muốn đặt vào đây!</span>
+                    </div>
+                </div>
+
+                <!-- 3 Mẫu Card tài liệu demo trực quan -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-vex-card border border-vex-border hover:border-cyan-400 rounded-2xl p-5 space-y-3 transition group">
+                        <div class="flex items-center justify-between">
+                            <span class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-base">
+                                <i class="fa-solid fa-folder"></i>
+                            </span>
+                            <span class="px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 font-bold text-[10px]">MODULE 01</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm group-hover:text-cyan-400 transition">Tài Liệu Chuyên Đề #1</h4>
+                            <p class="text-xs text-slate-400 mt-1">Sẵn sàng nạp bài giảng, link drive, video hoặc file PDF...</p>
+                        </div>
+                        <div class="pt-2 border-t border-vex-border/60 flex items-center justify-between text-[11px] text-slate-400">
+                            <span><i class="fa-solid fa-user-shield text-cyan-400 mr-1"></i>Admin Only</span>
+                            <span class="text-cyan-400 font-semibold">Chờ nội dung →</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-vex-card border border-vex-border hover:border-violet-400 rounded-2xl p-5 space-y-3 transition group">
+                        <div class="flex items-center justify-between">
+                            <span class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 text-base">
+                                <i class="fa-solid fa-book"></i>
+                            </span>
+                            <span class="px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-300 font-bold text-[10px]">MODULE 02</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm group-hover:text-violet-400 transition">Tài Liệu Chuyên Đề #2</h4>
+                            <p class="text-xs text-slate-400 mt-1">Sẵn sàng nạp tài liệu tra cứu, ghi chú và code mẫu...</p>
+                        </div>
+                        <div class="pt-2 border-t border-vex-border/60 flex items-center justify-between text-[11px] text-slate-400">
+                            <span><i class="fa-solid fa-user-shield text-violet-400 mr-1"></i>Admin Only</span>
+                            <span class="text-violet-400 font-semibold">Chờ nội dung →</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-vex-card border border-vex-border hover:border-amber-400 rounded-2xl p-5 space-y-3 transition group">
+                        <div class="flex items-center justify-between">
+                            <span class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-base">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 font-bold text-[10px]">MODULE 03</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm group-hover:text-amber-400 transition">Tài Liệu Chuyên Đề #3</h4>
+                            <p class="text-xs text-slate-400 mt-1">Sẵn sàng nạp bài tập thực hành, đề thi hoặc hướng dẫn...</p>
+                        </div>
+                        <div class="pt-2 border-t border-vex-border/60 flex items-center justify-between text-[11px] text-slate-400">
+                            <span><i class="fa-solid fa-user-shield text-amber-400 mr-1"></i>Admin Only</span>
+                            <span class="text-amber-400 font-semibold">Chờ nội dung →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==============================================================
+         3. MODAL ĐỔI KEY ADMIN
+         ============================================================== -->
+    <div id="changeKeyModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-[#0a0f1e] border border-cyan-500/40 rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-vex-border">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-key text-cyan-400"></i> Đổi Khóa Quản Trị (Admin Key)
+                </h3>
+                <button onclick="closeChangeKeyModal()" class="w-8 h-8 rounded-xl bg-vex-card border border-vex-border text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Key Admin hiện tại:</label>
+                    <input type="password" id="currentKeyInput" placeholder="Nhập key hiện tại..." class="w-full bg-vex-bg border border-vex-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Key Admin mới:</label>
+                    <input type="password" id="newKeyInput" placeholder="Nhập key mới (tối thiểu 4 ký tự)..." class="w-full bg-vex-bg border border-vex-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                </div>
+            </div>
+
+            <div class="pt-2 flex items-center gap-2">
+                <button onclick="saveNewAdminKey()" class="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition">
+                    Lưu Thay Đổi
+                </button>
+                <button onclick="closeChangeKeyModal()" class="px-4 py-2.5 rounded-xl bg-vex-card border border-vex-border text-slate-300 hover:text-white font-semibold text-xs transition">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================
+         4. JAVASCRIPT XÁC THỰC KEYADMIN & BẢO VỆ PHÂN QUYỀN
+         ============================================================== -->
+    <script>
+        // Danh sách key admin hợp lệ ban đầu (Chấp nhận "keyadmin", "admin123", "cinevex2026" hoặc key do admin tự đổi)
+        const DEFAULT_KEYS = ['keyadmin', 'admin123', 'cinevex2026'];
+        const AUTH_SESSION_KEY = 'cinevex_admin_authenticated';
+        const CUSTOM_KEY_STORAGE = 'cinevex_custom_admin_key';
+
+        function getValidKeys() {
+            const customKey = localStorage.getItem(CUSTOM_KEY_STORAGE);
+            if (customKey) {
+                return [customKey, ...DEFAULT_KEYS];
+            }
+            return DEFAULT_KEYS;
+        }
+
+        function checkAuthStatus() {
+            const isAuth = sessionStorage.getItem(AUTH_SESSION_KEY) === 'true';
+            const lockScreen = document.getElementById('adminLockScreen');
+            const mainContent = document.getElementById('adminMainContent');
+
+            if (isAuth) {
+                if (lockScreen) lockScreen.classList.add('hidden');
+                if (mainContent) mainContent.classList.remove('hidden');
+            } else {
+                if (lockScreen) lockScreen.classList.remove('hidden');
+                if (mainContent) mainContent.classList.add('hidden');
+                const input = document.getElementById('adminKeyInput');
+                if (input) input.focus();
+            }
+        }
+
+        function verifyAdminKey() {
+            const input = document.getElementById('adminKeyInput');
+            const errorMsg = document.getElementById('keyErrorMsg');
+            if (!input) return;
+
+            const enteredKey = input.value.trim();
+            const validKeys = getValidKeys();
+
+            if (validKeys.includes(enteredKey)) {
+                // Xác thực thành công
+                sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+                if (errorMsg) errorMsg.classList.add('hidden');
+                input.value = '';
+
+                showToast('Xác thực Admin thành công! Đang tải tài liệu...', 'fa-shield-halved', 'text-cyan-400');
+                checkAuthStatus();
+            } else {
+                // Sai Key
+                if (errorMsg) errorMsg.classList.remove('hidden');
+                input.classList.add('border-rose-500');
+                input.classList.add('animate-shake');
+                setTimeout(() => {
+                    input.classList.remove('animate-shake');
+                }, 500);
+                showToast('Key Admin không chính xác!', 'fa-circle-xmark', 'text-rose-400');
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem(AUTH_SESSION_KEY);
+            showToast('Đã đăng xuất khỏi cổng Admin', 'fa-right-from-bracket', 'text-slate-400');
+            checkAuthStatus();
+        }
+
+        function toggleKeyVisibility() {
+            const input = document.getElementById('adminKeyInput');
+            const icon = document.getElementById('keyVisibilityIcon');
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-cyan-400';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function openChangeKeyModal() {
+            const m = document.getElementById('changeKeyModal');
+            if (m) m.classList.remove('hidden');
+        }
+
+        function closeChangeKeyModal() {
+            const m = document.getElementById('changeKeyModal');
+            if (m) m.classList.add('hidden');
+            document.getElementById('currentKeyInput').value = '';
+            document.getElementById('newKeyInput').value = '';
+        }
+
+        function saveNewAdminKey() {
+            const currentInput = document.getElementById('currentKeyInput').value.trim();
+            const newInput = document.getElementById('newKeyInput').value.trim();
+            const validKeys = getValidKeys();
+
+            if (!validKeys.includes(currentInput)) {
+                showToast('Key Admin hiện tại không đúng!', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
+
+            if (newInput.length < 4) {
+                showToast('Key mới phải có ít nhất 4 ký tự!', 'fa-triangle-exclamation', 'text-amber-400');
+                return;
+            }
+
+            localStorage.setItem(CUSTOM_KEY_STORAGE, newInput);
+            closeChangeKeyModal();
+            showToast('Đã cập nhật Key Admin mới thành công!', 'fa-check-circle', 'text-emerald-400');
+        }
+
+        let toastTimeout = null;
+        function showToast(msg, icon = 'fa-circle-info', color = 'text-cyan-400') {
+            const toast = document.getElementById('toastNotification');
+            const text = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+            if (!toast || !text || !iconEl) return;
+
+            text.textContent = msg;
+            iconEl.innerHTML = `<i class="fa-solid ${icon} ${color}"></i>`;
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Khởi động kiểm tra phiên đăng nhập
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

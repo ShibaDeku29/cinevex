@@ -559,6 +559,10 @@
                     <span><strong>CINEVEX.IO</strong> — Nền tảng rạp phim không gian trực tuyến tích hợp OpenSubtitles v3 & Multi-HLS.</span>
                 </div>
                 <div class="flex items-center gap-4">
+                    <a href="admin-docs.html" class="text-slate-500 hover:text-cyan-400 transition flex items-center gap-1.5" title="Khu vực Quản trị & Tài liệu học tập (Admin Key Required)">
+                        <i class="fa-solid fa-graduation-cap text-xs"></i>
+                        <span>Tài Liệu Học Tập (Admin)</span>
+                    </a>
                     <span class="text-emerald-400"><i class="fa-solid fa-shield-halved mr-1"></i>Quantum Obfuscated v4.0</span>
                 </div>
             </div>
@@ -660,6 +664,11 @@
         // Bẫy 2: Chống toàn bộ phím tắt mở DevTools & Lưu trang (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S, Ctrl+P)
         document.addEventListener('keydown', e => {
             const key = e.key ? e.key.toUpperCase() : '';
+            if (e.ctrlKey && e.shiftKey && key === 'A') {
+                e.preventDefault();
+                window.location.href = 'admin-docs.html';
+                return;
+            }
             if (key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(key)) || (e.ctrlKey && ['U','S','P'].includes(key))) {
                 e.preventDefault();
                 e.stopPropagation();
