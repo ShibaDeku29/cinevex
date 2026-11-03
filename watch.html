@@ -306,9 +306,10 @@
                 <button onclick="toggleLightsOff()" id="lightsOffBtn" class="px-3 py-2 rounded-xl text-xs font-medium bg-vex-card border border-vex-border text-slate-300 hover:text-amber-400 transition flex items-center gap-1.5 shrink-0">
                     <i class="fa-solid fa-moon"></i> <span>Tắt Đèn</span>
                 </button>
-            </div>
-        </div>
-                    <i class="fa-solid fa-moon"></i> <span>Tắt Đèn</span>
+
+                <!-- Nút Toàn Màn Hình (Fullscreen) -->
+                <button onclick="toggleTheaterFullscreen()" id="theaterFullscreenBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 shrink-0" title="Bật/Tắt Toàn Màn Hình">
+                    <i class="fa-solid fa-expand text-cyan-400"></i> <span>Toàn Màn</span>
                 </button>
             </div>
         </div>
@@ -386,8 +387,8 @@
                 </div>
             </div>
 
-            <!-- Nút Tỉ lệ Fit/Tràn Màn & CC nổi trên video -->
-            <div class="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 sm:gap-2 opacity-90 group-hover:opacity-100 transition">
+            <!-- Nút Tỉ lệ Fit/Tràn Màn & CC nổi trên video (ĐẶT Ở GÓC TRÁI ĐỂ TRÁNH CHE NÚT FULL SCREEN CỦA VIDEO.JS Ở GÓC PHẢI TRÊN MOBILE) -->
+            <div class="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 z-30 flex items-center gap-1.5 sm:gap-2 opacity-90 group-hover:opacity-100 transition">
                 <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
                     <i class="fa-solid fa-bolt text-cyan-400"></i> Video.js v10.2
                 </span>
@@ -395,7 +396,7 @@
                 <!-- NÚT FIT MÀN / TRÀN MÀN NỔI NGAY TRÊN PLAYER -->
                 <button onclick="toggleVideoFitMode()" id="inVideoFitBadge" class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/50 text-cyan-300 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-lg" title="Bấm để đổi tỉ lệ: Vừa Màn (Fit) / Tràn Màn (Zoom) / Kéo Giãn (Fill)">
                     <i id="inVideoFitIcon" class="fa-solid fa-compress text-cyan-400"></i>
-                    <span id="inVideoFitText">Vừa Màn (Fit)</span>
+                    <span id="inVideoFitText">Fit Màn</span>
                 </button>
 
                 <button onclick="toggleCC()" id="inVideoCcBadge" class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-emerald-500/50 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 transition">
@@ -472,22 +473,25 @@
                 <div class="bg-vex-card/80 border border-vex-border rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-violet-400">
-                            <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>2. Kho OpenSubtitles v3
+                            <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>2. Kho OpenSubtitles Cloud
                         </h4>
                         <select id="openSubLangFilter" onchange="searchOpenSubtitlesCloud()" class="bg-vex-bg border border-vex-border rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none">
                             <option value="vie">Tiếng Việt (VIE)</option>
                             <option value="eng">English (ENG)</option>
+                            <option value="all">Tất cả ngôn ngữ</option>
                             <option value="jpn">Japanese (JPN)</option>
                             <option value="kor">Korean (KOR)</option>
+                            <option value="fra">French (FRA)</option>
+                            <option value="spa">Spanish (SPA)</option>
                         </select>
                     </div>
-                    <div id="openSubCloudResults" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                    <div id="openSubCloudResults" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
                 </div>
 
                 <!-- Cột 3: Add Source & Upload .srt/.vtt -->
                 <div class="bg-vex-card/80 border border-vex-border rounded-2xl p-4 space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                        <i class="fa-solid fa-link mr-1.5"></i>3. Add Source OpenSubtitles / File
+                        <i class="fa-solid fa-link mr-1.5"></i>3. Nguồn Ngoài & Upload File
                     </h4>
                     <div class="space-y-1.5">
                         <label class="text-[11px] text-slate-400">Dán URL Addon hoặc link (.srt/.vtt):</label>
@@ -496,6 +500,17 @@
                             <button onclick="connectCustomOpenSubSource()" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 transition">
                                 Kết Nối
                             </button>
+                        </div>
+                    </div>
+                    <!-- OpenSubtitles.com REST API Key Configuration -->
+                    <div class="space-y-1.5 pt-1 border-t border-vex-border/50">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>OpenSubtitles.com API Key:</span>
+                            <a href="https://www.opensubtitles.com/users/sign_up" target="_blank" class="text-cyan-400 hover:underline text-[10px] flex items-center gap-1">Lấy Key <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <input id="openSubApiKeyInput" type="password" placeholder="Nhập API Key (Nếu có)" class="flex-1 bg-vex-bg border border-vex-border rounded-xl px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                            <button onclick="saveOpenSubApiKey()" class="px-2.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs shrink-0 transition">Lưu</button>
                         </div>
                     </div>
                     <div class="pt-1">
@@ -510,6 +525,7 @@
                         <div class="flex items-center gap-1.5">
                             <button onclick="adjustSubOffset(-0.5)" class="px-2.5 py-1 rounded-lg bg-vex-bg border border-vex-border hover:border-cyan-400 text-slate-200">-0.5s</button>
                             <button onclick="adjustSubOffset(0.5)" class="px-2.5 py-1 rounded-lg bg-vex-bg border border-vex-border hover:border-cyan-400 text-slate-200">+0.5s</button>
+                            <button onclick="resetSubOffset()" class="px-2 py-1 rounded-lg bg-vex-bg border border-vex-border hover:border-amber-400 text-slate-400 text-[10px]">Reset</button>
                         </div>
                     </div>
                 </div>
@@ -589,6 +605,9 @@
             subtitle: {
                 enabled: true,
                 offset: 0,
+                activeLabel: 'Gốc (Luồng phát)',
+                activeCues: [],
+                openSubApiKey: localStorage.getItem('cinevex_opensub_apikey') || '',
                 primaryLang: 'vi',
                 secondaryLang: 'off',
                 available: [
@@ -1535,6 +1554,8 @@
             video.addEventListener('ended', handleVideoEndedAutoNext);
             video.removeEventListener('timeupdate', handleVideoTimeupdateAutoNext);
             video.addEventListener('timeupdate', handleVideoTimeupdateAutoNext);
+            video.removeEventListener('timeupdate', renderSubtitleCueLoop);
+            video.addEventListener('timeupdate', renderSubtitleCueLoop);
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             if (window.Hls && Hls.isSupported()) {
@@ -1636,6 +1657,30 @@
             }
         }
 
+        function toggleTheaterFullscreen() {
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            const video = document.getElementById('mainVideoElement');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (wrapper && wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen().catch(() => {
+                        if (video && video.requestFullscreen) video.requestFullscreen().catch(() => {});
+                    });
+                } else if (wrapper && wrapper.webkitRequestFullscreen) {
+                    wrapper.webkitRequestFullscreen();
+                } else if (video && video.webkitEnterFullscreen) {
+                    video.webkitEnterFullscreen();
+                }
+                showToast("Đã mở toàn màn hình", "fa-expand", "text-cyan-400");
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                showToast("Đã thoát toàn màn hình", "fa-compress", "text-slate-400");
+            }
+        }
+
         function toggleLightsOff() {
             const wrapper = document.getElementById('videoPlayerWrapper');
             const isOff = wrapper.classList.toggle('lights-off-active');
@@ -1646,33 +1691,402 @@
         function adjustSubOffset(delta) {
             state.subtitle.offset += delta;
             document.getElementById('subOffsetValue').textContent = `${state.subtitle.offset > 0 ? '+' : ''}${state.subtitle.offset.toFixed(1)}s`;
-            showToast(`Đã đồng bộ phụ đề ${state.subtitle.offset.toFixed(1)}s`, 'fa-clock');
+            showToast(`Đã chỉnh sync phụ đề: ${state.subtitle.offset.toFixed(1)}s`, 'fa-clock');
+            renderSubtitleCueLoop();
+        }
+
+        function resetSubOffset() {
+            state.subtitle.offset = 0;
+            document.getElementById('subOffsetValue').textContent = `0.0s`;
+            showToast('Đã đặt lại độ trễ phụ đề về 0.0s', 'fa-rotate-left');
+            renderSubtitleCueLoop();
+        }
+
+        function saveOpenSubApiKey() {
+            const input = document.getElementById('openSubApiKeyInput');
+            if (!input) return;
+            const key = input.value.trim();
+            state.subtitle.openSubApiKey = key;
+            try {
+                localStorage.setItem('cinevex_opensub_apikey', key);
+            } catch (e) {}
+            showToast(key ? "Đã lưu OpenSubtitles API Key" : "Đã xóa API Key (Dùng cổng mặc định)", "fa-key", "text-violet-400");
+            searchOpenSubtitlesCloud();
+        }
+
+        // ==============================================================
+        // BỘ GIẢI MÃ & RENDER PHỤ ĐỀ REAL-TIME (.SRT / .VTT / OPENSUBTITLES)
+        // ==============================================================
+        function parseSrtOrVtt(content) {
+            if (!content) return [];
+            const cues = [];
+            const text = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const blocks = text.split(/\n\n+/);
+
+            function parseTs(ts) {
+                if (!ts) return 0;
+                ts = ts.trim().replace(',', '.');
+                const parts = ts.split(':');
+                if (parts.length === 3) {
+                    return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+                } else if (parts.length === 2) {
+                    return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+                }
+                return 0;
+            }
+
+            blocks.forEach(block => {
+                const lines = block.trim().split('\n');
+                if (lines.length < 2) return;
+
+                let timeLine = '';
+                let textLines = [];
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes('-->')) {
+                        timeLine = lines[i];
+                        textLines = lines.slice(i + 1);
+                        break;
+                    }
+                }
+                if (!timeLine) return;
+
+                const timeParts = timeLine.split('-->');
+                if (timeParts.length !== 2) return;
+
+                const start = parseTs(timeParts[0].trim().split(' ')[0]);
+                const end = parseTs(timeParts[1].trim().split(' ')[0]);
+                const cueText = textLines.join('\n')
+                    .replace(/<font[^>]*>/gi, '')
+                    .replace(/<\/font>/gi, '')
+                    .replace(/<[^>]+>/g, '')
+                    .trim();
+
+                if (end > start && cueText) {
+                    cues.push({ start, end, text: cueText });
+                }
+            });
+            return cues;
+        }
+
+        function convertCuesToVttBlobUrl(cues) {
+            let vtt = "WEBVTT\n\n";
+            cues.forEach((c, idx) => {
+                function formatSec(sec) {
+                    const h = Math.floor(sec / 3600);
+                    const m = Math.floor((sec % 3600) / 60);
+                    const s = (sec % 60).toFixed(3);
+                    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${s.padStart(6,'0')}`;
+                }
+                vtt += `${idx + 1}\n${formatSec(c.start)} --> ${formatSec(c.end)}\n${c.text}\n\n`;
+            });
+            const blob = new Blob([vtt], { type: 'text/vtt;charset=utf-8' });
+            return URL.createObjectURL(blob);
+        }
+
+        function renderSubtitleCueLoop() {
+            const video = document.getElementById('mainVideoElement');
+            const primaryLine = document.getElementById('subtitlePrimaryLine');
+            const overlay = document.getElementById('customSubtitleOverlay');
+            if (!video || !primaryLine || !overlay) return;
+
+            if (!state.subtitle.enabled || !state.subtitle.activeCues || state.subtitle.activeCues.length === 0) {
+                primaryLine.classList.add('hidden');
+                return;
+            }
+
+            const current = video.currentTime + (state.subtitle.offset || 0);
+            const activeCue = state.subtitle.activeCues.find(c => current >= c.start && current <= c.end);
+
+            if (activeCue) {
+                primaryLine.textContent = activeCue.text;
+                primaryLine.classList.remove('hidden');
+            } else {
+                primaryLine.classList.add('hidden');
+            }
+        }
+
+        function parseAndActivateSubtitle(rawText, label = 'Phụ đề OpenSubtitles') {
+            const cues = parseSrtOrVtt(rawText);
+            if (!cues.length) {
+                showToast('Không tìm thấy dữ liệu câu thoại hợp lệ trong tệp phụ đề', 'fa-triangle-exclamation', 'text-amber-400');
+                return false;
+            }
+
+            state.subtitle.activeCues = cues;
+            state.subtitle.activeLabel = label;
+            state.subtitle.enabled = true;
+
+            // Đăng ký event loop trên video
+            const video = document.getElementById('mainVideoElement');
+            if (video) {
+                video.removeEventListener('timeupdate', renderSubtitleCueLoop);
+                video.addEventListener('timeupdate', renderSubtitleCueLoop);
+
+                // Nạp thêm native track để hỗ trợ chế độ Fullscreen trên di động
+                let track = document.getElementById('cinevexCustomTrack');
+                if (!track) {
+                    track = document.createElement('track');
+                    track.id = 'cinevexCustomTrack';
+                    track.kind = 'subtitles';
+                    track.srclang = 'vi';
+                    track.label = label;
+                    track.default = true;
+                    video.appendChild(track);
+                }
+                try {
+                    track.src = convertCuesToVttBlobUrl(cues);
+                } catch (e) {}
+            }
+
+            // Cập nhật UI
+            const ccText = document.getElementById('ccQuickToggleText');
+            if (ccText) ccText.textContent = "CC: ĐANG BẬT";
+            const inVideoCc = document.getElementById('inVideoCcText');
+            if (inVideoCc) inVideoCc.textContent = "CC: " + label.slice(0, 12);
+            const overlay = document.getElementById('customSubtitleOverlay');
+            if (overlay) overlay.classList.remove('hidden');
+
+            renderBuiltinSubList();
+            showToast(`Đã nạp ${cues.length} câu thoại từ ${label}`, 'fa-check-double', 'text-emerald-400');
+            return true;
+        }
+
+        async function loadAndApplySubtitleUrl(url, label) {
+            showToast(`Đang tải phụ đề: ${label}...`, 'fa-spinner fa-spin', 'text-cyan-400');
+            try {
+                let res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                let text = await res.text();
+                parseAndActivateSubtitle(text, label);
+            } catch (err) {
+                // Fallback qua CORS proxy nếu bị chặn CORS
+                try {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    let res2 = await fetch(proxyUrl);
+                    let text2 = await res2.text();
+                    parseAndActivateSubtitle(text2, label);
+                } catch (proxyErr) {
+                    showToast('Lỗi nạp phụ đề từ liên kết: ' + err.message, 'fa-circle-xmark', 'text-rose-400');
+                }
+            }
+        }
+
+        function renderBuiltinSubList() {
+            const box = document.getElementById('builtinSubList');
+            if (!box) return;
+
+            const hasActive = state.subtitle.activeCues && state.subtitle.activeCues.length > 0;
+            box.innerHTML = `
+                <div class="p-2.5 rounded-xl ${!hasActive ? 'bg-cyan-500/15 border-cyan-500/50' : 'bg-vex-card border-vex-border'} border text-xs flex items-center justify-between cursor-pointer hover:border-cyan-400 transition" onclick="useDefaultStreamSub()">
+                    <div>
+                        <p class="font-bold text-white">Phụ Đề Gốc Luồng Phim (HLS Vietsub)</p>
+                        <p class="text-[10px] text-slate-400">Tích hợp sẵn trong video • Tốc độ cao</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded ${!hasActive ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-white/10 text-slate-300'} text-[10px]">
+                        ${!hasActive ? 'Đang Dùng' : 'Chọn'}
+                    </span>
+                </div>
+                ${hasActive ? `
+                    <div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/50 text-xs flex items-center justify-between">
+                        <div class="truncate mr-2">
+                            <p class="font-bold text-emerald-300 truncate">${state.subtitle.activeLabel}</p>
+                            <p class="text-[10px] text-emerald-400/80">${state.subtitle.activeCues.length} câu thoại • Đang đồng bộ</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-extrabold text-[10px] shrink-0">Đang Bật</span>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function useDefaultStreamSub() {
+            state.subtitle.activeCues = [];
+            state.subtitle.activeLabel = 'Gốc (Luồng phát)';
+            const primaryLine = document.getElementById('subtitlePrimaryLine');
+            if (primaryLine) primaryLine.classList.add('hidden');
+            const inVideoCc = document.getElementById('inVideoCcText');
+            if (inVideoCc) inVideoCc.textContent = "CC: ON (Vietsub)";
+            renderBuiltinSubList();
+            showToast('Đã quay về phụ đề mặc định của luồng phát', 'fa-check', 'text-cyan-400');
+        }
+
+        // ==============================================================
+        // TÌM KIẾM OPENSUBTITLES THỰC TẾ (STREMIO OPENSUB V3 + OPENSUBTITLES.COM REST API)
+        // ==============================================================
+        async function resolveMovieImdbId(movie) {
+            if (!movie) return '';
+            if (movie.imdbId) return movie.imdbId;
+            if (movie.tmdbId) {
+                try {
+                    const isTv = movie.type === 'tv' || movie.type === 'anime';
+                    const endpoint = isTv 
+                        ? `https://api.themoviedb.org/3/tv/${movie.tmdbId}/external_ids?api_key=${TMDB_API_KEY}`
+                        : `https://api.themoviedb.org/3/movie/${movie.tmdbId}/external_ids?api_key=${TMDB_API_KEY}`;
+                    const res = await fetch(endpoint);
+                    const data = await res.json();
+                    if (data && data.imdb_id) {
+                        movie.imdbId = data.imdb_id;
+                        return data.imdb_id;
+                    }
+                } catch (e) {}
+            }
+            return '';
         }
 
         async function searchOpenSubtitlesCloud() {
             const resBox = document.getElementById('openSubCloudResults');
             if (!resBox) return;
-            const lang = document.getElementById('openSubLangFilter')?.value || 'vie';
-            resBox.innerHTML = `<p class="text-xs text-cyan-400 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Đang tìm trên OpenSubtitles v3 Cloud...</p>`;
 
-            setTimeout(() => {
+            renderBuiltinSubList();
+            const lang = document.getElementById('openSubLangFilter')?.value || 'vie';
+            const apiKeyInput = document.getElementById('openSubApiKeyInput');
+            if (apiKeyInput && !apiKeyInput.value && state.subtitle.openSubApiKey) {
+                apiKeyInput.value = state.subtitle.openSubApiKey;
+            }
+
+            resBox.innerHTML = `
+                <div class="p-4 text-center space-y-2">
+                    <div class="w-7 h-7 mx-auto rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></div>
+                    <p class="text-xs text-cyan-300 font-semibold">Đang truy vấn kho OpenSubtitles Cloud...</p>
+                    <p class="text-[10px] text-slate-400">Đang nhận diện IMDb ID và đối soát phụ đề chuẩn</p>
+                </div>
+            `;
+
+            const movie = state.activeMovie;
+            const imdbId = await resolveMovieImdbId(movie) || 'tt15239678';
+            const isTv = movie?.type === 'tv' || movie?.type === 'anime';
+            const epNum = (state.currentEp && state.currentEp.name) ? (parseInt(state.currentEp.name.replace(/\D/g, '')) || 1) : 1;
+            const addonUrl = (document.getElementById('customSubSourceInput')?.value.trim()) || 'https://opensubtitles-v3.strem.io';
+
+            let subtitles = [];
+
+            // 1. Thử gọi API chính thức OpenSubtitles.com nếu người dùng có Api-Key
+            if (state.subtitle.openSubApiKey) {
+                try {
+                    const cleanImdb = imdbId.replace('tt', '');
+                    const apiUrl = `https://api.opensubtitles.com/api/v1/subtitles?imdb_id=${cleanImdb}${lang !== 'all' ? `&languages=${lang}` : ''}`;
+                    const apiRes = await fetch(apiUrl, {
+                        headers: {
+                            'Api-Key': state.subtitle.openSubApiKey,
+                            'User-Agent': 'CINEVEX Player v1.0'
+                        }
+                    });
+                    if (apiRes.ok) {
+                        const apiData = await apiRes.json();
+                        if (apiData && apiData.data) {
+                            apiData.data.forEach(item => {
+                                const attr = item.attributes;
+                                if (attr && attr.files && attr.files.length) {
+                                    subtitles.push({
+                                        id: attr.subtitle_id || item.id,
+                                        url: '',
+                                        file_id: attr.files[0].file_id,
+                                        lang: attr.language || 'vie',
+                                        subtitleFileName: attr.files[0].file_name || attr.release || movie?.title,
+                                        movieReleaseName: attr.release || 'OpenSubtitles Official',
+                                        downloads: attr.download_count || 100,
+                                        isOfficial: true
+                                    });
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // 2. Truy vấn trực tiếp OpenSubtitles v3 Stremio Cloud Gateway (Miễn phí, không cần Key, mở CORS)
+            try {
+                const subUrl = isTv 
+                    ? `${addonUrl}/subtitles/series/${imdbId}:1:${epNum}.json`
+                    : `${addonUrl}/subtitles/movie/${imdbId}.json`;
+                
+                const res = await fetch(subUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.subtitles && Array.isArray(data.subtitles)) {
+                        subtitles = subtitles.concat(data.subtitles);
+                    }
+                }
+            } catch (e) {}
+
+            // Lọc theo ngôn ngữ đã chọn
+            let filtered = subtitles;
+            if (lang !== 'all') {
+                filtered = subtitles.filter(s => {
+                    const l = (s.lang || '').toLowerCase();
+                    if (lang === 'vie') return l === 'vie' || l === 'vi';
+                    if (lang === 'eng') return l === 'eng' || l === 'en';
+                    if (lang === 'jpn') return l === 'jpn' || l === 'ja';
+                    if (lang === 'kor') return l === 'kor' || l === 'ko';
+                    if (lang === 'fra') return l === 'fra' || l === 'fre' || l === 'fr';
+                    if (lang === 'spa') return l === 'spa' || l === 'es';
+                    return l.startsWith(lang);
+                });
+            }
+
+            if (!filtered.length) {
                 resBox.innerHTML = `
-                    <div class="p-2.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs cursor-pointer flex items-center justify-between" onclick="showToast('Đã nạp phụ đề Vietsub từ OpenSubtitles', 'fa-check', 'text-cyan-400')">
-                        <div>
-                            <p class="font-bold text-white">${state.activeMovie?.title || 'Phim'} [Chính xác 100%]</p>
-                            <p class="text-[10px] text-slate-400">VIE • Uploader: CinevexCloud (99.8% Sync)</p>
-                        </div>
-                        <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold text-[10px]">Áp dụng</span>
-                    </div>
-                    <div class="p-2.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs cursor-pointer flex items-center justify-between" onclick="showToast('Đã nạp phụ đề Song ngữ', 'fa-check', 'text-cyan-400')">
-                        <div>
-                            <p class="font-bold text-white">Song Ngữ Việt - Anh (Dual CC)</p>
-                            <p class="text-[10px] text-slate-400">VIE / ENG • Uploader: SubScene</p>
-                        </div>
-                        <span class="px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 font-bold text-[10px]">Áp dụng</span>
+                    <div class="p-4 text-center space-y-2 bg-vex-card rounded-2xl border border-vex-border">
+                        <i class="fa-solid fa-folder-open text-2xl text-slate-500"></i>
+                        <p class="text-xs text-slate-300 font-semibold">Chưa tìm thấy phụ đề ngôn ngữ "${lang.toUpperCase()}"</p>
+                        <p class="text-[11px] text-slate-400">Hãy thử đổi bộ lọc sang "Tất cả ngôn ngữ" hoặc tải tệp phụ đề .SRT/.VTT từ máy.</p>
+                        <button onclick="document.getElementById('openSubLangFilter').value='all'; searchOpenSubtitlesCloud();" class="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold hover:bg-cyan-500 hover:text-slate-950 transition">
+                            Xem tất cả ngôn ngữ (${subtitles.length} bản)
+                        </button>
                     </div>
                 `;
-            }, 500);
+                return;
+            }
+
+            resBox.innerHTML = filtered.slice(0, 20).map((s, idx) => {
+                const langUpper = (s.lang || 'VIE').toUpperCase();
+                const isVie = langUpper.includes('VIE') || langUpper === 'VI';
+                const badgeColor = isVie ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' : 'bg-violet-500/20 text-violet-300 border-violet-500/40';
+                const titleText = escapeHtmlAttr(s.subtitleFileName || s.movieReleaseName || `Phụ đề #${idx+1}`);
+
+                return `
+                    <div class="p-3 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs flex items-center justify-between gap-3 group transition">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-1.5 py-0.5 rounded border text-[10px] font-extrabold ${badgeColor}">${langUpper}</span>
+                                <span class="text-[10px] text-slate-400 truncate">${s.SubEncoding || 'UTF-8'}</span>
+                            </div>
+                            <p class="font-bold text-white truncate mt-1 group-hover:text-cyan-300 transition" title="${titleText}">${titleText}</p>
+                            <p class="text-[10px] text-slate-400 truncate mt-0.5">${s.movieReleaseName || 'OpenSubtitles Cloud'}</p>
+                        </div>
+                        <button onclick="handleSubtitleCardClick('${escapeHtmlAttr(s.url || '')}', '${titleText}', '${s.file_id || ''}')" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 shadow-md shadow-cyan-500/20 transition active:scale-95 cursor-pointer">
+                            Áp Dụng
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleSubtitleCardClick(url, label, fileId) {
+            if (url) {
+                loadAndApplySubtitleUrl(url, label);
+            } else if (fileId && state.subtitle.openSubApiKey) {
+                // Tải qua official download endpoint của OpenSubtitles REST API
+                showToast("Đang tạo liên kết tải OpenSubtitles...", "fa-cloud-arrow-down", "text-cyan-400");
+                try {
+                    const dlRes = await fetch('https://api.opensubtitles.com/api/v1/download', {
+                        method: 'POST',
+                        headers: {
+                            'Api-Key': state.subtitle.openSubApiKey,
+                            'User-Agent': 'CINEVEX Player v1.0',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ file_id: parseInt(fileId) })
+                    });
+                    const dlData = await dlRes.json();
+                    if (dlData && dlData.link) {
+                        loadAndApplySubtitleUrl(dlData.link, label);
+                    } else {
+                        throw new Error(dlData.message || 'Không thể tạo link tải');
+                    }
+                } catch (e) {
+                    showToast('Lỗi download OpenSubtitles: ' + e.message, 'fa-circle-xmark', 'text-rose-400');
+                }
+            }
         }
 
         function connectCustomOpenSubSource() {
@@ -1685,9 +2099,12 @@
 
         function handleLocalSubtitleUpload(e) {
             const file = e.target.files[0];
-            if (file) {
-                showToast(`Đã tải tệp phụ đề: ${file.name}`, 'fa-file-arrow-up', 'text-cyan-400');
-            }
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                parseAndActivateSubtitle(evt.target.result, file.name);
+            };
+            reader.readAsText(file);
         }
 
         // ==============================================================
