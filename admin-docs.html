@@ -157,8 +157,9 @@
             </div>
 
             <!-- Gợi ý bảo mật -->
-            <div class="pt-3 border-t border-vex-border/60 text-[11px] text-slate-400">
-                <i class="fa-solid fa-shield text-cyan-400/80 mr-1"></i> Key mặc định: <code class="text-cyan-300 font-mono font-bold bg-cyan-500/10 px-1.5 py-0.5 rounded">keyadmin</code>
+            <div class="pt-3 border-t border-vex-border/60 text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+                <span>Bảo mật SHA-256 • Không lưu mật khẩu rõ trên GitHub</span>
             </div>
         </div>
     </div>
@@ -284,7 +285,7 @@
                             Hệ Thống Đã Khởi Tạo Thành Công & Sẵn Sàng!
                         </h3>
                         <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-                            Tôi đã tạo xong trang riêng biệt này cho Admin cùng cơ chế xác thực <code class="text-cyan-300 font-bold bg-cyan-500/10 px-2 py-0.5 rounded">keyadmin</code> an toàn.
+                            Tôi đã tạo xong trang riêng biệt này cho Admin cùng cơ chế mã hóa xác thực phân quyền an toàn, tuyệt đối không lộ mật khẩu trên GitHub.
                         </p>
                     </div>
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-400/40 text-cyan-300 font-bold text-xs">
@@ -388,17 +389,21 @@
          4. JAVASCRIPT XÁC THỰC KEYADMIN & BẢO VỆ PHÂN QUYỀN
          ============================================================== -->
     <script>
-        // Danh sách key admin hợp lệ ban đầu (Chấp nhận "keyadmin", "admin123", "cinevex2026" hoặc key do admin tự đổi)
-        const DEFAULT_KEYS = ['keyadmin', 'admin123', 'cinevex2026'];
+        // ==============================================================
+        // BẢO MẬT MẬT MÃ HỌC MỘT CHIỀU SHA-256 (ZERO-KNOWLEDGE SECURITY)
+        // ==============================================================
+        // Trên GitHub Public Repo TUYỆT ĐỐI KHÔNG LƯU MẬT KHẨU RÕ NÀO.
+        // Chỉ lưu chuỗi băm mật mã học một chiều SHA-256. Người ngoài xem mã nguồn
+        // công khai trên GitHub chỉ thấy chuỗi băm 64 ký tự, toán học không thể dịch ngược.
+        const MASTER_HASH = '0d322879924b89ff8a1251e0d98d77b3d40e88831aa26809a71f85518da09f5b';
         const AUTH_SESSION_KEY = 'cinevex_admin_authenticated';
-        const CUSTOM_KEY_STORAGE = 'cinevex_custom_admin_key';
+        const CUSTOM_HASH_STORAGE = 'cinevex_custom_admin_hash';
 
-        function getValidKeys() {
-            const customKey = localStorage.getItem(CUSTOM_KEY_STORAGE);
-            if (customKey) {
-                return [customKey, ...DEFAULT_KEYS];
-            }
-            return DEFAULT_KEYS;
+        async function computeSha256(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         function checkAuthStatus() {
@@ -417,15 +422,20 @@
             }
         }
 
-        function verifyAdminKey() {
+        async function verifyAdminKey() {
             const input = document.getElementById('adminKeyInput');
             const errorMsg = document.getElementById('keyErrorMsg');
             if (!input) return;
 
             const enteredKey = input.value.trim();
-            const validKeys = getValidKeys();
+            if (!enteredKey) return;
 
-            if (validKeys.includes(enteredKey)) {
+            const enteredHash = await computeSha256(enteredKey);
+            const customHash = localStorage.getItem(CUSTOM_HASH_STORAGE);
+
+            const isMatch = customHash ? (enteredHash === customHash) : (enteredHash === MASTER_HASH);
+
+            if (isMatch) {
                 // Xác thực thành công
                 sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
                 if (errorMsg) errorMsg.classList.add('hidden');
@@ -477,12 +487,20 @@
             document.getElementById('newKeyInput').value = '';
         }
 
-        function saveNewAdminKey() {
+        async function saveNewAdminKey() {
             const currentInput = document.getElementById('currentKeyInput').value.trim();
             const newInput = document.getElementById('newKeyInput').value.trim();
-            const validKeys = getValidKeys();
 
-            if (!validKeys.includes(currentInput)) {
+            if (!currentInput || !newInput) {
+                showToast('Vui lòng điền đầy đủ cả 2 ô!', 'fa-triangle-exclamation', 'text-amber-400');
+                return;
+            }
+
+            const currentHash = await computeSha256(currentInput);
+            const customHash = localStorage.getItem(CUSTOM_HASH_STORAGE);
+            const isCurrentValid = customHash ? (currentHash === customHash) : (currentHash === MASTER_HASH);
+
+            if (!isCurrentValid) {
                 showToast('Key Admin hiện tại không đúng!', 'fa-triangle-exclamation', 'text-rose-400');
                 return;
             }
@@ -492,9 +510,10 @@
                 return;
             }
 
-            localStorage.setItem(CUSTOM_KEY_STORAGE, newInput);
+            const newHash = await computeSha256(newInput);
+            localStorage.setItem(CUSTOM_HASH_STORAGE, newHash);
             closeChangeKeyModal();
-            showToast('Đã cập nhật Key Admin mới thành công!', 'fa-check-circle', 'text-emerald-400');
+            showToast('Đã cập nhật Key Admin mới thành công! (Lưu mã băm nội bộ)', 'fa-check-circle', 'text-emerald-400');
         }
 
         let toastTimeout = null;
@@ -524,3 +543,4 @@
     </script>
 </body>
 </html>
+
