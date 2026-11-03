@@ -107,6 +107,12 @@
             position: relative !important;
         }
 
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+        }
+
         #videoPlayerWrapper media-container {
             width: 100% !important;
             height: 100% !important;
@@ -118,9 +124,42 @@
         #videoPlayerWrapper video {
             width: 100% !important;
             height: 100% !important;
-            object-fit: contain !important;
             display: block !important;
             background-color: #000;
+            transition: object-fit 0.25s ease, transform 0.25s ease;
+        }
+
+        /* 1. Vừa Màn (Fit) - object-fit: contain (Mặc định giữ trọn tỉ lệ gốc) */
+        #videoPlayerWrapper.fit-contain video#mainVideoElement,
+        #videoPlayerWrapper.fit-contain video,
+        #videoPlayerWrapper:not(.fit-cover):not(.fit-fill) video#mainVideoElement,
+        #videoPlayerWrapper:not(.fit-cover):not(.fit-fill) video {
+            object-fit: contain !important;
+        }
+
+        /* 2. Tràn Màn (Zoom/Cover) - object-fit: cover (Phóng to tràn viền điện thoại, triệt tiêu 2 vệt đen) */
+        #videoPlayerWrapper.fit-cover video#mainVideoElement,
+        #videoPlayerWrapper.fit-cover video {
+            object-fit: cover !important;
+        }
+
+        /* 3. Kéo Giãn (Stretch/Fill) - object-fit: fill (Kéo giãn 100% lấp đầy khung hình) */
+        #videoPlayerWrapper.fit-fill video#mainVideoElement,
+        #videoPlayerWrapper.fit-fill video {
+            object-fit: fill !important;
+        }
+
+        /* Hỗ trợ chế độ Tràn Màn cho Iframe Embed Player */
+        #videoPlayerWrapper.fit-cover iframe#embedIframePlayer {
+            transform: scale(1.18);
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+        }
+        #videoPlayerWrapper.fit-fill iframe#embedIframePlayer,
+        #videoPlayerWrapper.fit-contain iframe#embedIframePlayer {
+            transform: scale(1);
+            transform-origin: center center;
+            transition: transform 0.3s ease;
         }
 
         #videoPlayerWrapper iframe#embedIframePlayer {
@@ -132,9 +171,15 @@
         #videoPlayerWrapper iframe#embedIframePlayer.hidden {
             display: none !important;
         }
+
+        @media (max-width: 640px) {
+            #videoPlayerWrapper {
+                border-radius: 1rem !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-vex-bg text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-vex-bg text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
 
     <!-- CINEVEX QUANTUM SHIELD MODAL -->
     <div id="quantumShieldModal" class="hidden fixed inset-0 z-[9999] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4">
@@ -169,10 +214,10 @@
     <header class="sticky top-0 z-50 glass-panel border-b border-vex-border">
         <div class="max-w-[1500px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
             <!-- Left: Logo & Back Button -->
-            <div class="flex items-center gap-3 sm:gap-4">
-                <a href="index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-200 hover:text-cyan-300 transition text-xs font-semibold">
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <a href="index.html" class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-200 hover:text-cyan-300 transition text-xs font-semibold">
                     <i class="fa-solid fa-arrow-left"></i>
-                    <span>Trang Chủ</span>
+                    <span class="hidden xs:inline">Trang Chủ</span>
                 </a>
                 <div class="h-5 w-px bg-vex-border hidden sm:block"></div>
                 <a href="index.html" class="flex items-center gap-2 group">
@@ -193,12 +238,12 @@
             </div>
 
             <!-- Right: Search Button & Security Badge -->
-            <div class="flex items-center gap-2.5">
-                <a href="index.html" class="px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition">
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <a href="index.html" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-magnifying-glass text-cyan-400"></i>
-                    <span class="hidden sm:inline">Tìm Phim Khác</span>
+                    <span class="hidden sm:inline">Tìm Phim</span>
                 </a>
-                <span class="px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold flex items-center gap-1.5">
+                <span class="px-2 sm:px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] sm:text-[11px] font-semibold flex items-center gap-1 sm:gap-1.5">
                     <i class="fa-solid fa-shield-halved text-cyan-400"></i>
                     <span class="hidden sm:inline">Quantum Shield</span>
                 </span>
@@ -207,52 +252,62 @@
     </header>
 
     <!-- MAIN WATCH THEATER CONTENT -->
-    <main class="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
+    <main class="flex-1 max-w-[1500px] w-full mx-auto px-3 sm:px-8 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
         <!-- THANH CÔNG CỤ PHÍA TRÊN PLAYER -->
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 text-sm">
-                <span id="playerBreadcrumbTitle" class="text-white font-bold text-base sm:text-lg truncate max-w-[320px]">Tên Phim</span>
-                <span id="playerCurrentEpBadge" class="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-extrabold text-xs">Full HD</span>
-                <span class="px-2.5 py-0.5 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 font-bold text-[10px] flex items-center gap-1">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 min-w-0">
+            <div class="flex items-center gap-2 text-sm min-w-0 max-w-full">
+                <span id="playerBreadcrumbTitle" class="text-white font-bold text-sm sm:text-base md:text-lg truncate max-w-[150px] xs:max-w-[220px] sm:max-w-[320px]">Tên Phim</span>
+                <span id="playerCurrentEpBadge" class="px-2 sm:px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-extrabold text-[11px] sm:text-xs shrink-0">Full HD</span>
+                <span class="px-2 sm:px-2.5 py-0.5 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 font-bold text-[10px] flex items-center gap-1 shrink-0">
                     <i class="fa-solid fa-circle-play text-cyan-400"></i> Video.js v10
                 </span>
             </div>
 
-            <!-- CỤM NÚT ĐIỀU KHIỂN VIDEO.JS V10, PHỤ ĐỀ CC & TẮT ĐÈN -->
-            <div class="flex flex-wrap items-center gap-2">
+            <!-- CỤM NÚT ĐIỀU KHIỂN: TỈ LỆ FIT/TRÀN MÀN, VIDEO.JS V10, PHỤ ĐỀ CC & TẮT ĐÈN -->
+            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar max-w-full pb-1 sm:pb-0">
+                <!-- Nút Tỉ Lệ Khung Hình (Fit Màn / Tràn Màn) -->
+                <button onclick="toggleVideoFitMode()" id="videoFitModeBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 shrink-0" title="Chuyển chế độ: Vừa Màn (Fit) / Tràn Màn (Zoom) / Kéo Giãn (Fill)">
+                    <i id="videoFitBtnIcon" class="fa-solid fa-compress text-cyan-400"></i>
+                    <span id="videoFitModeLabel">Tỉ Lệ: Vừa Màn (Fit)</span>
+                </button>
+
                 <!-- Đổi Skin Video.js v10 -->
-                <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5">
+                <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 shrink-0">
                     <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
-                    <span id="vjs10SkinLabel">VJS10: Frosted Skin</span>
+                    <span id="vjs10SkinLabel">VJS10: Frosted</span>
                 </button>
 
                 <!-- Bật/Tắt nhanh CC (1-Click + Phím C) -->
-                <button onclick="toggleCC()" id="ccQuickToggleBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                <button onclick="toggleCC()" id="ccQuickToggleBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition flex items-center gap-2 shadow-lg shadow-emerald-500/20 shrink-0">
                     <i class="fa-solid fa-closed-captioning text-sm"></i>
-                    <span id="ccQuickToggleText">CC: ĐANG BẬT</span>
+                    <span id="ccQuickToggleText">CC: BẬT</span>
                 </button>
 
                 <!-- Tự động chuyển tập (Auto-Next 7s) -->
-                <button onclick="toggleAutoNextSetting()" id="autoNextToggleBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5" title="Bật/Tắt tự động phát tập kế tiếp sau 7 giây">
+                <button onclick="toggleAutoNextSetting()" id="autoNextToggleBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 shrink-0" title="Bật/Tắt tự động phát tập kế tiếp sau 7 giây">
                     <i class="fa-solid fa-forward-step text-cyan-400"></i>
-                    <span id="autoNextToggleBtnLabel">Auto-Next: 7s (BẬT)</span>
+                    <span id="autoNextToggleBtnLabel">Auto-Next: 7s</span>
                 </button>
 
                 <!-- Nút chuyển nhanh tập kế tiếp (hiện khi có tập sau) -->
-                <button onclick="triggerNextEpisodeManual()" id="quickNextEpBtn" class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-600/30 border border-violet-500/40 text-violet-300 hover:bg-violet-600 hover:text-white transition flex items-center gap-1.5 shadow-lg shadow-violet-500/10">
+                <button onclick="triggerNextEpisodeManual()" id="quickNextEpBtn" class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-600/30 border border-violet-500/40 text-violet-300 hover:bg-violet-600 hover:text-white transition flex items-center gap-1.5 shadow-lg shadow-violet-500/10 shrink-0">
                     <i class="fa-solid fa-forward-step"></i>
                     <span id="quickNextEpBtnLabel">Tập Tiếp</span>
                 </button>
 
                 <!-- Mở Trung tâm Phụ đề & OpenSubtitles -->
-                <button onclick="toggleSubtitleModal()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center gap-2">
+                <button onclick="toggleSubtitleModal()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center gap-2 shrink-0">
                     <i class="fa-solid fa-language"></i>
-                    <span>Nguồn Phụ Đề & OpenSubtitles</span>
+                    <span>Phụ Đề Cloud</span>
                 </button>
 
                 <!-- Nút Tắt đèn rạp chiếu -->
-                <button onclick="toggleLightsOff()" id="lightsOffBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium bg-vex-card border border-vex-border text-slate-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                <button onclick="toggleLightsOff()" id="lightsOffBtn" class="px-3 py-2 rounded-xl text-xs font-medium bg-vex-card border border-vex-border text-slate-300 hover:text-amber-400 transition flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-moon"></i> <span>Tắt Đèn</span>
+                </button>
+            </div>
+        </div>
                     <i class="fa-solid fa-moon"></i> <span>Tắt Đèn</span>
                 </button>
             </div>
@@ -323,11 +378,26 @@
                 </div>
             </div>
 
-            <!-- Nút CC nổi trên video -->
-            <div class="absolute top-3.5 right-3.5 z-30 flex items-center gap-2 opacity-90 group-hover:opacity-100 transition">
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
+            <!-- HUD THÔNG BÁO TỈ LỆ KHUNG HÌNH (VỪA MÀN / TRÀN MÀN / KÉO GIÃN) -->
+            <div id="videoFitHud" class="pointer-events-none absolute inset-0 z-40 flex items-center justify-center opacity-0 transition-opacity duration-300">
+                <div class="px-5 py-3 rounded-2xl bg-black/85 backdrop-blur-xl border border-cyan-500/50 text-white font-bold text-xs sm:text-sm shadow-2xl flex flex-col items-center gap-1 transform scale-95 transition-transform duration-200">
+                    <span id="fitHudTitle" class="text-cyan-300 font-extrabold text-sm sm:text-base flex items-center gap-2">⛶ Tràn Màn (Zoom Fill)</span>
+                    <span id="fitHudSub" class="text-[11px] text-slate-300 font-medium">Phóng to lấp đầy màn hình điện thoại</span>
+                </div>
+            </div>
+
+            <!-- Nút Tỉ lệ Fit/Tràn Màn & CC nổi trên video -->
+            <div class="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 sm:gap-2 opacity-90 group-hover:opacity-100 transition">
+                <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
                     <i class="fa-solid fa-bolt text-cyan-400"></i> Video.js v10.2
                 </span>
+
+                <!-- NÚT FIT MÀN / TRÀN MÀN NỔI NGAY TRÊN PLAYER -->
+                <button onclick="toggleVideoFitMode()" id="inVideoFitBadge" class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/50 text-cyan-300 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-lg" title="Bấm để đổi tỉ lệ: Vừa Màn (Fit) / Tràn Màn (Zoom) / Kéo Giãn (Fill)">
+                    <i id="inVideoFitIcon" class="fa-solid fa-compress text-cyan-400"></i>
+                    <span id="inVideoFitText">Vừa Màn (Fit)</span>
+                </button>
+
                 <button onclick="toggleCC()" id="inVideoCcBadge" class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-emerald-500/50 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 transition">
                     <i class="fa-solid fa-closed-captioning"></i>
                     <span id="inVideoCcText">CC: ON (Vietsub)</span>
@@ -515,6 +585,7 @@
             currentSIdx: 0,
             currentEIdx: 0,
             autoNextTriggeredForCurrentEp: false,
+            videoFitMode: localStorage.getItem('cinevex_video_fit_mode') || 'contain',
             subtitle: {
                 enabled: true,
                 offset: 0,
@@ -535,6 +606,7 @@
         let devtoolsDetected = false;
         let baselineInnerWidth = window.innerWidth;
         let baselineInnerHeight = window.innerHeight;
+        const isMobileScreen = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
 
         function calibrateWindowBaseline() {
             baselineInnerWidth = window.innerWidth;
@@ -561,6 +633,12 @@
         }
 
         window.addEventListener('resize', () => {
+            // Không kích hoạt cảnh báo khi xoay màn hình điện thoại hoặc thu phóng mobile
+            if (isMobileScreen) {
+                baselineInnerWidth = window.innerWidth;
+                baselineInnerHeight = window.innerHeight;
+                return;
+            }
             const deltaW = Math.abs(window.innerWidth - baselineInnerWidth);
             const deltaH = Math.abs(window.innerHeight - baselineInnerHeight);
             if (deltaW > 185 || deltaH > 185) {
@@ -592,6 +670,9 @@
             if (e.shiftKey && e.key.toUpperCase() === 'N' && document.activeElement.tagName !== 'INPUT') {
                 e.preventDefault();
                 triggerNextEpisodeManual();
+            }
+            if ((e.key.toLowerCase() === 'z' || (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey)) && document.activeElement.tagName !== 'INPUT') {
+                toggleVideoFitMode();
             }
         });
 
@@ -891,6 +972,8 @@
         // ==============================================================
         window.addEventListener('DOMContentLoaded', async () => {
             calibrateWindowBaseline();
+            applyVideoFitMode(state.videoFitMode);
+            initMobileGestures();
             updateAutoNextButtonUI();
             await loadMovieFromSource();
             renderRelatedMovies();
@@ -1310,12 +1393,121 @@
         }
 
         // ==============================================================
+        // TÙY CHỌN TỈ LỆ KHUNG HÌNH (VỪA MÀN / TRÀN MÀN / KÉO GIÃN)
+        // ==============================================================
+        let fitHudTimeout = null;
+        function showFitHudIndicator(title, sub) {
+            const hud = document.getElementById('videoFitHud');
+            const hudTitle = document.getElementById('fitHudTitle');
+            const hudSub = document.getElementById('fitHudSub');
+            if (!hud || !hudTitle || !hudSub) return;
+
+            hudTitle.innerHTML = title;
+            hudSub.textContent = sub;
+
+            hud.classList.remove('opacity-0', 'pointer-events-none');
+            hud.classList.add('opacity-100');
+            const box = hud.querySelector('div');
+            if (box) box.classList.remove('scale-95');
+
+            if (fitHudTimeout) clearTimeout(fitHudTimeout);
+            fitHudTimeout = setTimeout(() => {
+                hud.classList.remove('opacity-100');
+                hud.classList.add('opacity-0', 'pointer-events-none');
+                if (box) box.classList.add('scale-95');
+            }, 1200);
+        }
+
+        function applyVideoFitMode(mode) {
+            if (!['contain', 'cover', 'fill'].includes(mode)) mode = 'contain';
+            state.videoFitMode = mode;
+            try {
+                localStorage.setItem('cinevex_video_fit_mode', mode);
+            } catch (e) {}
+
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            const label = document.getElementById('videoFitModeLabel');
+            const inVidBadge = document.getElementById('inVideoFitBadge');
+            const inVidText = document.getElementById('inVideoFitText');
+            const inVidIcon = document.getElementById('inVideoFitIcon');
+            const btnIcon = document.getElementById('videoFitBtnIcon');
+            const btn = document.getElementById('videoFitModeBtn');
+
+            if (wrapper) {
+                wrapper.classList.remove('fit-contain', 'fit-cover', 'fit-fill');
+                wrapper.classList.add(`fit-${mode}`);
+            }
+
+            if (mode === 'cover') {
+                if (label) label.textContent = "Tỉ Lệ: Tràn Màn";
+                if (inVidText) inVidText.textContent = "Tràn Màn (Zoom)";
+                if (inVidIcon) inVidIcon.className = "fa-solid fa-expand text-emerald-400";
+                if (btnIcon) btnIcon.className = "fa-solid fa-expand text-emerald-400";
+                if (inVidBadge) inVidBadge.className = "px-2.5 py-1 rounded-lg bg-emerald-950/80 backdrop-blur-md border border-emerald-500/60 text-emerald-300 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-lg shadow-emerald-500/20";
+                if (btn) btn.className = "px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:border-emerald-400 transition flex items-center gap-1.5 shrink-0";
+                showFitHudIndicator('<i class="fa-solid fa-expand text-emerald-400 mr-1.5"></i> Tràn Màn (Zoom Fill)', 'Phóng to lấp đầy màn hình điện thoại, loại bỏ viền đen');
+            } else if (mode === 'fill') {
+                if (label) label.textContent = "Tỉ Lệ: Kéo Giãn";
+                if (inVidText) inVidText.textContent = "Kéo Giãn (Fill)";
+                if (inVidIcon) inVidIcon.className = "fa-solid fa-arrows-up-down-left-right text-amber-400";
+                if (btnIcon) btnIcon.className = "fa-solid fa-arrows-up-down-left-right text-amber-400";
+                if (inVidBadge) inVidBadge.className = "px-2.5 py-1 rounded-lg bg-amber-950/80 backdrop-blur-md border border-amber-500/60 text-amber-300 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-lg shadow-amber-500/20";
+                if (btn) btn.className = "px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:border-amber-400 transition flex items-center gap-1.5 shrink-0";
+                showFitHudIndicator('<i class="fa-solid fa-arrows-up-down-left-right text-amber-400 mr-1.5"></i> Kéo Giãn (Stretch)', 'Lấp đầy khung phát 100% không cắt góc');
+            } else {
+                if (label) label.textContent = "Tỉ Lệ: Vừa Màn";
+                if (inVidText) inVidText.textContent = "Vừa Màn (Fit)";
+                if (inVidIcon) inVidIcon.className = "fa-solid fa-compress text-cyan-400";
+                if (btnIcon) btnIcon.className = "fa-solid fa-compress text-cyan-400";
+                if (inVidBadge) inVidBadge.className = "px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/50 text-cyan-300 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-lg";
+                if (btn) btn.className = "px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 shrink-0";
+                showFitHudIndicator('<i class="fa-solid fa-compress text-cyan-400 mr-1.5"></i> Vừa Màn (Fit Screen)', 'Hiển thị trọn vẹn khung hình gốc của phim');
+            }
+
+            updatePlayerAspectRatio();
+        }
+
+        function toggleVideoFitMode() {
+            const modes = ['contain', 'cover', 'fill'];
+            const current = state.videoFitMode || 'contain';
+            const nextIdx = (modes.indexOf(current) + 1) % modes.length;
+            applyVideoFitMode(modes[nextIdx]);
+        }
+
+        let lastTapTime = 0;
+        function initMobileGestures() {
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            if (!wrapper) return;
+            wrapper.addEventListener('touchend', (e) => {
+                if (e.target.closest('button, a, input, [role="button"], video-player')) return;
+                const currentTime = Date.now();
+                const tapLength = currentTime - lastTapTime;
+                if (tapLength > 0 && tapLength < 320) {
+                    e.preventDefault();
+                    toggleVideoFitMode();
+                    lastTapTime = 0;
+                } else {
+                    lastTapTime = currentTime;
+                }
+            }, { passive: false });
+        }
+
+        // ==============================================================
         // PHÁT VIDEO NATIVE HOẶC IFRAME & TỰ ĐỘNG CÂN BẰNG TỈ LỆ KHUNG HÌNH
         // ==============================================================
         function updatePlayerAspectRatio() {
             const video = document.getElementById('mainVideoElement');
             const wrapper = document.getElementById('videoPlayerWrapper');
             if (!video || !wrapper) return;
+
+            // Nếu người dùng chọn Tràn Màn hoặc Kéo Giãn trên màn hình điện thoại
+            if (state.videoFitMode === 'cover' || state.videoFitMode === 'fill') {
+                if (window.innerWidth < 640) {
+                    wrapper.style.aspectRatio = '16 / 9';
+                    return;
+                }
+            }
+
             if (video.videoWidth && video.videoHeight) {
                 const ratio = video.videoWidth / video.videoHeight;
                 if (ratio >= 1.25 && ratio <= 2.45) {
