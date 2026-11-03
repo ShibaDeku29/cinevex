@@ -409,6 +409,14 @@
                 </div>
             </div>
 
+            <!-- NÚT ĐỔI TỈ LỆ NỔI TRONG PLAYER (GÓC TRÊN TRÁI, TỰ ẨN/HIỆN THEO ĐIỀU KHIỂN, HOÀN TOÀN KHÔNG CHẶN TUA 10S) -->
+            <div id="inPlayerFitControl" class="absolute top-3.5 left-3.5 z-30 flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto data-[visible=true]:opacity-100 data-[visible=true]:pointer-events-auto">
+                <button onclick="toggleScreenFitMode()" id="inPlayerFitBtn" class="px-3 py-1.5 rounded-xl bg-black/80 backdrop-blur-md border border-cyan-500/40 text-cyan-300 hover:text-white text-[11px] font-bold flex items-center gap-1.5 transition hover:scale-105 cursor-pointer shadow-lg shadow-cyan-500/10" title="Chuyển đổi Tỉ lệ: Căn Giữa (16:9) hoặc Tràn Toàn Màn Hình">
+                    <i class="fa-solid fa-arrows-left-right text-cyan-400" id="inPlayerFitIcon"></i>
+                    <span id="inPlayerFitLabel">Tỉ Lệ: Căn Giữa</span>
+                </button>
+            </div>
+
             <!-- Nút CC nổi trên video (Ẩn trên mobile để không che nút Fullscreen ở góc phải) -->
             <div class="hidden sm:flex absolute top-3.5 right-3.5 z-30 items-center gap-2 opacity-90 group-hover:opacity-100 transition">
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
@@ -731,6 +739,11 @@
                 }
                 if (btnText) btnText.textContent = 'Màn Hình: Tràn Viền (Full)';
                 if (btnIcon) btnIcon.className = 'fa-solid fa-arrows-to-eye text-cyan-400';
+
+                const inPlayerText = document.getElementById('inPlayerFitLabel');
+                const inPlayerIcon = document.getElementById('inPlayerFitIcon');
+                if (inPlayerText) inPlayerText.textContent = 'Màn Hình: Tràn Viền';
+                if (inPlayerIcon) inPlayerIcon.className = 'fa-solid fa-arrows-to-eye text-cyan-400';
                 
                 if (showNotification) {
                     showScreenFitHud('Tràn Toàn Màn Hình (Full Cover)', 'fa-arrows-to-eye');
@@ -754,6 +767,11 @@
                 }
                 if (btnText) btnText.textContent = 'Tỉ Lệ: Căn Giữa (16:9)';
                 if (btnIcon) btnIcon.className = 'fa-solid fa-arrows-left-right text-cyan-400';
+
+                const inPlayerText = document.getElementById('inPlayerFitLabel');
+                const inPlayerIcon = document.getElementById('inPlayerFitIcon');
+                if (inPlayerText) inPlayerText.textContent = 'Tỉ Lệ: Căn Giữa';
+                if (inPlayerIcon) inPlayerIcon.className = 'fa-solid fa-arrows-left-right text-cyan-400';
 
                 if (showNotification) {
                     showScreenFitHud('Tỉ Lệ Chuẩn 16:9 (Căn Giữa Đều)', 'fa-arrows-left-right');
@@ -792,27 +810,67 @@
             }, 1400);
         }
 
-        // Đăng ký cử chỉ chạm đúp (Double-Tap) trên điện thoại và Double-Click trên máy tính
+        let inPlayerFitTimeout = null;
+        function showInPlayerFitControlTemporary() {
+            const ctrl = document.getElementById('inPlayerFitControl');
+            if (!ctrl) return;
+            ctrl.setAttribute('data-visible', 'true');
+            if (inPlayerFitTimeout) clearTimeout(inPlayerFitTimeout);
+            inPlayerFitTimeout = setTimeout(() => {
+                ctrl.setAttribute('data-visible', 'false');
+            }, 3500);
+        }
+
+        // TỰ ĐỘNG HIỂN THỊ NÚT KHI NGƯỜI DÙNG CHẠM HOẶC RÊ CHUỘT (KHÔNG HỀ CHẶN TUA 10S)
         document.addEventListener('DOMContentLoaded', () => {
             setScreenFitMode(currentScreenFitMode, false);
 
             const wrapper = document.getElementById('videoPlayerWrapper');
             if (wrapper) {
-                let lastTouchEnd = 0;
-                wrapper.addEventListener('touchend', (e) => {
-                    if (e.target.closest('button, input, [role="button"], a, video-controls, select')) return;
-                    const now = Date.now();
-                    if (now - lastTouchEnd < 340) {
-                        e.preventDefault();
-                        toggleScreenFitMode();
-                    }
-                    lastTouchEnd = now;
-                }, { passive: false });
+                // Tự động hiện nút nổi khi chạm vào màn hình (đồng bộ cùng thanh điều khiển)
+                wrapper.addEventListener('pointerdown', showInPlayerFitControlTemporary);
+                wrapper.addEventListener('mousemove', showInPlayerFitControlTemporary);
 
-                wrapper.addEventListener('dblclick', (e) => {
-                    if (e.target.closest('button, input, [role="button"], a, video-controls, select')) return;
-                    toggleScreenFitMode();
-                });
+                // CỬ CHỈ PINCH (2 NGÓN TAY) NHƯ YOUTUBE: 2 ngón kéo mở ra = Tràn viền, 2 ngón chụm lại = Căn giữa
+                // TUYỆT ĐỐI KHÔNG CHẶN CỬ CHỈ 1 NGÓN TAY ĐỂ TUA 10S HOẠT ĐỘNG HOÀN TOÀN MƯỢT MÀ!
+                let initialPinchDistance = 0;
+                let isPinchingActive = false;
+
+                wrapper.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 2) {
+                        isPinchingActive = true;
+                        const dx = e.touches[0].clientX - e.touches[1].clientX;
+                        const dy = e.touches[0].clientY - e.touches[1].clientY;
+                        initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+                    }
+                    showInPlayerFitControlTemporary();
+                }, { passive: true });
+
+                wrapper.addEventListener('touchmove', (e) => {
+                    if (isPinchingActive && e.touches.length === 2) {
+                        const dx = e.touches[0].clientX - e.touches[1].clientX;
+                        const dy = e.touches[0].clientY - e.touches[1].clientY;
+                        const currentDistance = Math.sqrt(dx * dx + dy * dy);
+                        const distanceDiff = currentDistance - initialPinchDistance;
+
+                        // Kéo giãn 2 ngón tay (> 38px) -> Phóng to tràn màn hình
+                        if (distanceDiff > 38 && currentScreenFitMode !== 'cover') {
+                            setScreenFitMode('cover', true);
+                            isPinchingActive = false;
+                        }
+                        // Chụm 2 ngón tay (< -38px) -> Thu về căn giữa chuẩn 16:9
+                        else if (distanceDiff < -38 && currentScreenFitMode !== 'contain') {
+                            setScreenFitMode('contain', true);
+                            isPinchingActive = false;
+                        }
+                    }
+                }, { passive: true });
+
+                wrapper.addEventListener('touchend', (e) => {
+                    if (e.touches.length < 2) {
+                        isPinchingActive = false;
+                    }
+                }, { passive: true });
             }
         });
 
