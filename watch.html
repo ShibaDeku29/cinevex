@@ -446,7 +446,7 @@
             <div class="flex items-center gap-2.5 text-xs text-slate-300">
                 <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
                 <span class="font-bold text-white">Đổi Máy Chủ Phát:</span>
-                <span class="text-slate-400 hidden sm:inline">(Ưu tiên Server #1 Vietsub HLS, hoặc Server #2 Movy VidSrc Cloud / MultiEmbed)</span>
+                <span class="text-slate-400 hidden sm:inline">(Ưu tiên Vietsub HLS, hoặc 4 Server 7Movies & Movy Quốc Tế)</span>
             </div>
             <div class="flex flex-wrap items-center gap-2" id="serverButtonsContainer"></div>
         </div>
@@ -1164,7 +1164,11 @@
 
         async function loadMovieFromSource() {
             const params = new URLSearchParams(window.location.search);
-            const movieId = params.get('id');
+            let movieId = params.get('id');
+            if (movieId) {
+                const m7 = movieId.match(/7movies\.ac\/(?:movie|tv)\/(\d+)/i);
+                if (m7) movieId = 'tmdb-' + m7[1];
+            }
 
             let movie = null;
 
@@ -1261,8 +1265,10 @@
             } catch (e) {}
 
             try {
-                // Thử tìm TMDB nếu ID có dạng tmdb-1234
-                const cleanTmdb = movieId.replace(/^tmdb-/, '');
+                // Thử tìm TMDB nếu ID có dạng tmdb-1234 hoặc link 7movies.ac/movie/1234
+                let cleanTmdb = movieId.replace(/^(?:tmdb-|7movies-)/, '');
+                const m7Match = movieId.match(/7movies\.ac\/(?:movie|tv)\/(\d+)/i);
+                if (m7Match) cleanTmdb = m7Match[1];
                 if (/^\d+$/.test(cleanTmdb)) {
                     let res = await fetch(`https://api.themoviedb.org/3/movie/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
                     let data = await res.json();
@@ -1280,7 +1286,7 @@
                             originTitle: data.original_title || data.original_name,
                             year: parseInt((data.release_date || data.first_air_date || '2026').slice(0, 4)),
                             rating: data.vote_average ? parseFloat(data.vote_average.toFixed(1)) : 8.2,
-                            quality: '4K UltraHD (Movy Source)',
+                            quality: '4K UltraHD • 7Movies & Movy',
                             type: isTv ? 'tv' : 'movie',
                             poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
                             backdrop: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
@@ -1379,7 +1385,30 @@
         };
 
         // ==============================================================
-        // KHỞI CHẠY TRÌNH PHÁT (ƯU TIÊN VIETSUB HLS, DỰ PHÒNG MOVY VIDSRC & MULTIEMBED)
+        // TỰ ĐỘNG TÌM TMDB ID TỪ TÊN PHIM NẾU CHƯA CÓ (CHO NGUỒN 7MOVIES & QUỐC TẾ)
+        // ==============================================================
+        async function ensureMovieTmdbId(movie) {
+            if (!movie) return '';
+            if (movie.tmdbId && movie.tmdbId !== '0') return movie.tmdbId;
+            const query = movie.originTitle || movie.title;
+            if (!query) return '';
+            try {
+                const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`;
+                const res = await fetch(searchUrl);
+                const data = await res.json();
+                if (data && data.results && data.results.length > 0) {
+                    const match = data.results.find(r => r.media_type === 'movie' || r.media_type === 'tv') || data.results[0];
+                    if (match && match.id) {
+                        movie.tmdbId = String(match.id);
+                        return movie.tmdbId;
+                    }
+                }
+            } catch (e) {}
+            return '';
+        }
+
+        // ==============================================================
+        // KHỞI CHẠY TRÌNH PHÁT (ƯU TIÊN VIETSUB HLS, 7MOVIES & MOVY VIDSRC)
         // ==============================================================
         async function initPlayerPlayback(movie) {
             let phimSlug = movie.phimapiSlug || CATALOG_VIETSUB_MAP[movie.id] || (movie.source === 'phimapi' ? movie.slug : null);
@@ -1403,9 +1432,9 @@
                 }
             }
 
-            state.activeServerKey = phimSlug ? 'hls' : 'vidsrc';
+            state.activeServerKey = phimSlug ? 'hls' : 'vidrift';
 
-            // 1. Ưu tiên nguồn Vietsub từ PhimAPI (Server #1 Vietsub HLS)
+            // 1. Ưu tiên nguồn Vietsub từ PhimAPI (Server Vietsub HLS)
             if (phimSlug) {
                 document.getElementById('playerLoadingOverlay').classList.remove('hidden');
                 try {
@@ -1415,6 +1444,12 @@
                     if (data && data.episodes && data.episodes.length > 0) {
                         if (data.movie && data.movie.content) {
                             document.getElementById('playerSynopsis').textContent = data.movie.content.replace(/<[^>]*>?/gm, '');
+                        }
+                        if (!movie.tmdbId && data.movie?.tmdb?.id) {
+                            movie.tmdbId = String(data.movie.tmdb.id);
+                        }
+                        if (!movie.tmdbId) {
+                            await ensureMovieTmdbId(movie);
                         }
                         movie.hasVietsub = true;
                         movie.hasMovy = !!movie.tmdbId;
@@ -1428,21 +1463,24 @@
                 }
             }
 
-            // 2. Không có nguồn Vietsub: Phát Server Movy VidSrc Cloud Quốc Tế
+            // 2. Không có nguồn Vietsub: Tự động tìm TMDB và phát Server 7Movies Earth (VidRift)
+            if (!movie.tmdbId) {
+                await ensureMovieTmdbId(movie);
+            }
             document.getElementById('episodeSelectorBox').classList.add('hidden');
             state.currentEp = null;
             state.currentServers = null;
-            state.activeServerKey = 'vidsrc';
+            state.activeServerKey = 'vidrift';
             renderUnifiedServerBar(null, null, 0, 0);
 
             const tmdb = movie.tmdbId || '693134';
             const isTv = movie.type === 'tv' || movie.type === 'anime';
-            const vidsrcUrl = isTv ? `https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=1` : `https://vidsrc.me/embed/movie?tmdb=${tmdb}`;
-            playIframeStream(vidsrcUrl, 'Movy VidSrc Cloud (Quốc Tế)');
+            const vidriftUrl = isTv ? `https://embed.vidrift.net/embed/tv/${tmdb}/1/1` : `https://embed.vidrift.net/embed/movie/${tmdb}`;
+            playIframeStream(vidriftUrl, '7Movies Earth (VidRift)');
         }
 
         // ==============================================================
-        // BẢNG ĐIỀU KHIỂN ĐA MÁY CHỦ (SERVER SWITCHER: HLS + VIDSRC + MULTIEMBED + EMBED)
+        // BẢNG ĐIỀU KHIỂN ĐA MÁY CHỦ (SERVER SWITCHER: HLS + 7MOVIES + VIDSRC + MULTIEMBED)
         // ==============================================================
         function switchServer(key, url, label, isHls = false) {
             state.activeServerKey = key;
@@ -1467,14 +1505,18 @@
             const isTv = movie.type === 'tv' || movie.type === 'anime';
             const epNum = (ep && ep.name) ? (parseInt(ep.name.replace(/\D/g, '')) || 1) : 1;
 
-            const vidsrcUrl = isTv ? `https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=${epNum}` : `https://vidsrc.me/embed/movie?tmdb=${tmdb}`;
-            const multiEmbedUrl = isTv ? `https://multiembed.mov/?video_id=${tmdb}&tmdb=1&s=1&e=${epNum}` : `https://multiembed.mov/?video_id=${tmdb}&tmdb=1`;
+            const vidriftUrl = tmdb ? (isTv ? `https://embed.vidrift.net/embed/tv/${tmdb}/1/${epNum}` : `https://embed.vidrift.net/embed/movie/${tmdb}`) : '';
+            const cinezoUrl = tmdb ? (isTv ? `https://player.cinezo.live/embed/tv/${tmdb}/1/${epNum}` : `https://player.cinezo.live/embed/movie/${tmdb}`) : '';
+            const atlanticUrl = tmdb ? (isTv ? `https://atlantic.st/embed/tv/${tmdb}/1/${epNum}` : `https://atlantic.st/embed/movie/${tmdb}`) : '';
+            const vidboltUrl = tmdb ? (isTv ? `https://vidbolt.xyz/tv/${tmdb}/1/${epNum}` : `https://vidbolt.xyz/movie/${tmdb}`) : '';
+            const vidsrcUrl = tmdb ? (isTv ? `https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=${epNum}` : `https://vidsrc.me/embed/movie?tmdb=${tmdb}`) : '';
+            const multiEmbedUrl = tmdb ? (isTv ? `https://multiembed.mov/?video_id=${tmdb}&tmdb=1&s=1&e=${epNum}` : `https://multiembed.mov/?video_id=${tmdb}&tmdb=1`) : '';
 
             const container = document.getElementById('serverButtonsContainer');
             if (!container) return;
 
-            const activeCls = 'px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-400/60 flex items-center gap-1.5 transition';
-            const normalCls = 'px-3.5 py-2 rounded-xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition hover:text-white';
+            const activeCls = 'px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-400/60 flex items-center gap-1.5 transition shrink-0';
+            const normalCls = 'px-3.5 py-2 rounded-xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition hover:text-white shrink-0';
 
             let html = '';
 
@@ -1484,34 +1526,55 @@
                 html += `
                     <button onclick="switchServer('hls', '${ep.link_m3u8}', 'CINEVEX HLS Vietsub (Tốc độ cao)', true)" class="${isAct ? activeCls : normalCls}">
                         <i class="fa-solid fa-play ${isAct ? 'text-cyan-200' : 'text-cyan-400'}"></i>
-                        <span>Server #1: Vietsub HLS (Ưu Tiên)</span>
+                        <span>Vietsub HLS (Gốc)</span>
                     </button>
                 `;
             }
 
-            // 2. Server #2: Movy VidSrc Cloud (Quốc tế VIP chuẩn Movy.sx) & Server #3: MultiEmbed VIP
+            // 2. Nguồn 7Movies.ac (VidRift, Cinezo, Atlantic, VidBolt) & Movy
             if (tmdb) {
+                const isActRift = state.activeServerKey === 'vidrift';
+                const isActCine = state.activeServerKey === 'cinezo';
+                const isActAtl = state.activeServerKey === 'atlantic';
+                const isActBolt = state.activeServerKey === 'vidbolt';
                 const isActSrc = state.activeServerKey === 'vidsrc';
                 const isActMul = state.activeServerKey === 'multiembed';
+
                 html += `
+                    <button onclick="switchServer('vidrift', '${vidriftUrl}', '7Movies Earth (VidRift)', false)" class="${isActRift ? activeCls : normalCls}" title="Server Earth từ 7movies.ac (VidRift 1080p/4K)">
+                        <i class="fa-solid fa-earth-americas ${isActRift ? 'text-cyan-200' : 'text-cyan-400'}"></i>
+                        <span>7Movies Earth</span>
+                    </button>
+                    <button onclick="switchServer('cinezo', '${cinezoUrl}', '7Movies Cinezo HD', false)" class="${isActCine ? activeCls : normalCls}" title="Server Cinezo HD từ 7movies.ac">
+                        <i class="fa-solid fa-film ${isActCine ? 'text-purple-200' : 'text-purple-400'}"></i>
+                        <span>7Movies Cinezo</span>
+                    </button>
+                    <button onclick="switchServer('atlantic', '${atlanticUrl}', '7Movies Atlantic', false)" class="${isActAtl ? activeCls : normalCls}" title="Server Atlantic từ 7movies.ac">
+                        <i class="fa-solid fa-water ${isActAtl ? 'text-teal-200' : 'text-teal-400'}"></i>
+                        <span>7Movies Atlantic</span>
+                    </button>
+                    <button onclick="switchServer('vidbolt', '${vidboltUrl}', '7Movies VidBolt', false)" class="${isActBolt ? activeCls : normalCls}" title="Server VidBolt từ 7movies.ac">
+                        <i class="fa-solid fa-bolt ${isActBolt ? 'text-yellow-200' : 'text-yellow-400'}"></i>
+                        <span>7Movies VidBolt</span>
+                    </button>
                     <button onclick="switchServer('vidsrc', '${vidsrcUrl}', 'Movy VidSrc Cloud (Quốc Tế)', false)" class="${isActSrc ? activeCls : normalCls}">
                         <i class="fa-solid fa-globe ${isActSrc ? 'text-violet-200' : 'text-violet-400'}"></i>
-                        <span>Server #2: Movy VidSrc Cloud</span>
+                        <span>Movy VidSrc</span>
                     </button>
                     <button onclick="switchServer('multiembed', '${multiEmbedUrl}', 'MultiEmbed VIP (Dự Phòng)', false)" class="${isActMul ? activeCls : normalCls}">
                         <i class="fa-solid fa-server ${isActMul ? 'text-amber-200' : 'text-amber-400'}"></i>
-                        <span>Server #3: MultiEmbed VIP</span>
+                        <span>MultiEmbed VIP</span>
                     </button>
                 `;
             }
 
-            // 3. Server #4: Vietsub Embed Dự Phòng
+            // 3. Server Vietsub Embed Dự Phòng
             if (ep && ep.link_embed) {
                 const isActEmb = state.activeServerKey === 'embed';
                 html += `
                     <button onclick="switchServer('embed', '${ep.link_embed}', 'Vietsub Embed Dự Phòng', false)" class="${isActEmb ? activeCls : normalCls}">
                         <i class="fa-solid fa-display ${isActEmb ? 'text-emerald-200' : 'text-emerald-400'}"></i>
-                        <span>Server #4: Vietsub Embed</span>
+                        <span>Vietsub Embed</span>
                     </button>
                 `;
             }
@@ -1519,7 +1582,7 @@
             // 4. Server mẫu dự phòng nếu không có link nào
             if (!html && movie.hlsSample) {
                 html = `
-                    <button onclick="playHlsStream('${movie.hlsSample}', 'CINEVEX HLS M3U8 Native')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold">
+                    <button onclick="playHlsStream('${movie.hlsSample}', 'CINEVEX HLS M3U8 Native')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shrink-0">
                         <i class="fa-solid fa-play mr-1"></i> Server HLS M3U8
                     </button>
                 `;
@@ -1567,8 +1630,23 @@
                 </button>
             `).join('');
 
-            // Mặc định phát luồng Vietsub HLS M3U8
-            if (ep.link_m3u8) {
+            const movie = state.activeMovie;
+            const tmdb = movie ? movie.tmdbId : '';
+
+            // Tự động duy trì máy chủ đang chọn (7Movies / VidSrc / Vietsub HLS)
+            if (state.activeServerKey === 'vidrift' && tmdb) {
+                playIframeStream(`https://embed.vidrift.net/embed/tv/${tmdb}/1/${eIdx + 1}`, '7Movies Earth (VidRift)');
+            } else if (state.activeServerKey === 'cinezo' && tmdb) {
+                playIframeStream(`https://player.cinezo.live/embed/tv/${tmdb}/1/${eIdx + 1}`, '7Movies Cinezo HD');
+            } else if (state.activeServerKey === 'atlantic' && tmdb) {
+                playIframeStream(`https://atlantic.st/embed/tv/${tmdb}/1/${eIdx + 1}`, '7Movies Atlantic');
+            } else if (state.activeServerKey === 'vidbolt' && tmdb) {
+                playIframeStream(`https://vidbolt.xyz/tv/${tmdb}/1/${eIdx + 1}`, '7Movies VidBolt');
+            } else if (state.activeServerKey === 'vidsrc' && tmdb) {
+                playIframeStream(`https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=${eIdx + 1}`, 'Movy VidSrc Cloud');
+            } else if (state.activeServerKey === 'multiembed' && tmdb) {
+                playIframeStream(`https://multiembed.mov/?video_id=${tmdb}&tmdb=1&s=1&e=${eIdx + 1}`, 'MultiEmbed VIP');
+            } else if (ep.link_m3u8) {
                 playHlsStream(ep.link_m3u8, 'CINEVEX HLS Vietsub (Tốc độ cao)');
             } else if (ep.link_embed) {
                 playIframeStream(ep.link_embed, 'Server Vietsub Embed');
