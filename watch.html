@@ -2,7 +2,7 @@
 <html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>Đang Xem Phim — CINEVEX.IO</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -76,14 +76,14 @@
         }
 
         /* ==============================================================
-           VIDEO.JS V10 & THEATER PLAYER STYLING (FIX TRIỆT ĐỂ KHOẢNG ĐEN)
+           VIDEO.JS V10 & THEATER PLAYER STYLING (TRÀN NOTCH, KHÔNG LỆCH PHẢI)
            ============================================================== */
         #videoPlayerWrapper {
             position: relative;
             background-color: #000;
             display: flex !important;
-            align-items: stretch !important;
-            justify-content: stretch !important;
+            align-items: center !important;
+            justify-content: center !important;
             transition: aspect-ratio 0.25s ease;
         }
 
@@ -118,9 +118,29 @@
         #videoPlayerWrapper video {
             width: 100% !important;
             height: 100% !important;
-            object-fit: contain !important;
+            object-fit: var(--media-object-fit, contain) !important;
+            object-position: center center !important;
             display: block !important;
             background-color: #000;
+            margin: 0 auto !important;
+        }
+
+        /* Chế độ Căn Giữa Chuẩn 16:9 (Fit - Đối xứng hoàn hảo 2 bên, không lệch) */
+        #videoPlayerWrapper.fit-contain video#mainVideoElement,
+        #videoPlayerWrapper.fit-contain video,
+        video-player.fit-contain video {
+            object-fit: contain !important;
+            object-position: center center !important;
+            --media-object-fit: contain !important;
+        }
+
+        /* Chế độ Tràn Toàn Màn Hình Điện Thoại (Fill / Cover - Không còn viền đen) */
+        #videoPlayerWrapper.fit-cover video#mainVideoElement,
+        #videoPlayerWrapper.fit-cover video,
+        video-player.fit-cover video {
+            object-fit: cover !important;
+            object-position: center center !important;
+            --media-object-fit: cover !important;
         }
 
         #videoPlayerWrapper iframe#embedIframePlayer {
@@ -131,6 +151,58 @@
 
         #videoPlayerWrapper iframe#embedIframePlayer.hidden {
             display: none !important;
+        }
+
+        /* TOÀN MÀN HÌNH FULLSCREEN FIX CHO MOBILE (TRÀN NOTCH, ĐỐI XỨNG CÂN BẰNG) */
+        :fullscreen,
+        ::backdrop,
+        video-player:fullscreen,
+        video-player:-webkit-full-screen,
+        #videoPlayerWrapper:fullscreen,
+        #videoPlayerWrapper:-webkit-full-screen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            inset: 0 !important;
+            left: 0 !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            position: fixed !important;
+            background: #000 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        :fullscreen video,
+        :-webkit-full-screen video,
+        video-player:fullscreen video,
+        video-player:-webkit-full-screen video {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 auto !important;
+            position: relative !important;
+            object-position: center center !important;
+        }
+
+        :fullscreen.fit-cover video,
+        :-webkit-full-screen.fit-cover video,
+        video-player:fullscreen.fit-cover video,
+        video-player:-webkit-full-screen.fit-cover video {
+            object-fit: cover !important;
+            --media-object-fit: cover !important;
+        }
+
+        :fullscreen.fit-contain video,
+        :-webkit-full-screen.fit-contain video,
+        video-player:fullscreen.fit-contain video,
+        video-player:-webkit-full-screen.fit-contain video {
+            object-fit: contain !important;
+            --media-object-fit: contain !important;
         }
 
         html, body {
@@ -228,6 +300,10 @@
             <!-- CỤM NÚT ĐIỀU KHIỂN VIDEO.JS V10, PHỤ ĐỀ CC & TẮT ĐÈN -->
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Đổi Skin Video.js v10 -->
+                <button onclick="toggleScreenFitMode()" id="screenFitBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 cursor-pointer" title="Chuyển đổi giữa Căn giữa chuẩn 16:9 và Tràn viền toàn màn hình (Hoặc chạm đúp vào video)">
+                    <i class="fa-solid fa-arrows-left-right text-cyan-400" id="screenFitBtnIcon"></i>
+                    <span id="screenFitBtnLabel">Tỉ Lệ: Căn Giữa</span>
+                </button>
                 <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
                     <span id="vjs10SkinLabel">VJS10: Frosted Skin</span>
@@ -616,6 +692,123 @@
             if (e.shiftKey && e.key.toUpperCase() === 'N' && document.activeElement.tagName !== 'INPUT') {
                 e.preventDefault();
                 triggerNextEpisodeManual();
+            }
+        });
+
+        // ==============================================================
+        // TÙY CHỌN TỈ LỆ KHUNG HÌNH (FIT CĂN GIỮA ĐỐI XỨNG & TRÀN TOÀN MÀN HÌNH)
+        // ==============================================================
+        let currentScreenFitMode = localStorage.getItem('cinevex_fit_mode') || 'contain';
+
+        function setScreenFitMode(mode, showNotification = true) {
+            currentScreenFitMode = mode;
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            const vjsPlayer = document.getElementById('vjs10Player');
+            const video = document.getElementById('mainVideoElement');
+            const iframe = document.getElementById('embedIframePlayer');
+            const btnText = document.getElementById('screenFitBtnLabel');
+            const btnIcon = document.getElementById('screenFitBtnIcon');
+
+            if (mode === 'cover') {
+                if (wrapper) {
+                    wrapper.classList.remove('fit-contain');
+                    wrapper.classList.add('fit-cover');
+                }
+                if (vjsPlayer) {
+                    vjsPlayer.classList.remove('fit-contain');
+                    vjsPlayer.classList.add('fit-cover');
+                    vjsPlayer.style.setProperty('--media-object-fit', 'cover', 'important');
+                }
+                if (video) {
+                    video.style.setProperty('object-fit', 'cover', 'important');
+                }
+                if (iframe) {
+                    iframe.style.setProperty('object-fit', 'cover', 'important');
+                }
+                if (btnText) btnText.textContent = 'Màn Hình: Tràn Viền (Full)';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-arrows-to-eye text-cyan-400';
+                
+                if (showNotification) {
+                    showScreenFitHud('Tràn Toàn Màn Hình (Full Cover)', 'fa-arrows-to-eye');
+                }
+            } else {
+                // contain
+                if (wrapper) {
+                    wrapper.classList.remove('fit-cover');
+                    wrapper.classList.add('fit-contain');
+                }
+                if (vjsPlayer) {
+                    vjsPlayer.classList.remove('fit-cover');
+                    vjsPlayer.classList.add('fit-contain');
+                    vjsPlayer.style.setProperty('--media-object-fit', 'contain', 'important');
+                }
+                if (video) {
+                    video.style.setProperty('object-fit', 'contain', 'important');
+                }
+                if (iframe) {
+                    iframe.style.setProperty('object-fit', 'contain', 'important');
+                }
+                if (btnText) btnText.textContent = 'Tỉ Lệ: Căn Giữa (16:9)';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-arrows-left-right text-cyan-400';
+
+                if (showNotification) {
+                    showScreenFitHud('Tỉ Lệ Chuẩn 16:9 (Căn Giữa Đều)', 'fa-arrows-left-right');
+                }
+            }
+            try {
+                localStorage.setItem('cinevex_fit_mode', mode);
+            } catch (e) {}
+        }
+
+        function toggleScreenFitMode() {
+            const nextMode = currentScreenFitMode === 'contain' ? 'cover' : 'contain';
+            setScreenFitMode(nextMode, true);
+        }
+
+        let hudTimeout = null;
+        function showScreenFitHud(text, icon = 'fa-expand') {
+            let hud = document.getElementById('screenFitHud');
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            if (!hud && wrapper) {
+                hud = document.createElement('div');
+                hud.id = 'screenFitHud';
+                hud.className = 'pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-4 py-2 rounded-2xl bg-black/85 backdrop-blur-md border border-cyan-500/40 text-cyan-300 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-2xl transition-all duration-200 opacity-0 scale-90';
+                wrapper.appendChild(hud);
+            }
+            if (!hud) return;
+
+            hud.innerHTML = `<i class="fa-solid ${icon} text-cyan-400"></i><span>${text}</span>`;
+            hud.classList.remove('opacity-0', 'scale-90');
+            hud.classList.add('opacity-100', 'scale-100');
+
+            if (hudTimeout) clearTimeout(hudTimeout);
+            hudTimeout = setTimeout(() => {
+                hud.classList.remove('opacity-100', 'scale-100');
+                hud.classList.add('opacity-0', 'scale-90');
+            }, 1400);
+        }
+
+        // Đăng ký cử chỉ chạm đúp (Double-Tap) trên điện thoại và Double-Click trên máy tính
+        document.addEventListener('DOMContentLoaded', () => {
+            setScreenFitMode(currentScreenFitMode, false);
+
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            if (wrapper) {
+                let lastTouchEnd = 0;
+                wrapper.addEventListener('touchend', (e) => {
+                    if (e.target.closest('button, input, [role="button"], a, video-controls, select')) return;
+                    const now = Date.now();
+                    if (now - lastTouchEnd < 340) {
+                        e.preventDefault();
+                        toggleScreenFitMode();
+                    }
+                    lastTouchEnd = now;
+                }, { passive: false });
+
+                wrapper.addEventListener('dblclick', (e) => {
+                    if (e.target.closest('button, input, [role="button"], a, video-controls, select')) return;
+                    toggleScreenFitMode();
+                });
             }
         });
 
