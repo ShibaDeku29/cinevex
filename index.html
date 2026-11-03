@@ -386,7 +386,7 @@
                         <div id="searchApiSpinner" class="hidden px-4 py-2 bg-cyan-500/10 border-b border-vex-border flex items-center justify-between text-[11px] text-cyan-300">
                             <span class="flex items-center gap-2">
                                 <i class="fa-solid fa-circle-notch animate-spin text-cyan-400"></i>
-                                Đang tìm trực tiếp trên máy chủ CINEVEX Cloud...
+                                Đang tìm trực tiếp trên kho 7Movies.ac, Movy & Vietsub Cloud...
                             </span>
                             <span class="text-[10px] text-slate-400">25.000+ Phim</span>
                         </div>
@@ -2424,31 +2424,119 @@
             if (spinner) spinner.classList.remove('hidden');
 
             const query = keyword.trim();
+            let newItems = [];
 
             try {
-                // TÌM KIẾM ĐỒNG THỜI CẢ 2 NGUỒN:
-                // 1. Kho quốc tế TMDB (Nguồn gốc của Movy.sx - hàng triệu phim)
-                // 2. Kho PhimAPI (Việt Nam - hỗ trợ Vietsub M3U8)
-                const [tmdbRes, phimApiRes] = await Promise.allSettled([
-                    fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=vi-VN&include_adult=false`)
-                        .then(r => r.json()),
-                    fetch(_dec(2) + encodeURIComponent(query) + '&limit=24')
-                        .then(r => r.json())
-                ]);
+                // 1. XỬ LÝ TRƯỜNG HỢP DÁN TRỰC TIẾP LINK 7MOVIES.AC HOẶC TMDB/IMDB ID
+                const m7Match = query.match(/7movies\.ac\/(movie|tv)\/(\d+)/i);
+                const imdbMatch = query.match(/^(tt\d{7,8})$/i);
+                const tmdbIdMatch = query.match(/^(?:tmdb-)?(\d{4,8})$/i);
 
-                let newItems = [];
-
-                // 1. Dữ liệu từ TMDB (Movy.sx standard)
-                if (tmdbRes.status === 'fulfilled' && tmdbRes.value && Array.isArray(tmdbRes.value.results)) {
-                    const validTmdb = tmdbRes.value.results.filter(it => (it.media_type === 'movie' || it.media_type === 'tv') && (it.poster_path || it.backdrop_path));
-                    const mappedTmdb = validTmdb.map(it => mapTmdbItem(it));
-                    newItems.push(...mappedTmdb);
+                if (m7Match) {
+                    const isTv = m7Match[1].toLowerCase() === 'tv';
+                    const targetId = m7Match[2];
+                    const endpoint = isTv ? `tv/${targetId}` : `movie/${targetId}`;
+                    try {
+                        const directRes = await fetch(`https://api.themoviedb.org/3/${endpoint}?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                        let data = await directRes.json();
+                        if (!data || !data.id) {
+                            const enRes = await fetch(`https://api.themoviedb.org/3/${endpoint}?api_key=${TMDB_API_KEY}`);
+                            data = await enRes.json();
+                        }
+                        if (data && data.id) {
+                            data.media_type = isTv ? 'tv' : 'movie';
+                            const mapped = mapTmdbItem(data);
+                            mapped.has7Movies = true;
+                            mapped.hasMovy = true;
+                            newItems.push(mapped);
+                        }
+                    } catch (e) {}
+                } else if (imdbMatch) {
+                    try {
+                        const findRes = await fetch(`https://api.themoviedb.org/3/find/${imdbMatch[1]}?api_key=${TMDB_API_KEY}&external_source=imdb_id`);
+                        const data = await findRes.json();
+                        const found = (data?.movie_results || []).concat(data?.tv_results || []);
+                        if (found.length > 0) {
+                            found.forEach(it => {
+                                if (!it.media_type) it.media_type = it.title ? 'movie' : 'tv';
+                                const mapped = mapTmdbItem(it);
+                                mapped.has7Movies = true;
+                                mapped.hasMovy = true;
+                                newItems.push(mapped);
+                            });
+                        }
+                    } catch (e) {}
+                } else if (tmdbIdMatch) {
+                    const targetId = tmdbIdMatch[1];
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/movie/${targetId}?api_key=${TMDB_API_KEY}`);
+                        let data = await res.json();
+                        let isTv = false;
+                        if (!data || !data.id) {
+                            res = await fetch(`https://api.themoviedb.org/3/tv/${targetId}?api_key=${TMDB_API_KEY}`);
+                            data = await res.json();
+                            isTv = true;
+                        }
+                        if (data && data.id) {
+                            data.media_type = isTv ? 'tv' : 'movie';
+                            const mapped = mapTmdbItem(data);
+                            mapped.has7Movies = true;
+                            mapped.hasMovy = true;
+                            newItems.push(mapped);
+                        }
+                    } catch (e) {}
                 }
 
-                // 2. Dữ liệu từ PhimAPI (Việt Nam)
-                if (phimApiRes.status === 'fulfilled' && phimApiRes.value && phimApiRes.value.data && Array.isArray(phimApiRes.value.data.items)) {
-                    const mappedPhimApi = phimApiRes.value.data.items.map(it => mapPhimApiItem(it));
-                    newItems.push(...mappedPhimApi);
+                // 2. TÌM KIẾM ĐỒNG THỜI TOÀN DIỆN:
+                // - A: 7Movies / TMDB Global Multi (Không lọc ngôn ngữ, tìm kiếm 100% phim tiếng Anh & quốc tế chuẩn 7movies.ac)
+                // - B: 7Movies Phim Lẻ Movie Search chuyên sâu (bắt phim bị multi-search bỏ sót)
+                // - C: 7Movies Phim Bộ TV Search chuyên sâu (bắt TV show bị multi-search bỏ sót)
+                // - D: PhimAPI Vietsub Search (Việt Nam - hỗ trợ Vietsub M3U8)
+                // - E: TMDB Localized vi-VN (bổ sung tên tiếng Việt)
+                const [m7GlobalRes, m7MovieRes, m7TvRes, phimApiRes, tmdbViRes] = await Promise.allSettled([
+                    fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`)
+                        .then(r => r.json()).catch(() => null),
+                    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`)
+                        .then(r => r.json()).catch(() => null),
+                    fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`)
+                        .then(r => r.json()).catch(() => null),
+                    fetch(_dec(2) + encodeURIComponent(query) + '&limit=24')
+                        .then(r => r.json()).catch(() => null),
+                    fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=vi-VN&include_adult=false`)
+                        .then(r => r.json()).catch(() => null)
+                ]);
+
+                const seenIds = new Set(newItems.map(i => i.id));
+
+                // 2.1 Xử lý phim từ nguồn 7Movies & Movy Quốc Tế
+                const raw7Movies = [
+                    ...(m7GlobalRes?.value?.results || []),
+                    ...(m7MovieRes?.value?.results || []).map(r => ({ ...r, media_type: 'movie' })),
+                    ...(m7TvRes?.value?.results || []).map(r => ({ ...r, media_type: 'tv' })),
+                    ...(tmdbViRes?.value?.results || [])
+                ];
+
+                for (let it of raw7Movies) {
+                    if (!it || (!it.title && !it.name)) continue;
+                    const mediaType = it.media_type || (it.title ? 'movie' : 'tv');
+                    if (mediaType !== 'movie' && mediaType !== 'tv') continue;
+                    const key = `tmdb-${it.id}`;
+                    if (seenIds.has(key)) continue;
+                    seenIds.add(key);
+
+                    const mapped = mapTmdbItem({ ...it, media_type: mediaType });
+                    mapped.has7Movies = true;
+                    mapped.hasMovy = true;
+                    mapped.quality = sanitizeQualityBadge(mapped.quality, false, true);
+                    newItems.push(mapped);
+                }
+
+                // 2.2 Xử lý phim từ PhimAPI (Việt Nam)
+                if (phimApiRes?.value?.data?.items && Array.isArray(phimApiRes.value.data.items)) {
+                    for (let it of phimApiRes.value.data.items) {
+                        const mapped = mapPhimApiItem(it);
+                        newItems.push(mapped);
+                    }
                 }
 
                 if (newItems.length > 0) {
@@ -2457,7 +2545,7 @@
                     renderSearchSuggestions(query);
 
                     if (addedCount > 0) {
-                        showToast(`Đã tìm thấy ${newItems.length} phim từ Movy (TMDB) & PhimAPI!`, 'fa-magnifying-glass', 'text-cyan-400');
+                        showToast(`Đã tìm thấy ${newItems.length} phim từ 7Movies, Movy & Vietsub!`, 'fa-magnifying-glass', 'text-cyan-400');
                     }
                 }
             } catch (e) {
@@ -2546,9 +2634,9 @@
                             ? matchedMovies.map(m => renderSuggestionMovieItem(m)).join('')
                             : `
                             <div class="py-4 text-center text-xs space-y-2">
-                                <p class="text-cyan-400 font-medium animate-pulse"><i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Đang tìm trên kho Movy.sx (TMDB) & PhimAPI...</p>
-                                <button onclick="fetchLiveSearchFromApi('${q.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 mx-auto shadow-lg shadow-cyan-500/20">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Tìm Ngay Trên Đám Mây Movy (TMDB)
+                                <p class="text-cyan-400 font-medium animate-pulse"><i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Đang tìm trên kho 7Movies.ac, Movy Quốc Tế & PhimAPI...</p>
+                                <button onclick="fetchLiveSearchFromApi('${q.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 mx-auto shadow-lg shadow-cyan-500/20">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Tìm Trên Đám Mây 7Movies & Movy (Quốc Tế)
                                 </button>
                             </div>
                             `
