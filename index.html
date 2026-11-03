@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEVEX.IO — Không Gian Điện Ảnh 4K & Streaming Thế Hệ Mới</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Video.js v10 (v10.2.0) Official Web Components & Skins CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/global.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video-neutral.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/media/hlsjs-video.js"></script>
+    <!-- HLS.js hỗ trợ phát luồng phim thực tế .m3u8 -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- CINEVEX Security: Anti-DevTools Engine (Bắt Menu 3 chấm, Undocked DevTools, F12) -->
+    <script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        vex: {
+                            bg: '#04060d',
+                            surface: '#0b0f1c',
+                            card: '#101626',
+                            border: '#1d263b',
+                            cyan: '#06b6d4',
+                            violet: '#8b5cf6',
+                            emerald: '#10b981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #04060d; }
+        ::-webkit-scrollbar-thumb { background: #1d263b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Hiệu ứng kính mờ Spatial UI */
+        .glass-panel {
+            background: rgba(16, 22, 38, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-dock {
+            background: rgba(11, 15, 28, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        /* Hero Mesh Gradient */
+        .hero-vignette {
+            background: radial-gradient(circle at 75% 35%, rgba(4, 6, 13, 0.15) 0%, rgba(4, 6, 13, 0.92) 70%, #04060d 100%),
+                        linear-gradient(180deg, rgba(4, 6, 13, 0.3) 0%, rgba(4, 6, 13, 0) 40%, #04060d 100%);
+        }
+
+        /* Card Hover Effects */
+        .poster-card {
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .poster-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -10px rgba(6, 182, 212, 0.22);
+        }
+        .poster-card:hover .poster-img {
+            transform: scale(1.08);
+        }
+        .poster-card:hover .poster-overlay {
+            opacity: 1;
+        }
+
+        /* Số thứ tự Top 10 Viền Neon */
+        .rank-stroke {
+            -webkit-text-stroke: 2px rgba(6, 182, 212, 0.55);
+            color: transparent;
+            text-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+        }
+
+        /* Chế độ Tắt Đèn Rạp Phim */
+        .lights-off-active {
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.94);
+            z-index: 70;
+            position: relative;
+        }
+
+        /* Phụ đề nổi trên Video */
+        .custom-subtitle-cue {
+            text-shadow: 0 2px 6px rgba(0,0,0,0.98), 0 0 12px rgba(0,0,0,0.9);
+            transition: all 0.15s ease;
+        }
+
+        /* Tùy chỉnh khung trình phát Video.js v10 */
+        video-player {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        .vjs10-skin-container {
+            display: block;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16 / 9;
+            --media-accent-color: #06b6d4;
+        }
+    </style>
+</head>
+<body class="bg-vex-bg text-slate-100 font-sans min-h-screen flex selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden" oncontextmenu="return false;">
+
+    <!-- Aurora Ambient Glows (Ánh sáng nền không gian) -->
+    <div class="fixed -top-40 -left-40 w-96 h-96 bg-cyan-500/15 rounded-full blur-[130px] pointer-events-none z-0"></div>
+    <div class="fixed top-1/3 -right-40 w-96 h-96 bg-violet-600/15 rounded-full blur-[140px] pointer-events-none z-0"></div>
+
+    <!-- Cảnh báo bảo mật bản quyền CINEVEX Quantum Shield -->
+    <div id="protectionWarningModal" class="hidden fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-vex-card border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl shadow-cyan-500/10">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-400/30 flex items-center justify-center mx-auto text-cyan-400 text-2xl">
+                <i class="fa-solid fa-fingerprint"></i>
+            </div>
+            <h3 class="text-lg font-display font-bold text-white">CINEVEX Quantum Shield™</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Hệ thống giao diện và luồng phát của <strong>CINEVEX.IO</strong> đã được mã hóa bảo vệ bản quyền. Chức năng kiểm tra mã nguồn (Inspect/DevTools) và sao chép trái phép đã bị khóa tự động.
+            </p>
+            <button onclick="closeProtectionNotice()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:opacity-95 text-white text-xs font-bold tracking-wide transition">
+                Đóng thông báo
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Thông báo -->
+    <div id="toastContainer" class="fixed bottom-20 lg:bottom-6 right-5 z-[120] flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <!-- MODAL TRUNG TÂM AUTO SYNC TOÀN BỘ PHIM TỪ NGUỒN GỐC (AUTO-SYNC ENGINE v4.5) -->
+    <div id="autoSyncModal" class="hidden fixed inset-0 z-[150] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-vex-card border border-cyan-500/40 rounded-3xl p-6 sm:p-7 max-w-2xl w-full shadow-2xl shadow-cyan-500/15 space-y-5 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-52 h-52 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-52 h-52 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-4 border-b border-vex-border relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/25">
+                        <i id="modalSyncIcon" class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-display font-extrabold text-white">Trung Tâm Auto Sync Toàn Bộ Phim</h3>
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">Auto-Sync v4.5</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Tự động kết nối, đồng bộ đa luồng & phân trang toàn bộ phim từ nguồn gốc PhimAPI / KKPhim</p>
+                    </div>
+                </div>
+                <button onclick="closeAutoSyncModal()" class="w-9 h-9 rounded-xl bg-vex-surface border border-vex-border text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+            </div>
+
+            <!-- Dashboard Số Liệu Đồng Bộ -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10">
+                <div class="bg-vex-surface/80 border border-vex-border rounded-2xl p-3.5 text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tổng Phim Trong Kho</span>
+                    <p id="syncTotalMoviesCounter" class="text-xl sm:text-2xl font-display font-extrabold text-cyan-400 mt-1">...</p>
+                </div>
+                <div class="bg-vex-surface/80 border border-vex-border rounded-2xl p-3.5 text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Trang Đã Đồng Bộ</span>
+                    <p id="syncTotalPagesCounter" class="text-xl sm:text-2xl font-display font-extrabold text-violet-400 mt-1">1</p>
+                </div>
+                <div class="bg-vex-surface/80 border border-vex-border rounded-2xl p-3.5 text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Trạng Thái Sync</span>
+                    <p id="syncLiveStatusBadge" class="text-xs font-bold text-emerald-400 mt-2 flex items-center justify-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sẵn Sàng
+                    </p>
+                </div>
+                <div class="bg-vex-surface/80 border border-vex-border rounded-2xl p-3.5 text-center">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Bộ Nhớ Cache</span>
+                    <p id="syncCacheStatusLabel" class="text-xs font-bold text-amber-400 mt-2">Active RAM+Local</p>
+                </div>
+            </div>
+
+            <!-- Thanh Tiến Trình Auto Sync (Progress Bar) -->
+            <div class="bg-vex-surface/90 border border-vex-border rounded-2xl p-4 space-y-2 relative z-10">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <span id="syncCurrentSourceLabel" class="text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish text-cyan-400"></i>
+                        <span>Nguồn: Phim Mới Cập Nhật, Phim Lẻ, Phim Bộ & Anime</span>
+                    </span>
+                    <span id="syncProgressPercent" class="text-cyan-400 font-mono font-bold">100%</span>
+                </div>
+                <div class="w-full h-2.5 rounded-full bg-slate-900 border border-vex-border overflow-hidden">
+                    <div id="syncProgressBar" class="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-600 transition-all duration-300" style="width: 100%;"></div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span id="syncDetailMessage">Tất cả danh mục từ nguồn gốc đã sẵn sàng phát</span>
+                    <span class="text-emerald-400"><i class="fa-solid fa-bolt mr-1"></i>Tốc độ cao HLS .m3u8</span>
+                </div>
+            </div>
+
+            <!-- Các Công Tắc Tùy Chọn Auto Sync -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+                <div class="bg-vex-surface/70 border border-vex-border rounded-2xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-repeat text-cyan-400"></i> Auto Sync Chạy Ngầm
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Tự động nạp phim mới định kỳ</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleBackgroundSync" checked onchange="toggleBackgroundSyncEngine(this.checked)" class="sr-only peer">
+                        <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+
+                <div class="bg-vex-surface/70 border border-vex-border rounded-2xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-angles-down text-violet-400"></i> Infinite Scroll (Tự Cuộn)
+                        </h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Tự động nạp thêm khi cuộn trang</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleInfiniteScroll" checked onchange="toggleInfiniteScrollEngine(this.checked)" class="sr-only peer">
+                        <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Các Nút Hành Động Đồng Bộ -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 relative z-10 border-t border-vex-border">
+                <button onclick="clearCacheAndResync()" class="px-4 py-2.5 rounded-xl bg-vex-surface border border-vex-border hover:border-rose-500/50 text-slate-300 hover:text-rose-400 text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Xóa Cache & Sync Lại
+                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="startTurboAutoSync(3)" id="turboSyncBtn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition flex items-center gap-2">
+                        <i class="fa-solid fa-bolt"></i> Turbo Auto-Sync (Đồng Bộ Siêu Tốc)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR NAVIGATION DOCK (Hiện đại chuẩn Apple TV / Spatial UI) -->
+    <aside class="hidden lg:flex flex-col items-center justify-between w-20 shrink-0 glass-dock border-r border-vex-border py-6 z-50 sticky top-0 h-screen">
+        <!-- Brand Icon -->
+        <a href="#" onclick="resetToHome(event)" class="group flex flex-col items-center gap-1">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-bolt-lightning text-white text-xl"></i>
+            </div>
+            <span class="font-display font-extrabold text-[10px] tracking-widest text-cyan-400 mt-1">VEX</span>
+        </a>
+
+        <!-- Menu Icons -->
+        <nav class="flex flex-col items-center gap-3 w-full px-2">
+            <button onclick="setCategory('all')" data-cat="all" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 transition" title="Trang Chủ Khám Phá">
+                <i class="fa-solid fa-compass text-lg"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Khám Phá</span>
+            </button>
+
+            <button onclick="setCategory('movie')" data-cat="movie" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Phim Lẻ Điện Ảnh">
+                <i class="fa-solid fa-clapperboard text-lg"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Phim Lẻ</span>
+            </button>
+
+            <button onclick="setCategory('tv')" data-cat="tv" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Phim Bộ Dài Tập">
+                <i class="fa-solid fa-layer-group text-lg"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Phim Bộ</span>
+            </button>
+
+            <button onclick="setCategory('anime')" data-cat="anime" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Anime Nhật Bản">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg text-violet-400"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Anime</span>
+            </button>
+
+            <button onclick="openGenresTab()" data-cat="genres" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Tab Thể Loại Phim Riêng">
+                <i class="fa-solid fa-shapes text-lg text-emerald-400"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Thể Loại</span>
+            </button>
+
+            <button onclick="setCategory('watchlist')" data-cat="watchlist" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Bộ Sưu Tập Yêu Thích">
+                <i class="fa-solid fa-heart text-lg text-rose-400"></i>
+                <span class="text-[9px] font-semibold mt-0.5">Tủ Phim</span>
+                <span id="watchlistBadge" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-[10px] font-bold flex items-center justify-center shadow">0</span>
+            </button>
+        </nav>
+
+        <!-- Bottom Action -->
+        <div class="flex flex-col items-center gap-3">
+            <button onclick="playRandomMovie()" title="Phát Ngẫu Nhiên 1 Bộ Phim" class="w-11 h-11 rounded-2xl bg-vex-card border border-vex-border hover:border-cyan-400/50 text-slate-300 hover:text-cyan-400 flex items-center justify-center transition">
+                <i class="fa-solid fa-dice text-lg"></i>
+            </button>
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Hệ thống Server Trực tuyến ổn định"></div>
+        </div>
+    </aside>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-50 glass-dock border-t border-vex-border px-3 py-2 flex items-center justify-around">
+        <button onclick="setCategory('all')" data-cat="all" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-cyan-400">
+            <i class="fa-solid fa-compass text-base"></i>
+            <span class="text-[10px] font-medium mt-0.5">Khám Phá</span>
+        </button>
+        <button onclick="setCategory('movie')" data-cat="movie" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400">
+            <i class="fa-solid fa-clapperboard text-base"></i>
+            <span class="text-[10px] font-medium mt-0.5">Phim Lẻ</span>
+        </button>
+        <button onclick="setCategory('tv')" data-cat="tv" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400">
+            <i class="fa-solid fa-layer-group text-base"></i>
+            <span class="text-[10px] font-medium mt-0.5">Phim Bộ</span>
+        </button>
+        <button onclick="setCategory('anime')" data-cat="anime" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+            <span class="text-[10px] font-medium mt-0.5">Anime</span>
+        </button>
+        <button onclick="openGenresTab()" data-cat="genres" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400">
+            <i class="fa-solid fa-shapes text-base text-emerald-400"></i>
+            <span class="text-[10px] font-medium mt-0.5">Thể Loại</span>
+        </button>
+        <button onclick="setCategory('watchlist')" data-cat="watchlist" class="nav-btn flex flex-col items-center py-1 px-3 rounded-xl text-slate-400">
+            <i class="fa-solid fa-heart text-base"></i>
+            <span class="text-[10px] font-medium mt-0.5">Tủ Phim</span>
+        </button>
+    </nav>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 relative z-10 pb-20 lg:pb-8">
+
+        <!-- TOP FLOATING HEADER & SMART SEARCH AUTOCOMPLETE -->
+        <header class="sticky top-0 z-40 glass-panel border-b border-vex-border/80">
+            <div class="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+                <!-- Brand Title -->
+                <a href="#" onclick="resetToHome(event)" class="flex items-center gap-3 shrink-0">
+                    <div class="lg:hidden w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-bolt-lightning text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white">CINE<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">VEX</span></span>
+                            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">ULTRA 4K</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 tracking-wider uppercase hidden sm:block">Next-Gen Cinema & OpenSubtitles Cloud</p>
+                    </div>
+                </a>
+
+                <!-- Center Command Search Bar with Keyword & Movie Autocomplete -->
+                <div id="searchBoxContainer" class="relative flex-1 max-w-xl">
+                    <div class="relative flex items-center">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 text-cyan-400 text-sm pointer-events-none"></i>
+                        <input
+                            id="searchInput"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Tìm kiếm 25.000+ phim, từ khóa, diễn viên (gõ có dấu hoặc không dấu)..."
+                            onfocus="openSearchSuggestions()"
+                            oninput="handleSearch(this.value)"
+                            onkeydown="handleSearchKeydown(event)"
+                            class="w-full bg-vex-surface/90 border border-vex-border focus:border-cyan-400 rounded-2xl pl-11 pr-20 py-2.5 sm:py-3 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition shadow-inner"
+                        >
+                        <div class="absolute right-3 flex items-center gap-1.5">
+                            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden text-slate-400 hover:text-white p-1">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                            <kbd id="searchShortcutHint" class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono bg-white/5 border border-white/10 rounded-lg text-slate-400 pointer-events-none">/</kbd>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG GỢI Ý TỪ KHÓA & PHIM THÔNG MINH (AUTOCOMPLETE DROPDOWN) -->
+                    <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-2.5 bg-[#090d18]/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl shadow-2xl shadow-black/95 z-[90] overflow-hidden">
+                        <div id="searchApiSpinner" class="hidden px-4 py-2 bg-cyan-500/10 border-b border-vex-border flex items-center justify-between text-[11px] text-cyan-300">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-circle-notch animate-spin text-cyan-400"></i>
+                                Đang tìm trực tiếp trên máy chủ CINEVEX Cloud...
+                            </span>
+                            <span class="text-[10px] text-slate-400">25.000+ Phim</span>
+                        </div>
+                        <div id="searchSuggestionContent" class="max-h-[70vh] overflow-y-auto divide-y divide-vex-border/60"></div>
+                        <div class="px-4 py-2 bg-black/60 border-t border-vex-border flex items-center justify-between text-[10px] text-slate-400">
+                            <span>Dùng phím <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">↑</kbd> <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">↓</kbd> và <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">Enter</kbd> để chọn</span>
+                            <span class="text-cyan-400 font-semibold"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Smart Suggest AI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Quick Badges -->
+                <div class="hidden xl:flex items-center gap-3 shrink-0">
+                    <div class="px-3.5 py-2 rounded-2xl bg-vex-surface border border-vex-border flex items-center gap-2.5 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="text-slate-300 font-medium">OpenSubtitles v3</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold text-[10px]">READY</span>
+                    </div>
+                    <button onclick="openGenresTab()" class="px-3.5 py-2 rounded-2xl bg-vex-surface border border-vex-border hover:border-emerald-400 text-emerald-300 text-xs font-semibold transition flex items-center gap-2">
+                        <i class="fa-solid fa-shapes"></i> Tab Thể Loại
+                    </button>
+                    <button onclick="openAutoSyncModal()" id="headerSyncBtn" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-emerald-500/20 border border-cyan-400/50 hover:border-cyan-300 text-cyan-300 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-cyan-500/10">
+                        <i id="headerSyncIcon" class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                        <span id="headerSyncText">Auto Sync: Live</span>
+                        <span id="headerMovieCountBadge" class="px-1.5 py-0.5 rounded-full bg-cyan-400 text-slate-950 text-[10px] font-extrabold">...</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================== -->
+        <!-- TRÌNH PHÁT PHIM ĐÃ ĐƯỢC TÁCH BIỆT HOÀN TOÀN THÀNH TRANG WATCH.HTML RIÊNG BIỆT -->
+        <!-- ============================================================== -->
+        <!-- HERO SHOWCASE BANNER (GIAO DIỆN KHÔNG GIAN VỚI THUMBNAIL CHUYỂN CẢNH) -->
+        <!-- ============================================================== -->
+        <section id="heroSection" class="relative w-full min-h-[480px] sm:min-h-[540px] flex items-end overflow-hidden border-b border-vex-border">
+            <img id="heroBackdrop" src="" alt="Backdrop" class="absolute inset-0 w-full h-full object-cover scale-105 transition-all duration-1000">
+            <div class="absolute inset-0 hero-vignette"></div>
+
+            <div class="relative z-10 max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                <!-- Nội dung phim tiêu điểm bên trái -->
+                <div class="max-w-2xl space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[11px] font-bold tracking-wide uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-fire-flame-curved text-cyan-400"></i> Siêu Phẩm Tâm Điểm
+                        </span>
+                        <span id="heroQuality" class="px-2.5 py-1 rounded-full bg-violet-500/25 border border-violet-400/30 text-violet-200 text-[11px] font-bold">4K DOLBY VISION</span>
+                        <span id="heroImdb" class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold"><i class="fa-solid fa-star mr-1"></i>8.6 IMDb</span>
+                    </div>
+
+                    <h1 id="heroTitle" class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-none"></h1>
+                    <p id="heroOriginTitle" class="text-sm sm:text-base text-cyan-400 font-semibold"></p>
+                    <p id="heroSynopsis" class="text-slate-300 text-xs sm:text-sm leading-relaxed line-clamp-3 max-w-xl"></p>
+
+                    <div class="pt-2 flex flex-wrap items-center gap-3">
+                        <button onclick="openHeroMovie()" class="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-cyan-500/25 transition transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-play"></i> Phát Phim Ngay
+                        </button>
+                        <button onclick="toggleHeroWatchlist()" id="heroWatchlistBtn" class="px-5 py-3.5 rounded-2xl glass-panel border border-white/15 hover:border-cyan-400 text-white font-semibold text-sm flex items-center gap-2 transition">
+                            <i class="fa-regular fa-heart"></i> <span>Lưu Vào Tủ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Khay chọn nhanh các siêu phẩm trên Banner (Interactive Carousel Dock) -->
+                <div id="heroThumbnailsBar" class="flex items-center gap-3 overflow-x-auto pb-1 max-w-full lg:max-w-md"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TOP 10 THỊNH HÀNH TOÀN CẦU (SỐ THỨ TỰ VIỀN NEON HIỆN ĐẠI) -->
+        <!-- ============================================================== -->
+        <section id="trendingRibbonSection" class="max-w-[1440px] w-full mx-auto px-4 sm:px-8 pt-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-cyan-400 to-violet-500"></span>
+                    <h2 class="text-lg sm:text-xl font-display font-bold text-white">Top Xu Hướng Trên CINEVEX Hôm Nay</h2>
+                </div>
+                <span class="text-xs text-cyan-400 font-medium">Cập nhật thời gian thực</span>
+            </div>
+            <div id="topTrendingRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"></div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB THỂ LOẠI PHIM RIÊNG BIỆT (GENRE HUB VIEW) -->
+        <!-- ============================================================== -->
+        <section id="genreHubSection" class="hidden max-w-[1440px] w-full mx-auto px-4 sm:px-8 pt-8 pb-4">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-vex-card via-[#0d1529] to-vex-card border border-cyan-500/30 p-6 sm:p-8 mb-6 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-shapes"></i> Chuyên Mục Thể Loại Riêng Biệt
+                        </div>
+                        <h1 class="text-2xl sm:text-4xl font-display font-extrabold text-white">Khám Phá Thế Giới Phim Theo Thể Loại</h1>
+                        <p class="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                            Chọn một vũ trụ điện ảnh bên dưới để lọc tức thì và tự động tải thêm hàng nghìn bộ phim đúng gu từ máy chủ CINEVEX Cloud.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <button onclick="selectGenreFromHub('all')" class="px-4 py-2.5 rounded-2xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-xs font-bold text-slate-200 transition">
+                            <i class="fa-solid fa-border-all mr-1.5 text-cyan-400"></i>Xem Tất Cả Thể Loại
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lưới Card Thể Loại Không Gian (Spatial Genre Cards) -->
+                <div id="genreHubCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 mt-6"></div>
+            </div>
+
+            <!-- Banner trạng thái thể loại đang chọn trong Tab -->
+            <div id="activeGenreBanner" class="flex flex-wrap items-center justify-between gap-3 bg-vex-card/90 border border-vex-border rounded-2xl px-5 py-3.5">
+                <div class="flex items-center gap-3">
+                    <div id="activeGenreIconBox" class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+                        <i class="fa-solid fa-film"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="activeGenreTitle" class="text-sm sm:text-base font-display font-bold text-white">Thể Loại: Tất Cả Phim</h3>
+                            <span id="activeGenreCountBadge" class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">Sẵn sàng</span>
+                        </div>
+                        <p id="activeGenreDesc" class="text-xs text-slate-400">Tổng hợp toàn bộ kho phim đa thể loại chất lượng cao</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="fetchGenreFromCloud(state.genre)" id="syncGenreCloudBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shadow flex items-center gap-1.5 hover:opacity-95 transition">
+                        <i class="fa-solid fa-cloud-bolt"></i> Quét Thêm Phim Cùng Thể Loại
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- BỘ LỌC THỂ LOẠI & LƯỚI KHO PHIM CHÍNH -->
+        <!-- ============================================================== -->
+        <section class="max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-8">
+            <!-- Thanh chọn Thể loại dạng Pill hiện đại -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-vex-border">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1" id="genreFilterPills"></div>
+
+                <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
+                    <button onclick="openAutoSyncModal()" id="filterSyncStatusBtn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-semibold transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="moviesCountLabel">Đang đồng bộ từ nguồn gốc...</span>
+                    </button>
+                    <button onclick="triggerAutoSyncNext()" id="loadMoreSyncBtn" class="px-3.5 py-2 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs font-semibold text-cyan-400 transition flex items-center gap-1.5 shadow">
+                        <i id="loadMoreSyncIcon" class="fa-solid fa-arrows-rotate"></i>
+                        <span>Đồng Bộ Thêm</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lưới Phim -->
+            <div id="moviesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5"></div>
+
+            <!-- Sentinel & Infinite Scroll Loader (Tự động đồng bộ nguồn gốc khi cuộn đến cuối) -->
+            <div id="infiniteScrollSentinel" class="py-8 w-full flex flex-col items-center justify-center">
+                <div id="infiniteScrollLoader" class="opacity-0 pointer-events-none transition-opacity duration-300 py-3 px-6 rounded-2xl bg-vex-card/90 border border-cyan-500/30 text-xs text-cyan-300 font-bold flex items-center gap-3 shadow-lg shadow-cyan-500/10">
+                    <div class="w-5 h-5 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin"></div>
+                    <span id="infiniteScrollText">Đang tự động đồng bộ thêm phim từ nguồn gốc...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER HIỆN ĐẠI -->
+        <footer class="mt-auto border-t border-vex-border/80 bg-vex-surface/60 py-8 px-4 sm:px-8">
+            <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center text-white font-bold">V</div>
+                    <span><strong>CINEVEX.IO</strong> — Nền tảng rạp phim không gian trực tuyến tích hợp OpenSubtitles v3 & Multi-HLS.</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-emerald-400"><i class="fa-solid fa-shield-halved mr-1"></i>Quantum Obfuscated v4.0</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- HỆ THỐNG LOGIC ĐÃ MÃ HÓA ENDPOINT & ĐẦY ĐỦ TÍNH NĂNG -->
+    <!-- ============================================================== -->
+    <script>
+        // 1. MÃ HÓA BASE64 CÁC ENDPOINT KẾT NỐI KHO PHIM & OPENSUBTITLES
+        const _0x5f9a = [
+            "aHR0cHM6Ly9waGltYXBpLmNvbS9kYW5oLXNhY2gvcGhpbS1tb2ktY2FwLW5oYXQ/cGFnZT0=", // [0] Phim mới cập nhật
+            "aHR0cHM6Ly9waGltYXBpLmNvbS9waGltLw==",                                     // [1] Chi tiết phim & tập m3u8
+            "aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGltLWtpZW0/a2V5d29yZD0=",             // [2] Tìm kiếm trực tiếp 25.000+ phim
+            "aHR0cHM6Ly9vcGVuc3VidGl0bGVzLXYzLnN0cmVtLmlvL3N1YnRpdGxlcy9tb3ZpZS8=",     // [3] OpenSubtitles v3 Cloud
+            "aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGhlLWxvYWkv",                         // [4] API Thể loại phim riêng biệt
+            "aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvZGFuaC1zYWNoL3BoaW0tbGU/cGFnZT0=",     // [5] Phim lẻ điện ảnh
+            "aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvZGFuaC1zYWNoL3BoaW0tYm8/cGFnZT0=",     // [6] Phim bộ dài tập
+            "aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvZGFuaC1zYWNoL2hvYXQtaGluaD9wYWdlPQ=="  // [7] Hoạt hình / Anime
+        ];
+        const _dec = (idx) => atob(_0x5f9a[idx]);
+
+        // DANH SÁCH CHUYÊN MỤC THỂ LOẠI PHIM RIÊNG BIỆT (GENRE HUB DIRECTORY)
+        const GENRE_DIRECTORY = [
+            { id: 'all', name: 'Tất Cả', slug: '', icon: 'fa-layer-group', color: 'from-cyan-500 to-blue-600', desc: 'Toàn bộ kho phim 4K đa thể loại trên CINEVEX' },
+            { id: 'Hành Động', name: 'Hành Động', slug: 'hanh-dong', icon: 'fa-explosion', color: 'from-rose-500 to-orange-500', desc: 'Bom tấn hành động, chiến đấu kịch tính nghẹt thở' },
+            { id: 'Viễn Tưởng', name: 'Viễn Tưởng', slug: 'vien-tuong', icon: 'fa-user-astronaut', color: 'from-cyan-500 to-indigo-600', desc: 'Du hành vũ trụ, công nghệ tương lai & thế giới Cyberpunk' },
+            { id: 'Kinh Dị', name: 'Kinh Dị', slug: 'kinh-di', icon: 'fa-ghost', color: 'from-purple-600 to-rose-700', desc: 'Ám ảnh tâm linh, sinh tồn rùng rợn từng khung hình' },
+            { id: 'Bí Ẩn', name: 'Bí Ẩn / Hình Sự', slug: 'bi-an', icon: 'fa-user-secret', color: 'from-violet-500 to-fuchsia-600', desc: 'Trinh thám phá án, những cú twist không thể đoán trước' },
+            { id: 'Hoạt Hình', name: 'Hoạt Hình / Anime', slug: 'hoat-hinh', icon: 'fa-wand-magic-sparkles', color: 'from-amber-500 to-pink-500', desc: 'Thế giới Anime Nhật Bản & hoạt hình 3D sống động' },
+            { id: 'Tình Cảm', name: 'Tình Cảm / Lãng Mạn', slug: 'tinh-cam', icon: 'fa-heart-pulse', color: 'from-pink-500 to-rose-500', desc: 'Những câu chuyện tình yêu sâu sắc và đầy cảm xúc' },
+            { id: 'Cổ Trang', name: 'Cổ Trang / Kiếm Hiệp', slug: 'co-trang', icon: 'fa-dragon', color: 'from-emerald-500 to-teal-600', desc: 'Sử thi cổ đại, tiên hiệp kỳ ảo và võ thuật đỉnh cao' },
+            { id: 'Phiêu Lưu', name: 'Phiêu Lưu', slug: 'phieu-luu', icon: 'fa-compass', color: 'from-sky-500 to-emerald-500', desc: 'Hành trình khám phá những vùng đất bí ẩn chưa từng biết tới' },
+            { id: 'Hài Hước', name: 'Hài Hước', slug: 'hai-huoc', icon: 'fa-face-laugh-squint', color: 'from-yellow-500 to-orange-500', desc: 'Giải trí sảng khoái với những tình huống dở khóc dở cười' },
+            { id: 'Tâm Lý', name: 'Tâm Lý / Chính Kịch', slug: 'tam-ly', icon: 'fa-masks-theater', color: 'from-indigo-500 to-purple-600', desc: 'Khắc họa chiều sâu nội tâm và những góc khuất con người' },
+            { id: 'Chiến Tranh', name: 'Chiến Tranh / Lịch Sử', slug: 'chien-tranh', icon: 'fa-shield-halved', color: 'from-slate-500 to-zinc-700', desc: 'Tái hiện những trận chiến lịch sử hào hùng và khốc liệt' }
+        ];
+
+        // ==============================================================
+        // BẢO VỆ BẢN QUYỀN & CHỐNG DEVTOOLS (QUANTUM SHIELD v5.0)
+        // Hỗ trợ chặn F12, Chuột phải, Menu 3 chấm (Docked & Undocked)
+        // ==============================================================
+        let isDevToolsLocked = false;
+        let antiDebugInterval = null;
+        let devToolsConsecutiveHits = 0;
+        const pageInitTime = Date.now();
+
+        function triggerDevToolsProtection() {
+            if (isDevToolsLocked) return;
+            isDevToolsLocked = true;
+
+            showProtectionNotice();
+
+            // 1. Dừng video đang phát
+            const video = document.getElementById('mainVideoElement');
+            if (video && !video.paused) {
+                video.pause();
+            }
+
+            // 2. Xóa sạch console log
+            try { console.clear(); } catch(e) {}
+
+            // 3. Khóa cứng tiến trình DevTools bằng vòng lặp Debugger
+            if (!antiDebugInterval) {
+                antiDebugInterval = setInterval(() => {
+                    try {
+                        (function() {
+                            return false;
+                        }['constructor']('debugger')());
+                    } catch(e) {}
+                }, 80);
+            }
+        }
+
+        function showProtectionNotice() {
+            const modal = document.getElementById('protectionWarningModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeProtectionNotice() {
+            const modal = document.getElementById('protectionWarningModal');
+            if (modal) modal.classList.add('hidden');
+            if (antiDebugInterval) {
+                clearInterval(antiDebugInterval);
+                antiDebugInterval = null;
+            }
+            isDevToolsLocked = false;
+            devToolsConsecutiveHits = 0;
+        }
+
+        // Bẫy 1: Chống chuột phải (Inspect element)
+        document.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            showProtectionNotice();
+            return false;
+        });
+
+        // Bẫy 2: Chống toàn bộ phím tắt mở DevTools & Lưu trang (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S, Ctrl+P)
+        document.addEventListener('keydown', e => {
+            const key = e.key ? e.key.toUpperCase() : '';
+            if (key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(key)) || (e.ctrlKey && ['U','S','P'].includes(key))) {
+                e.preventDefault();
+                e.stopPropagation();
+                triggerDevToolsProtection();
+                return false;
+            }
+            // Phím tắt '/' để nhảy vào ô tìm kiếm
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // Bẫy 3: Kích hoạt Thư viện Bảo mật DisableDevtool (bắt đa phương thức cho Menu 3 chấm và cửa sổ rời)
+        if (typeof DisableDevtool !== 'undefined') {
+            try {
+                DisableDevtool({
+                    ondevtoolopen: function(type) {
+                        triggerDevToolsProtection();
+                    },
+                    ondevtoolclose: function() {
+                        closeProtectionNotice();
+                    },
+                    interval: 400,
+                    disableMenu: false, // contextmenu đã tự handle bằng modal Cinevex
+                    clearLog: true
+                });
+            } catch(e) {}
+        }
+
+        // Bẫy 4: Đo độ lệch chuẩn Window Dimension (Phát hiện ngay lập tức khi mở qua Menu 3 chấm)
+        // Hiệu chuẩn đường cơ sở (Baseline) tự động thích ứng với thanh công cụ Microsoft Edge / Chrome
+        let baseWidthDiff = null;
+        let baseHeightDiff = null;
+        let isDimensionCalibrated = false;
+
+        function calibrateWindowBaseline() {
+            baseWidthDiff = window.outerWidth - window.innerWidth;
+            baseHeightDiff = window.outerHeight - window.innerHeight;
+            isDimensionCalibrated = true;
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(calibrateWindowBaseline, 1000);
+        });
+        setTimeout(calibrateWindowBaseline, 2000);
+
+        window.addEventListener('resize', () => {
+            if (!isDimensionCalibrated || baseWidthDiff === null || baseHeightDiff === null) return;
+            const currentWidthDiff = window.outerWidth - window.innerWidth;
+            const currentHeightDiff = window.outerHeight - window.innerHeight;
+
+            // Khi người dùng bấm Menu 3 chấm -> More tools -> DevTools:
+            // Nếu DevTools dock bên phải/trái: innerWidth sụt giảm > 180px
+            const isDockedHorizontal = (currentWidthDiff - baseWidthDiff) > 180;
+            // Nếu DevTools dock ở cạnh dưới: innerHeight sụt giảm > 180px
+            const isDockedVertical = (currentHeightDiff - baseHeightDiff) > 180;
+
+            if (isDockedHorizontal || isDockedVertical) {
+                triggerDevToolsProtection();
+            } else if (isDevToolsLocked && Math.abs(currentWidthDiff - baseWidthDiff) < 60 && Math.abs(currentHeightDiff - baseHeightDiff) < 60) {
+                // Người dùng đóng DevTools, tự động giải phóng khóa
+                closeProtectionNotice();
+            }
+        });
+
+        // Bẫy 5: Vòng lặp Debugger định kỳ cho trường hợp DevTools tách cửa sổ rời (Undocked)
+        setInterval(() => {
+            if (Date.now() - pageInitTime < 2500) return;
+            if (isDevToolsLocked) return;
+
+            const start = performance.now();
+            (function() {
+                return false;
+            }['constructor']('debugger')());
+            const end = performance.now();
+
+            if (end - start > 150) {
+                devToolsConsecutiveHits++;
+                if (devToolsConsecutiveHits >= 1) {
+                    triggerDevToolsProtection();
+                }
+            } else {
+                devToolsConsecutiveHits = 0;
+            }
+        }, 1000);
+
+        // 2. DANH MỤC SIÊU PHẨM QUỐC TẾ & TRENDING (TÍCH HỢP ĐẦY ĐỦ SERVER VIETSUB + QUỐC TẾ)
+        const CINEVEX_CATALOG = [
+            {
+                id: "vex-dune2", tmdbId: "693134", imdbId: "tt15239678", source: "intl",
+                slug: "hanh-tinh-cat-phan-hai", phimapiSlug: "hanh-tinh-cat-phan-hai", hasVietsub: true, hasMovy: true,
+                title: "Hành Tinh Cát: Phần Hai", originTitle: "Dune: Part Two", type: "movie", year: 2024, rating: 8.8,
+                quality: "4K Vietsub • Đa Server", genres: ["Viễn Tưởng", "Hành Động"],
+                actors: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson"],
+                poster: "https://image.tmdb.org/t/p/w500/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+                synopsis: "Paul Atreides hợp nhất với tộc người Fremen và bắt đầu cuộc hành trình trả thù những kẻ đã hủy hoại gia tộc mình, đồng thời đối mặt với lựa chọn giữa tình yêu và số phận của vũ trụ."
+            },
+            {
+                id: "vex-derry", tmdbId: "200875", imdbId: "tt19244304", source: "intl",
+                slug: "ga-he-ma-quai-chao-mung-den-derry", phimapiSlug: "ga-he-ma-quai-chao-mung-den-derry", hasVietsub: true, hasMovy: true,
+                title: "IT: Chào Mừng Đến Derry", originTitle: "IT: Welcome to Derry", type: "tv", year: 2025, rating: 8.5,
+                quality: "4K Vietsub • Đa Server", genres: ["Kinh Dị", "Bí Ẩn"],
+                actors: ["Bill Skarsgård", "Taylour Paige", "Jovan Adepo"],
+                poster: "https://image.tmdb.org/t/p/w500/nyy3BITeIjviv6PFIXtqvc8i6xi.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/2fOKVDoc2O3eZmBZesWPuE5kgPN.jpg",
+                synopsis: "Lấy bối cảnh những năm 1960 trước các sự kiện của bộ phim IT đầu tiên, khám phá nguồn gốc kinh hoàng của thực thể chú hề Pennywise tại thị trấn Derry."
+            },
+            {
+                id: "vex-verity", tmdbId: "1283515", imdbId: "tt13622970", source: "intl",
+                slug: "verity-bi-mat-bi-chon-vui", phimapiSlug: "verity-bi-mat-bi-chon-vui", hasVietsub: true, hasMovy: true,
+                title: "Verity: Bản Thảo Tử Thần", originTitle: "Verity", type: "movie", year: 2026, rating: 7.9,
+                quality: "4K Vietsub • Đa Server", genres: ["Bí Ẩn", "Kinh Dị"],
+                actors: ["Anne Hathaway", "Josh Hartnett", "Dakota Johnson"],
+                poster: "https://image.tmdb.org/t/p/w500/rmaNMA1seHqpjtnYKzyynFAr1g8.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/cKetrF2dAnQ0AMV5i4BMOs41I5P.jpg",
+                synopsis: "Nữ nhà văn trẻ Lowen Ashleigh được thuê hoàn thiện bộ tiểu thuyết còn dang dở của Verity Crawford và vô tình phát hiện bản tự truyện chất chứa những bí mật rùng rợn."
+            },
+            {
+                id: "vex-cyberpunk", tmdbId: "105248", imdbId: "tt12590266", source: "intl",
+                slug: "cyberpunk-edgerunners-phan-1", phimapiSlug: "cyberpunk-edgerunners-phan-1", hasVietsub: true, hasMovy: true,
+                title: "Cyberpunk: Edgerunners", originTitle: "Cyberpunk: Edgerunners", type: "anime", year: 2022, rating: 8.7,
+                quality: "4K Vietsub • Đa Server", genres: ["Hoạt Hình", "Viễn Tưởng", "Hành Động"],
+                actors: ["Kenn", "Aoi Yuuki", "Hiroki Touchi"],
+                poster: "https://image.tmdb.org/t/p/w500/v3JuB15WybKmxDeT1hWdK3j6eSJ.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/bknKZO7DWVYKeByuJMnGI46PFZg.jpg",
+                synopsis: "Một đứa trẻ đường phố cố gắng sống sót trong thành phố tương lai bị ám ảnh bởi công nghệ và cấy ghép cơ thể. Để tồn tại, cậu chọn trở thành một Edgerunner."
+            },
+            {
+                id: "vex-squid2", tmdbId: "93405", imdbId: "tt10919420", source: "intl",
+                slug: "tro-choi-con-muc-phan-2", phimapiSlug: "tro-choi-con-muc-phan-2", hasVietsub: true, hasMovy: true,
+                title: "Trò Chơi Con Mực: Phần 2", originTitle: "Squid Game Season 2", type: "tv", year: 2024, rating: 8.4,
+                quality: "4K Vietsub • Đa Server", genres: ["Hành Động", "Bí Ẩn"],
+                actors: ["Lee Jung-jae", "Lee Byung-hun", "Wi Ha-jun"],
+                poster: "https://image.tmdb.org/t/p/w500/1QdXdRYfktUSONkl1oD5gc6Be0s.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/2meX1nMdScFOoV4370rqHWKmXhY.jpg",
+                synopsis: "Seong Gi-hun quyết tâm quay trở lại đấu trường sinh tử một lần nữa với mục tiêu lật đổ hoàn toàn tổ chức đứng sau trò chơi tàn khốc."
+            },
+            {
+                id: "vex-onepiece", tmdbId: "37854", imdbId: "tt0388629", source: "intl",
+                slug: "dao-hai-tac", phimapiSlug: "dao-hai-tac", hasVietsub: true, hasMovy: true,
+                title: "Đảo Hải Tặc: Egghead Arc", originTitle: "One Piece", type: "anime", year: 2026, rating: 9.0,
+                quality: "4K Vietsub • Đa Server", genres: ["Hoạt Hình", "Hành Động"],
+                actors: ["Mayumi Tanaka", "Kazuya Nakai", "Akemi Okamura"],
+                poster: "https://image.tmdb.org/t/p/w500/dB4EDhre2dsC2kxYDavyKWqLQwi.jpg",
+                backdrop: "https://image.tmdb.org/t/p/w1280/2rmK7mnchw9Xr3XdiTFSxTTLXqv.jpg",
+                synopsis: "Băng Hải tặc Mũ Rơm đặt chân lên hòn đảo tương lai Egghead của Tiến sĩ Vegapunk, mở màn cho cuộc đại chiến chấn động toàn thế giới."
+            }
+        ];
+
+        // Dữ liệu Phụ đề mẫu có sẵn (hỗ trợ cả Đơn ngữ & Song ngữ)
+        const BUILTIN_SUBTITLE_TRACKS = [
+            {
+                id: 'vi', label: 'Tiếng Việt (Vietsub Chuẩn)', badge: 'Mặc định', mode: 'single',
+                cues: [
+                    { start: 0, end: 6, vi: "♪ [CINEVEX 4K] Hệ thống phụ đề thông minh đã kích hoạt ♪", en: "♪ [CINEVEX 4K] Smart Subtitle Engine Activated ♪" },
+                    { start: 6, end: 14, vi: "Trong thế giới này, mọi bí mật đều có cái giá của nó.", en: "In this world, every secret comes with a heavy price." },
+                    { start: 14, end: 24, vi: "Chúng ta không còn đường lui nữa, hãy chuẩn bị sẵn sàng!", en: "We have no way back now, get yourselves ready!" },
+                    { start: 24, end: 40, vi: "Nhấn phím [C] bất kỳ lúc nào để Bật hoặc Tắt nhanh phụ đề.", en: "Press [C] anytime to quickly Toggle Closed Captions." },
+                    { start: 40, end: 9999, vi: "Đang phát luồng điện ảnh chất lượng cao trên CINEVEX.IO.", en: "Streaming high bitrate cinema on CINEVEX.IO." }
+                ]
+            },
+            {
+                id: 'dual', label: 'Song Ngữ (Việt + Anh Cùng Lúc)', badge: 'VIP Dual', mode: 'dual',
+                cues: [] // Sử dụng chung cues của 'vi' nhưng hiển thị cả 2 dòng
+            },
+            {
+                id: 'en', label: 'English (Closed Captions CC)', badge: 'CC', mode: 'en',
+                cues: []
+            }
+        ];
+
+        // Từ khóa xu hướng gợi ý khi tìm kiếm
+        const TRENDING_KEYWORDS = [
+            "Hành Tinh Cát", "Welcome to Derry", "One Piece", "Trò Chơi Con Mực",
+            "Verity", "Cyberpunk", "Phim Kinh Dị 2026", "Phim Hành Động 4K"
+        ];
+
+        let MOVIES_DB = [...CINEVEX_CATALOG];
+        let hlsInstance = null;
+        let searchDebounceTimer = null;
+
+        // Trạng thái ứng dụng & Bộ điều khiển Auto-Sync
+        let autoSync = {
+            isSyncing: false,
+            backgroundSyncEnabled: true,
+            infiniteScrollEnabled: true,
+            pageAll: 1,
+            pageMovie: 1,
+            pageTv: 1,
+            pageAnime: 1,
+            genrePages: {},
+            searchPages: {},
+            totalPagesSynced: 1,
+            totalMoviesSynced: CINEVEX_CATALOG.length,
+            backgroundTimer: null,
+            lastSyncTime: null
+        };
+
+        let state = {
+            category: 'all',
+            genre: 'all',
+            heroIndex: 0,
+            apiPage: 1,
+            activeMovie: null,
+            vjs10SkinMode: 'frosted', // 'frosted' (<video-skin>) hoặc 'neutral' (<video-neutral-skin>)
+            vttBlobUrl: null,
+            watchlist: JSON.parse(localStorage.getItem('cinevex_watchlist') || '[]'),
+            searchHistory: JSON.parse(localStorage.getItem('cinevex_search_history') || '["Hành Tinh Cát", "One Piece"]'),
+            suggestionIndex: -1,
+            subtitle: {
+                enabled: true,
+                activeTrackId: 'vi',
+                activeLabel: 'Vietsub',
+                offset: 0,
+                customCues: null
+            }
+        };
+
+        // ==============================================================
+        // KHỞI TẠO ỨNG DỤNG VỚI HỆ THỐNG AUTO-SYNC
+        // ==============================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. NẠP TOÀN BỘ PHIM VÀ TIẾN TRÌNH ĐỒNG BỘ ĐÃ LƯU TRƯỚC ĐÓ VÀO MOVIES_DB TỨC THÌ (0ms)
+            loadMoviesCache();
+            deduplicateMoviesDb();
+            updateSyncUI();
+
+            // 2. HIỂN THỊ TOÀN BỘ KHO PHIM VÀ THẺ TIÊU ĐIỂM NGAY LẬP TỨC (KHÔNG BỊ MẤT KHI F5)
+            updateWatchlistBadge();
+            renderGenreFilterPills();
+            renderGenreHubCards();
+            renderHero(0);
+            renderHeroThumbnails();
+            renderTopTrending();
+            applyFilters();
+            initSubtitleEngine();
+
+            // 3. TIẾP TỤC ĐỒNG BỘ TỰ ĐỘNG NỀN
+            initAutoSyncEngine();
+
+            // Đóng dropdown gợi ý khi click ra ngoài
+            document.addEventListener('click', (e) => {
+                const box = document.getElementById('searchBoxContainer');
+                if (box && !box.contains(e.target)) {
+                    closeSearchSuggestions();
+                }
+            });
+        });
+
+        // ==============================================================
+        // HỆ THỐNG TAB THỂ LOẠI RIÊNG BIỆT (GENRE HUB & CLOUD FETCH)
+        // ==============================================================
+        function renderGenreFilterPills() {
+            const container = document.getElementById('genreFilterPills');
+            if (!container) return;
+            container.innerHTML = GENRE_DIRECTORY.map(g => {
+                const active = state.genre === g.id;
+                return `
+                    <button onclick="setGenre('${g.id}')" data-genre="${g.id}" class="genre-pill px-3.5 py-2 rounded-xl text-xs ${active ? 'font-bold bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20' : 'font-semibold bg-vex-card border border-vex-border text-slate-300 hover:text-white hover:border-cyan-500/40'} transition shrink-0 flex items-center gap-1.5">
+                        <i class="fa-solid ${g.icon} text-[11px]"></i>
+                        <span>${g.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderGenreHubCards() {
+            const grid = document.getElementById('genreHubCardsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = GENRE_DIRECTORY.map(g => {
+                const isSelected = state.genre === g.id;
+                const count = g.id === 'all'
+                    ? MOVIES_DB.length
+                    : MOVIES_DB.filter(m => (m.genres || []).includes(g.id)).length;
+
+                return `
+                    <div onclick="selectGenreFromHub('${g.id}')" class="cursor-pointer group relative rounded-2xl p-4 border transition-all duration-300 overflow-hidden ${isSelected ? 'bg-vex-surface border-cyan-400 shadow-xl shadow-cyan-500/20 scale-[1.02]' : 'bg-vex-surface/70 border-vex-border hover:border-cyan-500/50 hover:-translate-y-1'}">
+                        <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-gradient-to-br ${g.color} opacity-15 group-hover:opacity-30 blur-xl transition"></div>
+                        <div class="relative z-10 flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${g.color} flex items-center justify-center text-white shadow-md">
+                                <i class="fa-solid ${g.icon} text-sm"></i>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-300'}">${count}+ Phim</span>
+                        </div>
+                        <h3 class="relative z-10 text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition truncate">${g.name}</h3>
+                        <p class="relative z-10 text-[10px] text-slate-400 line-clamp-1 mt-0.5">${g.desc}</p>
+                    </div>
+                `;
+            }).join('');
+
+            updateActiveGenreBanner();
+        }
+
+        function updateActiveGenreBanner() {
+            const g = GENRE_DIRECTORY.find(item => item.id === state.genre) || GENRE_DIRECTORY[0];
+            const titleEl = document.getElementById('activeGenreTitle');
+            const descEl = document.getElementById('activeGenreDesc');
+            const iconBox = document.getElementById('activeGenreIconBox');
+            const countBadge = document.getElementById('activeGenreCountBadge');
+
+            if (!titleEl) return;
+            const count = g.id === 'all'
+                ? MOVIES_DB.length
+                : MOVIES_DB.filter(m => (m.genres || []).includes(g.id)).length;
+
+            titleEl.textContent = `Chuyên Mục: ${g.name}`;
+            descEl.textContent = g.desc;
+            iconBox.innerHTML = `<i class="fa-solid ${g.icon}"></i>`;
+            countBadge.textContent = `${count} bộ phim sẵn sàng`;
+        }
+
+        function closePlayer() {
+            // Không gian rạp chiếu phim đã được chuyển sang trang riêng watch.html
+        }
+
+        function openGenresTab() {
+            state.category = 'genres';
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isMatch = btn.getAttribute('data-cat') === 'genres';
+                btn.classList.toggle('bg-cyan-500/15', isMatch);
+                btn.classList.toggle('text-cyan-400', isMatch);
+                btn.classList.toggle('border', isMatch);
+                btn.classList.toggle('border-cyan-500/30', isMatch);
+                btn.classList.toggle('text-slate-400', !isMatch);
+            });
+
+            const hero = document.getElementById('heroSection');
+            if (hero) hero.classList.add('hidden');
+            const ribbon = document.getElementById('trendingRibbonSection');
+            if (ribbon) ribbon.classList.add('hidden');
+            const hub = document.getElementById('genreHubSection');
+            if (hub) hub.classList.remove('hidden');
+
+            renderGenreHubCards();
+            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            if (typeof window.scrollTo === 'function') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        async function selectGenreFromHub(genreId) {
+            state.genre = genreId;
+            renderGenreFilterPills();
+            renderGenreHubCards();
+            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+
+            if (genreId !== 'all') {
+                await fetchGenreFromCloud(genreId);
+            }
+            setTimeout(() => {
+                handleInfiniteScrollTrigger();
+            }, 300);
+        }
+
+        // ==============================================================
+        // HỆ THỐNG AUTO-SYNC TOÀN BỘ PHIM TỪ NGUỒN GỐC (PHIMAPI / KKPHIM)
+        // ==============================================================
+        // ==============================================================
+        // HỆ THỐNG XỬ LÝ POSTER THÔNG MINH & TẠO POSTER ĐỘNG CHỐNG LỖI 100%
+        // ==============================================================
+        function escapeHtmlAttr(str = '') {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function generateDynamicPosterSvg(title = 'CINEVEX CINEMA', year = 2026, type = 'movie') {
+            const safeTitle = String(title || 'CINEVEX CINEMA')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+            const words = safeTitle.split(' ');
+            let lines = [];
+            let currentLine = '';
+            for (const w of words) {
+                if ((currentLine + ' ' + w).trim().length <= 18) {
+                    currentLine = (currentLine + ' ' + w).trim();
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = w;
+                    if (lines.length >= 3) break;
+                }
+            }
+            if (currentLine && lines.length < 3) lines.push(currentLine);
+            if (words.length > 0 && lines.length === 3 && words.join(' ').length > lines.join(' ').length) {
+                lines[2] += '...';
+            }
+
+            const typeLabel = (type === 'anime' ? 'ANIME' : (type === 'tv' ? 'PHIM BỘ' : 'PHIM LẺ'));
+            const badgeColor = type === 'anime' ? '#ec4899' : (type === 'tv' ? '#a855f7' : '#06b6d4');
+
+            const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1222"/>
+      <stop offset="40%" stop-color="#111a30"/>
+      <stop offset="100%" stop-color="#070a12"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#38bdf8" stroke-width="0.5" stroke-opacity="0.08"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <rect width="400" height="600" fill="url(#grid)"/>
+  <circle cx="200" cy="240" r="180" fill="url(#glow)"/>
+  <rect x="12" y="12" width="376" height="576" rx="20" fill="none" stroke="#1e293b" stroke-width="2"/>
+  <rect x="18" y="18" width="364" height="564" rx="16" fill="none" stroke="#06b6d4" stroke-width="0.8" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+  <g transform="translate(200, 50)">
+    <rect x="-55" y="-14" width="110" height="28" rx="14" fill="#0f172a" stroke="${badgeColor}" stroke-width="1.2"/>
+    <text text-anchor="middle" y="5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" fill="${badgeColor}" letter-spacing="1.5">${typeLabel}</text>
+  </g>
+  <g transform="translate(200, 190)">
+    <circle r="46" fill="#0f172a" stroke="#06b6d4" stroke-width="2" stroke-opacity="0.6"/>
+    <circle r="40" fill="#080e1a"/>
+    <path d="M-18 -18 L18 -18 L22 18 L-22 18 Z" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="-8,-8 12,0 -8,8" fill="#06b6d4"/>
+    <circle cx="-10" cy="-24" r="3" fill="#38bdf8"/>
+    <circle cx="10" cy="-24" r="3" fill="#38bdf8"/>
+  </g>
+  <g transform="translate(200, 310)" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+    ${lines.map((l, i) => `<text y="${i * 32}" font-size="${lines.length > 2 ? 20 : 23}" font-weight="800" fill="#f8fafc" letter-spacing="0.5">${l}</text>`).join('\n    ')}
+  </g>
+  <g transform="translate(200, 440)">
+    <rect x="-65" y="-13" width="130" height="26" rx="8" fill="#1e293b" fill-opacity="0.7" stroke="#334155" stroke-width="1"/>
+    <text text-anchor="middle" y="5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">NĂM ${year || 2026} • 4K UHD</text>
+  </g>
+  <g transform="translate(200, 530)">
+    <line x1="-80" y1="0" x2="80" y2="0" stroke="#1e293b" stroke-width="1"/>
+    <circle cx="0" cy="0" r="3" fill="#06b6d4"/>
+    <text text-anchor="middle" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#06b6d4" letter-spacing="3">CINEVEX 4K</text>
+  </g>
+</svg>`.trim();
+
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        function handleCardPosterError(img) {
+            if (!img) return;
+            const backdrop = img.dataset.backdrop;
+            const title = img.dataset.title;
+            const year = img.dataset.year;
+            const type = img.dataset.type;
+
+            // Cấp độ 1: Thử backdrop (ảnh thumb gốc) nếu chưa thử và khác ảnh hiện tại
+            if (!img.dataset.triedBackdrop && backdrop && backdrop !== img.src && !backdrop.includes('placehold')) {
+                img.dataset.triedBackdrop = '1';
+                img.src = backdrop;
+                return;
+            }
+
+            // Cấp độ 2: Ngắt hoàn toàn onerror và áp dụng Poster động CINEVEX Cyberpunk đúng tên phim
+            img.onerror = null;
+            img.src = generateDynamicPosterSvg(title, year, type);
+        }
+
+        function normalizeImgUrl(url, title = '', year = 2026, type = 'movie') {
+            if (!url || url.includes('placehold.co')) {
+                return generateDynamicPosterSvg(title, year, type);
+            }
+            if (url.startsWith('http://') || url.startsWith('https://')) return url;
+            return `https://phimimg.com/${url.replace(/^\/+/, '')}`;
+        }
+
+        function hashCode(str = '') {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash;
+        }
+
+        // Hàm nhận diện Anime / Hoạt hình chuẩn xác tuyệt đối
+        function isAnime(m) {
+            if (!m) return false;
+            if (m.type === 'anime') return true;
+            const genres = Array.isArray(m.genres) ? m.genres : [];
+            if (genres.some(g => {
+                const gl = String(g).toLowerCase().trim();
+                return gl === 'hoạt hình' || gl === 'anime' || gl === 'animation' || gl.includes('hoạt hình') || gl.includes('anime');
+            })) return true;
+            const slug = (m.slug || '').toLowerCase();
+            const phimapiSlug = (m.phimapiSlug || '').toLowerCase();
+            if (slug.includes('hoat-hinh') || slug.includes('anime') || phimapiSlug.includes('hoat-hinh') || phimapiSlug.includes('anime')) return true;
+            return false;
+        }
+
+        // Chuyển đổi dữ liệu chuẩn hóa từ PhimAPI sang cấu trúc CINEVEX
+        function mapPhimApiItem(item, forceType = null) {
+            let rawType = item.type || (item.tmdb && item.tmdb.type) || forceType;
+            let isSeries = rawType === 'series' || rawType === 'tv' || (item.episode_current && !item.episode_current.toLowerCase().includes('full'));
+            let isAnimeMovie = rawType === 'hoathinh' || 
+                               forceType === 'anime' ||
+                               (item.category && item.category.some(c => {
+                                   const slug = (c.slug || '').toLowerCase();
+                                   const name = (c.name || '').toLowerCase();
+                                   return slug === 'hoat-hinh' || slug === 'anime' || name.includes('hoạt hình') || name.includes('anime');
+                               }));
+
+            // TÁCH ANIME RIÊNG BIỆT (Không gộp vào Phim Lẻ hay Phim Bộ)
+            let movieType = 'movie';
+            if (isAnimeMovie) movieType = 'anime';
+            else if (isSeries) movieType = 'tv';
+
+            // Phân tích danh mục thể loại thực tế từ API
+            let categories = [];
+            if (Array.isArray(item.category) && item.category.length > 0) {
+                categories = item.category.map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
+            }
+            if (categories.length === 0) {
+                categories = isAnimeMovie ? ['Hoạt Hình', 'Phiêu Lưu'] : (isSeries ? ['Tâm Lý', 'Hành Động'] : ['Hành Động', 'Viễn Tưởng']);
+            }
+
+            let vote = 8.2;
+            if (item.tmdb && item.tmdb.vote_average && Number(item.tmdb.vote_average) > 0) {
+                vote = Number(item.tmdb.vote_average).toFixed(1);
+            } else if (item.imdb && item.imdb.vote_average && Number(item.imdb.vote_average) > 0) {
+                vote = Number(item.imdb.vote_average).toFixed(1);
+            } else {
+                vote = (7.5 + (Math.abs(hashCode(item.slug || item.name)) % 18) / 10).toFixed(1);
+            }
+
+            let cleanQuality = (item.quality || 'FHD').replace(/\bvietsub\b/gi, '').trim() || 'FHD';
+            let cleanLang = (item.lang || 'Vietsub').trim();
+
+            return {
+                id: `api-${item.slug}`,
+                slug: item.slug,
+                tmdbId: item.tmdb?.id ? String(item.tmdb.id) : '',
+                imdbId: item.imdb?.id ? String(item.imdb.id) : '',
+                source: 'phimapi',
+                title: item.name,
+                originTitle: item.origin_name || item.name,
+                type: movieType,
+                year: item.year || 2026,
+                rating: parseFloat(vote) > 0 ? parseFloat(vote) : 8.2,
+                quality: `${cleanQuality} ${cleanLang}`,
+                genres: categories,
+                actors: ['Diễn viên CINEVEX'],
+                poster: normalizeImgUrl(item.poster_url || item.thumb_url, item.name, item.year, movieType),
+                backdrop: normalizeImgUrl(item.thumb_url || item.poster_url, item.name, item.year, movieType),
+                synopsis: `${item.name} (${item.origin_name || ''}) — Phát hành năm ${item.year || 2026} với chất lượng ${cleanQuality} ${cleanLang}. Tự động đồng bộ từ nguồn gốc PhimAPI trên CINEVEX.IO.`
+            };
+        }
+
+        // ==============================================================
+        // BỘ CHUYỂN ĐỔI DỮ LIỆU TMDB (CHUẨN KHO PHIM QUỐC TẾ MOVY.SX)
+        // ==============================================================
+        const TMDB_API_KEY = '4e44d9029b1270a757cddc766a1bcb63';
+        const TMDB_GENRE_MAP = {
+            28: 'Hành Động', 12: 'Phiêu Lưu', 16: 'Hoạt Hình', 35: 'Hài Hước',
+            80: 'Hình Sự', 99: 'Tài Liệu', 18: 'Tâm Lý', 10751: 'Gia Đình',
+            14: 'Viễn Tưởng', 36: 'Lịch Sử', 27: 'Kinh Dị', 10402: 'Âm Nhạc',
+            9648: 'Bí Ẩn', 10749: 'Tình Cảm', 878: 'Viễn Tưởng', 10770: 'Phim Bộ',
+            53: 'Gay Cấn', 10752: 'Chiến Tranh', 37: 'Miền Tây',
+            10759: 'Hành Động', 10765: 'Viễn Tưởng', 10768: 'Chiến Tranh'
+        };
+
+        function mapTmdbItem(item) {
+            const isTv = item.media_type === 'tv';
+            const title = item.title || item.name || 'Phim Quốc Tế';
+            const originTitle = item.original_title || item.original_name || title;
+            const year = parseInt((item.release_date || item.first_air_date || '2026').slice(0, 4)) || 2026;
+            const genres = (item.genre_ids || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean).slice(0, 3);
+            const isAnimeMovie = (item.genre_ids || []).includes(16) || genres.includes('Hoạt Hình') || (item.original_language === 'ja' && isTv);
+            let movieType = isAnimeMovie ? 'anime' : (isTv ? 'tv' : 'movie');
+
+            const posterUrl = item.poster_path 
+                ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
+                : generateDynamicPosterSvg(title, year, movieType);
+            const backdropUrl = item.backdrop_path 
+                ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}` 
+                : posterUrl;
+
+            return {
+                id: `tmdb-${item.id}`,
+                tmdbId: String(item.id),
+                imdbId: '',
+                source: 'intl', // Đánh dấu phim chuẩn quốc tế Movy.sx
+                slug: (item.original_title || item.title || item.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                title: title,
+                originTitle: originTitle,
+                type: movieType,
+                year: year,
+                rating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 8.2,
+                quality: '4K UltraHD (Movy Source)',
+                genres: genres.length ? genres : ['Viễn Tưởng', 'Hành Động'],
+                actors: ['Diễn viên Quốc Tế TMDB'],
+                poster: posterUrl,
+                backdrop: backdropUrl,
+                synopsis: item.overview || `${title} (${originTitle}) — Siêu phẩm điện ảnh 4K quốc tế được đồng bộ từ kho phim Movy.sx & TMDB.`
+            };
+        }
+
+        // Danh sách từ dừng khi so khớp tiêu đề phim
+        const DEDUP_STOP_WORDS = new Set(['phim', 'movie', 'series', 'season', 'full', 'part', 'trailer', 'anime', 'viet', 'sub', 'tap']);
+
+        // Hàm chuẩn hóa tiêu đề phục vụ so khớp gộp nguồn (loại bỏ dấu, khoảng trắng, kí tự lạ)
+        function normalizeComparableTitle(str) {
+            if (!str) return '';
+            return removeVietnameseTones(str.toLowerCase())
+                .replace(/[^a-z0-9]/g, '')
+                .trim();
+        }
+
+        // Tạo tập khóa so khớp đa tầng cho một bộ phim (tiêu đề, tên gốc, slug, các phần phân tách)
+        function getComparableMovieKeys(item) {
+            if (!item) return [];
+            const raw = [item.title, item.originTitle, item.slug ? item.slug.replace(/-/g, ' ') : ''].filter(Boolean);
+            const set = new Set();
+            for (const text of raw) {
+                const norm = normalizeComparableTitle(text);
+                if (norm && norm.length >= 3 && !DEDUP_STOP_WORDS.has(norm)) set.add(norm);
+                const parts = text.split(/[\/\:\-\|\(\)\[\]\.\,\+]+/);
+                for (const p of parts) {
+                    const pNorm = normalizeComparableTitle(p);
+                    if (pNorm && pNorm.length >= 4 && !DEDUP_STOP_WORDS.has(pNorm)) set.add(pNorm);
+                }
+            }
+            return Array.from(set);
+        }
+
+        // Tìm phim trùng lặp giữa 2 nguồn (TMDB Movy.sx & PhimAPI)
+        function findMatchingMovie(newItem, list) {
+            if (!newItem) return null;
+            const newTmdb = (newItem.tmdbId && newItem.tmdbId !== '0') ? String(newItem.tmdbId).trim() : null;
+            const newSlug = newItem.slug ? String(newItem.slug).toLowerCase().trim() : null;
+            const newKeys = getComparableMovieKeys(newItem);
+            const newYear = parseInt(newItem.year);
+
+            for (let m of list) {
+                if (m === newItem) continue;
+
+                // 1. So khớp tuyệt đối qua TMDB ID
+                const mTmdb = (m.tmdbId && m.tmdbId !== '0') ? String(m.tmdbId).trim() : null;
+                if (newTmdb && mTmdb && newTmdb === mTmdb) {
+                    return m;
+                }
+
+                // 2. So khớp qua slug
+                if (newSlug && m.slug && newSlug === String(m.slug).toLowerCase().trim()) {
+                    return m;
+                }
+
+                // 3. Kiểm tra độ lệch năm nếu cả 2 đều có năm cụ thể (tránh gộp nhầm phim remake khác thời đại)
+                const mYear = parseInt(m.year);
+                if (newYear && mYear && newYear > 1920 && mYear > 1920 && Math.abs(newYear - mYear) > 2) {
+                    continue;
+                }
+
+                // 4. So khớp thông minh qua tập khóa tiêu đề đa tầng & tên gốc
+                const mKeys = getComparableMovieKeys(m);
+                if (newKeys.some(k => mKeys.includes(k))) {
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        // Hàm chuẩn hóa nhãn chất lượng (loại bỏ triệt để lỗi lặp 'Vietsub Vietsub...')
+        function sanitizeQualityBadge(quality, hasVietsub = false, hasMovy = false) {
+            if (hasVietsub && hasMovy) {
+                return '4K Vietsub • Đa Server';
+            }
+            if (hasMovy && !hasVietsub) {
+                return '4K UltraHD (Movy Source)';
+            }
+            if (!quality) return 'FHD Vietsub';
+
+            // Xóa triệt để mọi từ 'vietsub' và dấu server thừa trước khi tái cấu trúc
+            let clean = String(quality)
+                .replace(/(\s*•\s*Đa Server)+/gi, '')
+                .replace(/\bvietsub\b/gi, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!clean || clean === 'FHD' || clean === 'HD') {
+                return 'FHD Vietsub';
+            }
+            return clean + ' Vietsub';
+        }
+
+        // Hàm khử trùng lặp toàn diện kho phim MOVIES_DB
+        function deduplicateMoviesDb() {
+            const cleanList = [];
+            for (let item of MOVIES_DB) {
+                const existing = findMatchingMovie(item, cleanList);
+                if (existing) {
+                    // GỘP 2 NGUỒN VÀO 1 & ƯU TIÊN VIETSUB:
+                    if (!existing.tmdbId && item.tmdbId) existing.tmdbId = item.tmdbId;
+
+                    if (item.source === 'phimapi' || item.hasVietsub) {
+                        existing.phimapiSlug = item.slug || item.phimapiSlug;
+                        existing.slug = item.slug || existing.slug;
+                        existing.hasVietsub = true;
+                        if (item.type) existing.type = item.type;
+                        if (isAnime(item) || isAnime(existing)) existing.type = 'anime';
+                        if (item.originTitle && (!existing.originTitle || /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.originTitle))) {
+                            existing.originTitle = item.originTitle;
+                        }
+                    } else if (existing.source === 'phimapi' || existing.hasVietsub) {
+                        existing.phimapiSlug = existing.slug;
+                        existing.hasVietsub = true;
+                    }
+
+                    // Cập nhật Poster & Backdrop nếu bản ghi mới có ảnh chất lượng
+                    if (item.poster && !item.poster.includes('placehold')) {
+                        if (!existing.poster || existing.poster.includes('placehold') || existing.poster.startsWith('data:image/svg+xml')) {
+                            existing.poster = item.poster;
+                        }
+                    }
+                    if (item.backdrop && !item.backdrop.includes('placehold')) {
+                        if (!existing.backdrop || existing.backdrop.includes('placehold') || existing.backdrop.startsWith('data:image/svg+xml')) {
+                            existing.backdrop = item.backdrop;
+                        }
+                    }
+                    if (item.source === 'intl' || item.hasMovy || existing.tmdbId) {
+                        existing.hasMovy = true;
+                        if (item.poster && !item.poster.includes('placehold')) existing.poster = item.poster;
+                        if (item.backdrop && !item.backdrop.includes('placehold')) existing.backdrop = item.backdrop;
+                    }
+
+                    // Gộp thể loại
+                    if (item.genres && item.genres.length > 0) {
+                        existing.genres = Array.from(new Set([...(existing.genres || []), ...item.genres]));
+                    }
+
+                    existing.quality = sanitizeQualityBadge(existing.quality, existing.hasVietsub, existing.hasMovy || !!existing.tmdbId);
+                    if (item.synopsis && item.synopsis.length > (existing.synopsis || '').length) {
+                        existing.synopsis = item.synopsis;
+                    }
+                } else {
+                    if (item.source === 'phimapi') {
+                        item.phimapiSlug = item.slug;
+                        item.hasVietsub = true;
+                    } else if (item.source === 'intl') {
+                        item.hasMovy = true;
+                    }
+                    item.quality = sanitizeQualityBadge(item.quality, item.hasVietsub, item.hasMovy || !!item.tmdbId);
+                    cleanList.push(item);
+                }
+            }
+            MOVIES_DB = cleanList;
+            autoSync.totalMoviesSynced = MOVIES_DB.length;
+        }
+
+        // Hợp nhất phim vào kho dữ liệu chính: GỘP 2 NGUỒN VÀO 1 & ƯU TIÊN VIETSUB
+        function mergeMoviesIntoDb(newItems, prepend = false) {
+            if (!newItems || !newItems.length) return 0;
+            let addedCount = 0;
+
+            for (let item of newItems) {
+                const existing = findMatchingMovie(item, MOVIES_DB);
+
+                if (existing) {
+                    // === GỘP 2 NGUỒN VÀO 1 BỘ PHIM DUY NHẤT ===
+                    const isNewVietsub = item.source === 'phimapi';
+                    const isExistingVietsub = existing.source === 'phimapi' || existing.hasVietsub;
+
+                    // 1. Cập nhật TMDB ID
+                    if (!existing.tmdbId && item.tmdbId) existing.tmdbId = item.tmdbId;
+
+                    // 2. Ưu tiên nguồn Vietsub (PhimAPI)
+                    if (isNewVietsub) {
+                        existing.phimapiSlug = item.slug;
+                        existing.slug = item.slug;
+                        existing.hasVietsub = true;
+                        existing.type = item.type; // Ưu tiên type chi tiết từ Vietsub (Anime, Series, Movie)
+                        if (isAnime(item) || isAnime(existing)) existing.type = 'anime';
+                        if (item.originTitle && (!existing.originTitle || /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.originTitle))) {
+                            existing.originTitle = item.originTitle;
+                        }
+                    } else if (isExistingVietsub) {
+                        existing.phimapiSlug = existing.slug;
+                        existing.hasVietsub = true;
+                    }
+
+                    // 3. Đánh dấu có nguồn Movy.sx (VidSrc/MultiEmbed)
+                    // Cập nhật Poster & Backdrop nếu bản ghi mới có ảnh chất lượng
+                    if (item.poster && !item.poster.includes('placehold')) {
+                        if (!existing.poster || existing.poster.includes('placehold') || existing.poster.startsWith('data:image/svg+xml')) {
+                            existing.poster = item.poster;
+                        }
+                    }
+                    if (item.backdrop && !item.backdrop.includes('placehold')) {
+                        if (!existing.backdrop || existing.backdrop.includes('placehold') || existing.backdrop.startsWith('data:image/svg+xml')) {
+                            existing.backdrop = item.backdrop;
+                        }
+                    }
+                    if (item.source === 'intl' || item.hasMovy || existing.tmdbId) {
+                        existing.hasMovy = true;
+                        if (item.poster && !item.poster.includes('placehold')) existing.poster = item.poster;
+                        if (item.backdrop && !item.backdrop.includes('placehold')) existing.backdrop = item.backdrop;
+                    }
+
+                    // Gộp thể loại
+                    if (item.genres && item.genres.length > 0) {
+                        existing.genres = Array.from(new Set([...(existing.genres || []), ...item.genres]));
+                    }
+
+                    // 4. Nhãn chất lượng thông minh
+                    existing.quality = sanitizeQualityBadge(existing.quality, existing.hasVietsub, existing.hasMovy || !!existing.tmdbId);
+
+                    // 5. Tóm tắt nội dung
+                    if (item.synopsis && item.synopsis.length > (existing.synopsis || '').length) {
+                        existing.synopsis = item.synopsis;
+                    }
+                } else {
+                    // Chưa có bộ phim này trong kho -> Thêm mới
+                    if (item.source === 'phimapi') {
+                        item.phimapiSlug = item.slug;
+                        item.hasVietsub = true;
+                    } else if (item.source === 'intl') {
+                        item.hasMovy = true;
+                    }
+                    item.quality = sanitizeQualityBadge(item.quality, item.hasVietsub, item.hasMovy || !!item.tmdbId);
+
+                    if (prepend) {
+                        MOVIES_DB.unshift(item);
+                    } else {
+                        MOVIES_DB.push(item);
+                    }
+                    addedCount++;
+                }
+            }
+
+            deduplicateMoviesDb();
+            autoSync.totalMoviesSynced = MOVIES_DB.length;
+            updateSyncUI();
+            saveMoviesCache();
+            return addedCount;
+        }
+
+        function saveMoviesCache() {
+            try {
+                // Lưu trữ toàn bộ kho phim vào localStorage (tối đa 1.500 phim) để F5 không bao giờ bị mất
+                const saveable = MOVIES_DB.slice(0, 1500);
+                if (saveable.length) {
+                    const cachePayload = {
+                        time: Date.now(),
+                        items: saveable,
+                        syncState: {
+                            pageAll: autoSync.pageAll,
+                            pageMovie: autoSync.pageMovie,
+                            pageTv: autoSync.pageTv,
+                            pageAnime: autoSync.pageAnime,
+                            genrePages: autoSync.genrePages || {},
+                            totalPagesSynced: autoSync.totalPagesSynced,
+                            totalMoviesSynced: MOVIES_DB.length
+                        }
+                    };
+                    localStorage.setItem('cinevex_movies_cache_v2', JSON.stringify(cachePayload));
+                }
+            } catch (e) {
+                // Fallback nếu bộ nhớ quota nhỏ hơn bình thường (cắt bớt synopsis dài và lưu 600 phim)
+                try {
+                    const compact = MOVIES_DB.slice(0, 600).map(m => ({
+                        id: m.id,
+                        slug: m.slug,
+                        phimapiSlug: m.phimapiSlug || m.slug,
+                        tmdbId: m.tmdbId,
+                        imdbId: m.imdbId,
+                        source: m.source,
+                        title: m.title,
+                        originTitle: m.originTitle,
+                        type: m.type,
+                        year: m.year,
+                        rating: m.rating,
+                        quality: m.quality,
+                        genres: m.genres,
+                        poster: m.poster,
+                        backdrop: m.backdrop,
+                        synopsis: (m.synopsis || '').slice(0, 200),
+                        hasVietsub: m.hasVietsub,
+                        hasMovy: m.hasMovy
+                    }));
+                    localStorage.setItem('cinevex_movies_cache_v2', JSON.stringify({
+                        time: Date.now(),
+                        items: compact,
+                        syncState: {
+                            pageAll: autoSync.pageAll,
+                            pageMovie: autoSync.pageMovie,
+                            pageTv: autoSync.pageTv,
+                            pageAnime: autoSync.pageAnime,
+                            genrePages: autoSync.genrePages || {},
+                            totalPagesSynced: autoSync.totalPagesSynced,
+                            totalMoviesSynced: MOVIES_DB.length
+                        }
+                    }));
+                } catch (err) {
+                    console.warn("Bộ nhớ cache localStorage đã đầy:", err);
+                }
+            }
+        }
+
+        function loadMoviesCache() {
+            try {
+                const raw = localStorage.getItem('cinevex_movies_cache_v2') || localStorage.getItem('cinevex_movies_cache');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed) {
+                        // Khôi phục trạng thái trang và số lượng đã đồng bộ
+                        if (parsed.syncState) {
+                            autoSync.pageAll = parsed.syncState.pageAll || 1;
+                            autoSync.pageMovie = parsed.syncState.pageMovie || 1;
+                            autoSync.pageTv = parsed.syncState.pageTv || 1;
+                            autoSync.pageAnime = parsed.syncState.pageAnime || 1;
+                            autoSync.genrePages = parsed.syncState.genrePages || {};
+                            autoSync.totalPagesSynced = parsed.syncState.totalPagesSynced || 1;
+                            autoSync.totalMoviesSynced = parsed.syncState.totalMoviesSynced || MOVIES_DB.length;
+                        }
+                        if (Array.isArray(parsed.items) && parsed.items.length) {
+                            parsed.items.forEach(m => {
+                                const catMatch = CINEVEX_CATALOG.find(c => c.id === m.id || (c.tmdbId && c.tmdbId === m.tmdbId));
+                                if (catMatch) {
+                                    if (catMatch.phimapiSlug) {
+                                        m.phimapiSlug = catMatch.phimapiSlug;
+                                        m.slug = catMatch.slug || m.slug;
+                                        m.hasVietsub = true;
+                                        m.hasMovy = true;
+                                    }
+                                    if (catMatch.poster && !catMatch.poster.includes('placehold')) {
+                                        m.poster = catMatch.poster;
+                                    }
+                                    if (catMatch.backdrop && !catMatch.backdrop.includes('placehold')) {
+                                        m.backdrop = catMatch.backdrop;
+                                    }
+                                }
+                                // Tự động làm sạch và phục hồi poster từ cache cũ nếu dính placehold.co
+                                if (!m.poster || m.poster.includes('placehold')) {
+                                    if (m.backdrop && !m.backdrop.includes('placehold')) {
+                                        m.poster = m.backdrop;
+                                    } else {
+                                        m.poster = generateDynamicPosterSvg(m.title, m.year, m.type);
+                                    }
+                                }
+                                if (!m.backdrop || m.backdrop.includes('placehold')) {
+                                    m.backdrop = m.poster;
+                                }
+                                m.quality = sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId);
+                            });
+                            mergeMoviesIntoDb(parsed.items, false);
+                            deduplicateMoviesDb();
+                            return true;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Lỗi đọc cache:", e);
+            }
+            return false;
+        }
+
+        function updateSyncUI(currentSourceText = null, progressPercent = null) {
+            const totalCount = MOVIES_DB.length;
+
+            const countLabel = document.getElementById('moviesCountLabel');
+            if (countLabel) {
+                countLabel.textContent = `Kho Phim: ${totalCount} phim (Auto-Sync Live)`;
+            }
+
+            const headerBadge = document.getElementById('headerMovieCountBadge');
+            if (headerBadge) {
+                headerBadge.textContent = `${totalCount} phim`;
+            }
+
+            const modalCount = document.getElementById('syncTotalMoviesCounter');
+            if (modalCount) {
+                modalCount.textContent = `${totalCount}+`;
+            }
+
+            const modalPages = document.getElementById('syncTotalPagesCounter');
+            if (modalPages) {
+                modalPages.textContent = autoSync.totalPagesSynced;
+            }
+
+            if (currentSourceText) {
+                const srcLabel = document.getElementById('syncCurrentSourceLabel');
+                if (srcLabel) srcLabel.innerHTML = `<i class="fa-solid fa-satellite-dish text-cyan-400"></i> <span>${currentSourceText}</span>`;
+            }
+
+            if (progressPercent !== null) {
+                const pctLabel = document.getElementById('syncProgressPercent');
+                const pBar = document.getElementById('syncProgressBar');
+                if (pctLabel) pctLabel.textContent = `${progressPercent}%`;
+                if (pBar) pBar.style.width = `${progressPercent}%`;
+            }
+
+            const syncIcon = document.getElementById('headerSyncIcon');
+            const modalIcon = document.getElementById('modalSyncIcon');
+            const liveBadge = document.getElementById('syncLiveStatusBadge');
+
+            if (autoSync.isSyncing) {
+                if (syncIcon) syncIcon.className = 'fa-solid fa-arrows-rotate animate-spin text-cyan-400';
+                if (modalIcon) modalIcon.className = 'fa-solid fa-arrows-rotate animate-spin text-white';
+                if (liveBadge) liveBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Đang Đồng Bộ...`;
+            } else {
+                if (syncIcon) syncIcon.className = 'fa-solid fa-arrows-rotate text-cyan-400';
+                if (modalIcon) modalIcon.className = 'fa-solid fa-arrows-rotate text-white';
+                if (liveBadge) liveBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sẵn Sàng`;
+            }
+        }
+
+        // Tải danh sách phim mới cập nhật
+        async function fetchPhimMoiApi(page = 1) {
+            try {
+                const res = await fetch(_dec(0) + page);
+                const data = await res.json();
+                const items = data.items || [];
+                if (items.length) {
+                    const mapped = items.map(it => mapPhimApiItem(it));
+                    return mergeMoviesIntoDb(mapped);
+                }
+            } catch (e) {
+                console.warn(`Lỗi đồng bộ trang phim mới ${page}:`, e);
+            }
+            return 0;
+        }
+
+        // Tải danh sách theo danh mục chuyên biệt (Phim Lẻ, Phim Bộ, Hoạt Hình)
+        async function fetchCategoryApi(category, page = 1) {
+            let endpointIndex = 5; // mặc định phim lẻ
+            if (category === 'tv') endpointIndex = 6;
+            else if (category === 'anime') endpointIndex = 7;
+
+            try {
+                const res = await fetch(`${_dec(endpointIndex)}${page}&limit=24`);
+                const data = await res.json();
+                const items = (data && data.data && data.data.items) ? data.data.items : [];
+                if (items.length) {
+                    const mapped = items.map(it => mapPhimApiItem(it, category));
+                    return mergeMoviesIntoDb(mapped);
+                }
+            } catch (e) {
+                console.warn(`Lỗi đồng bộ danh mục ${category} trang ${page}:`, e);
+            }
+            return 0;
+        }
+
+        // Tải danh sách phim theo trang của Thể Loại từ Cloud
+        async function fetchGenreFromCloudPage(genreId, page = 1) {
+            const gObj = GENRE_DIRECTORY.find(item => item.id === genreId);
+            if (!gObj || !gObj.slug) return 0;
+            try {
+                const res = await fetch(`${_dec(4)}${gObj.slug}?page=${page}&limit=24`);
+                const json = await res.json();
+                const items = json?.data?.items || [];
+                if (items.length) {
+                    const mapped = items.map(item => {
+                        const m = mapPhimApiItem(item);
+                        if (!m.genres.includes(genreId)) m.genres.unshift(genreId);
+                        return m;
+                    });
+                    return mergeMoviesIntoDb(mapped);
+                }
+            } catch (e) {
+                console.warn(`Lỗi đồng bộ thể loại ${genreId} trang ${page}:`, e);
+            }
+            return 0;
+        }
+
+        // Tải danh sách theo thể loại từ Cloud (khởi đầu)
+        async function fetchGenreFromCloud(genreId, isAppend = false) {
+            const gObj = GENRE_DIRECTORY.find(item => item.id === genreId);
+            if (!gObj || !gObj.slug) {
+                await fetchPhimMoiApi(1);
+                renderGenreHubCards();
+                return;
+            }
+
+            autoSync.genrePages = autoSync.genrePages || {};
+            autoSync.genrePages[genreId] = 1;
+
+            showToast(`Đang tự động đồng bộ thể loại "${gObj.name}" từ nguồn gốc...`, 'fa-shapes', 'text-emerald-400');
+            const added = await fetchGenreFromCloudPage(genreId, 1);
+            renderGenreHubCards();
+            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            if (added > 0) {
+                showToast(`Đã đồng bộ xong thể loại "${gObj.name}" (${added} phim)!`, 'fa-circle-check', 'text-emerald-400');
+            }
+        }
+
+        // Tương thích ngược
+        async function fetchSecureApi(page = 1) {
+            return await fetchPhimMoiApi(page);
+        }
+
+        async function fetchMoreFromServer() {
+            await triggerAutoSyncNext(false, false);
+        }
+
+        // Kích hoạt đồng bộ trang tiếp theo dựa trên màn hình đang xem (Tất Cả, Phim Lẻ, Phim Bộ, Anime, Thể Loại, Tìm Kiếm)
+        async function triggerAutoSyncNext(isSilent = false, isBackground = false) {
+            if (autoSync.isSyncing) return 0;
+            autoSync.isSyncing = true;
+            updateSyncUI();
+
+            const loadMoreIcon = document.getElementById('loadMoreSyncIcon');
+            if (loadMoreIcon) loadMoreIcon.className = 'fa-solid fa-arrows-rotate animate-spin text-cyan-400';
+
+            const loader = document.getElementById('infiniteScrollLoader');
+            if (loader) loader.classList.remove('opacity-0', 'pointer-events-none');
+
+            let addedCount = 0;
+            let sourceDesc = "Phim Mới Cập Nhật";
+
+            const searchInput = document.getElementById('searchInput');
+            const searchKeyword = searchInput ? searchInput.value.trim() : '';
+
+            try {
+                if (searchKeyword) {
+                    autoSync.searchPages = autoSync.searchPages || {};
+                    const page = (autoSync.searchPages[searchKeyword] || 1) + 1;
+                    autoSync.searchPages[searchKeyword] = page;
+                    sourceDesc = `Tìm kiếm "${searchKeyword}" (Trang ${page})`;
+                    try {
+                        const res = await fetch(`${_dec(2)}${encodeURIComponent(searchKeyword)}&page=${page}&limit=24`);
+                        const json = await res.json();
+                        const items = json?.data?.items || [];
+                        if (items.length) {
+                            const mapped = items.map(it => mapPhimApiItem(it));
+                            addedCount = mergeMoviesIntoDb(mapped);
+                        }
+                    } catch (err) {}
+                } else if (state.category === 'movie') {
+                    autoSync.pageMovie++;
+                    sourceDesc = `Phim Lẻ (Trang ${autoSync.pageMovie})`;
+                    addedCount = await fetchCategoryApi('movie', autoSync.pageMovie);
+                } else if (state.category === 'tv') {
+                    autoSync.pageTv++;
+                    sourceDesc = `Phim Bộ (Trang ${autoSync.pageTv})`;
+                    addedCount = await fetchCategoryApi('tv', autoSync.pageTv);
+                } else if (state.category === 'anime') {
+                    autoSync.pageAnime++;
+                    sourceDesc = `Anime / Hoạt Hình (Trang ${autoSync.pageAnime})`;
+                    addedCount = await fetchCategoryApi('anime', autoSync.pageAnime);
+                } else if (state.category === 'genres' && state.genre !== 'all') {
+                    autoSync.genrePages = autoSync.genrePages || {};
+                    const page = (autoSync.genrePages[state.genre] || 1) + 1;
+                    autoSync.genrePages[state.genre] = page;
+                    sourceDesc = `Thể Loại ${state.genre} (Trang ${page})`;
+                    addedCount = await fetchGenreFromCloudPage(state.genre, page);
+                } else {
+                    autoSync.pageAll++;
+                    sourceDesc = `Phim Mới Nguồn Gốc (Trang ${autoSync.pageAll})`;
+                    addedCount = await fetchPhimMoiApi(autoSync.pageAll);
+                }
+
+                autoSync.totalPagesSynced++;
+                updateSyncUI(sourceDesc, 100);
+
+                if (!isSilent && !isBackground && addedCount > 0) {
+                    showToast(`Đã tự động đồng bộ thêm ${addedCount} phim mới từ nguồn gốc!`, 'fa-circle-check', 'text-emerald-400');
+                }
+                applyFilters(searchKeyword);
+                renderGenreHubCards();
+                saveMoviesCache();
+                return addedCount;
+            } finally {
+                autoSync.isSyncing = false;
+                updateSyncUI();
+                if (loadMoreIcon) loadMoreIcon.className = 'fa-solid fa-arrows-rotate';
+                if (loader) loader.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        // TỰ ĐỘNG ĐỒNG BỘ SIÊU TỐC TOÀN BỘ DANH MỤC (TURBO AUTO-SYNC)
+        async function startTurboAutoSync(pagesPerSource = 3) {
+            if (autoSync.isSyncing) return;
+            autoSync.isSyncing = true;
+            const turboBtn = document.getElementById('turboSyncBtn');
+            if (turboBtn) {
+                turboBtn.disabled = true;
+                turboBtn.innerHTML = `<i class="fa-solid fa-arrows-rotate animate-spin"></i> Đang Đồng Bộ Đa Luồng...`;
+            }
+
+            showToast("Bắt đầu Auto-Sync toàn bộ phim từ nguồn gốc...", "fa-bolt", "text-cyan-400");
+            updateSyncUI("Đang kết nối toàn bộ luồng dữ liệu nguồn gốc...", 5);
+
+            try {
+                // Đợt 1: Đồng bộ phim mới cập nhật (Trang 1..N)
+                updateSyncUI("Đang đồng bộ Phim Mới Cập Nhật...", 20);
+                for (let p = 1; p <= pagesPerSource; p++) {
+                    await fetchPhimMoiApi(p);
+                }
+
+                // Đợt 2: Đồng bộ Kho Phim Lẻ Điện Ảnh
+                updateSyncUI("Đang đồng bộ Kho Phim Lẻ Điện Ảnh (Movies)...", 50);
+                for (let p = 1; p <= pagesPerSource; p++) {
+                    await fetchCategoryApi('movie', p);
+                }
+
+                // Đợt 3: Đồng bộ Kho Phim Bộ Dài Tập
+                updateSyncUI("Đang đồng bộ Kho Phim Bộ Dài Tập (Series)...", 75);
+                for (let p = 1; p <= pagesPerSource; p++) {
+                    await fetchCategoryApi('tv', p);
+                }
+
+                // Đợt 4: Đồng bộ Kho Anime & Hoạt Hình
+                updateSyncUI("Đang đồng bộ Kho Hoạt Hình & Anime...", 95);
+                for (let p = 1; p <= pagesPerSource; p++) {
+                    await fetchCategoryApi('anime', p);
+                }
+
+                autoSync.totalPagesSynced += (pagesPerSource * 4);
+                updateSyncUI("Đồng bộ hoàn tất toàn bộ danh mục!", 100);
+
+                applyFilters(document.getElementById('searchInput').value);
+                renderGenreHubCards();
+                showToast(`Đã đồng bộ thành công ${MOVIES_DB.length} phim từ nguồn gốc!`, 'fa-circle-check', 'text-emerald-400');
+            } catch (err) {
+                console.error("Lỗi Turbo Sync:", err);
+                showToast("Quá trình đồng bộ có một số luồng bị chậm, đã lưu các phim thành công.", "fa-triangle-exclamation", "text-amber-400");
+            } finally {
+                autoSync.isSyncing = false;
+                updateSyncUI();
+                if (turboBtn) {
+                    turboBtn.disabled = false;
+                    turboBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Turbo Auto-Sync (Đồng Bộ Siêu Tốc)`;
+                }
+            }
+        }
+
+        // Tự động kéo kho phim Trending quốc tế từ TMDB (Chuẩn Movy.sx)
+        async function fetchTmdbTrending() {
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                const data = await res.json();
+                if (data && Array.isArray(data.results)) {
+                    const valid = data.results.filter(it => (it.media_type === 'movie' || it.media_type === 'tv') && (it.poster_path || it.backdrop_path));
+                    const mapped = valid.map(it => mapTmdbItem(it));
+                    mergeMoviesIntoDb(mapped, false);
+                }
+            } catch (e) {
+                console.warn("Lỗi đồng bộ TMDB Trending:", e);
+            }
+        }
+
+        // Khởi động toàn bộ cơ chế Auto-Sync khi mở trang
+        async function initAutoSyncEngine() {
+            // Nạp cache tức thời nếu có
+            loadMoviesCache();
+            deduplicateMoviesDb();
+            updateSyncUI();
+
+            if (MOVIES_DB.length > CINEVEX_CATALOG.length) {
+                // ĐÃ CÓ KHO PHIM CACHE SẴN (F5 HOẶC QUAY LẠI TRANG) -> HIỂN THỊ NGAY 0ms KHÔNG CHỜ ĐỢI
+                updateSyncUI(`Kho phim sẵn sàng (${MOVIES_DB.length} phim)`, 100);
+                applyFilters();
+                renderGenreHubCards();
+
+                // Chạy đồng bộ nhẹ TMDB trending ngầm để cập nhật mới nhất mà không đè pagination
+                (async () => {
+                    try {
+                        await fetchTmdbTrending();
+                        saveMoviesCache();
+                    } catch (e) {}
+                })();
+            } else {
+                // Lần đầu tiên truy cập chưa có cache -> Kéo đợt đầu tiên song song
+                autoSync.isSyncing = true;
+                updateSyncUI("Tự động đồng bộ đợt đầu từ nguồn gốc...", 25);
+                try {
+                    await Promise.allSettled([
+                        fetchTmdbTrending(),
+                        fetchPhimMoiApi(1),
+                        fetchCategoryApi('movie', 1),
+                        fetchCategoryApi('tv', 1),
+                        fetchCategoryApi('anime', 1)
+                    ]);
+                } catch (e) {
+                    console.warn("Lỗi initial sync:", e);
+                } finally {
+                    autoSync.isSyncing = false;
+                    deduplicateMoviesDb();
+                    updateSyncUI("Nguồn gốc đã sẵn sàng", 100);
+                    applyFilters();
+                    renderGenreHubCards();
+                    saveMoviesCache();
+                }
+            }
+
+            initInfiniteScroll();
+            initBackgroundAutoSync();
+        }
+
+        // ==============================================================
+        // TỰ ĐỘNG ĐỒNG BỘ KHI CUỘN HẾT PHIM (TRUE INFINITE SCROLL / AUTO-SYNC)
+        // Kết hợp IntersectionObserver v3 và Fallback Scroll/Wheel Events
+        // ==============================================================
+        let infiniteScrollLock = false;
+        let infiniteObserver = null;
+
+        async function handleInfiniteScrollTrigger() {
+            if (infiniteScrollLock || autoSync.isSyncing || !autoSync.infiniteScrollEnabled) return;
+            infiniteScrollLock = true;
+
+            const loader = document.getElementById('infiniteScrollLoader');
+            if (loader) loader.classList.remove('opacity-0', 'pointer-events-none');
+
+            try {
+                await triggerAutoSyncNext(true, false);
+            } catch (e) {
+                console.warn("Lỗi auto-sync khi cuộn:", e);
+            } finally {
+                if (loader) loader.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    infiniteScrollLock = false;
+
+                    // Nếu sau khi nạp phim mới mà người dùng vẫn đang ở sát đáy (màn hình lớn), tiếp tục nạp tiếp
+                    const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+                    const fullHeight = Math.max(
+                        document.body.scrollHeight,
+                        document.documentElement.scrollHeight,
+                        document.body.offsetHeight,
+                        document.documentElement.offsetHeight
+                    );
+                    if (scrollY + viewportHeight >= fullHeight - 500) {
+                        handleInfiniteScrollTrigger();
+                    }
+                }, 400);
+            }
+        }
+
+        function initInfiniteScroll() {
+            const sentinel = document.getElementById('infiniteScrollSentinel');
+
+            // 1. Dùng IntersectionObserver hiện đại (kích hoạt trước 700px khi tới đáy)
+            if (window.IntersectionObserver && sentinel) {
+                if (infiniteObserver) {
+                    infiniteObserver.disconnect();
+                }
+                infiniteObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting) {
+                            handleInfiniteScrollTrigger();
+                        }
+                    }
+                }, {
+                    root: null,
+                    rootMargin: '700px 0px 700px 0px',
+                    threshold: 0
+                });
+                infiniteObserver.observe(sentinel);
+            }
+
+            // 2. Dự phòng Scroll & Wheel & Touch Event trên toàn bộ màn hình
+            const onUserScrollOrWheel = () => {
+                if (infiniteScrollLock || autoSync.isSyncing || !autoSync.infiniteScrollEnabled) return;
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+                const fullHeight = Math.max(
+                    document.body.scrollHeight,
+                    document.documentElement.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.offsetHeight
+                );
+
+                if (scrollY + viewportHeight >= fullHeight - 750) {
+                    handleInfiniteScrollTrigger();
+                }
+            };
+
+            window.addEventListener('scroll', onUserScrollOrWheel, { passive: true });
+            window.addEventListener('wheel', onUserScrollOrWheel, { passive: true });
+            window.addEventListener('touchmove', onUserScrollOrWheel, { passive: true });
+        }
+
+        // Đồng bộ ngầm định kỳ trong nền
+        function initBackgroundAutoSync() {
+            if (autoSync.backgroundTimer) clearInterval(autoSync.backgroundTimer);
+            autoSync.backgroundTimer = setInterval(() => {
+                if (autoSync.backgroundSyncEnabled && !autoSync.isSyncing && !document.hidden) {
+                    triggerAutoSyncNext(true, true);
+                }
+            }, 35000);
+        }
+
+        // Điều khiển Modal Auto-Sync
+        function openAutoSyncModal() {
+            updateSyncUI();
+            document.getElementById('autoSyncModal').classList.remove('hidden');
+        }
+
+        function closeAutoSyncModal() {
+            document.getElementById('autoSyncModal').classList.add('hidden');
+        }
+
+        function toggleBackgroundSyncEngine(enabled) {
+            autoSync.backgroundSyncEnabled = enabled;
+            if (enabled) {
+                initBackgroundAutoSync();
+                showToast("Đã BẬT Auto-Sync chạy ngầm", "fa-repeat", "text-cyan-400");
+            } else {
+                if (autoSync.backgroundTimer) clearInterval(autoSync.backgroundTimer);
+                showToast("Đã TẮT Auto-Sync chạy ngầm", "fa-pause", "text-slate-400");
+            }
+        }
+
+        function toggleInfiniteScrollEngine(enabled) {
+            autoSync.infiniteScrollEnabled = enabled;
+            showToast(enabled ? "Đã BẬT Infinite Scroll (Tự cuộn nạp tiếp)" : "Đã TẮT Infinite Scroll", "fa-angles-down", "text-violet-400");
+        }
+
+        function clearCacheAndResync() {
+            localStorage.removeItem('cinevex_movies_cache_v2');
+            MOVIES_DB = [...CINEVEX_CATALOG];
+            autoSync.pageAll = 1;
+            autoSync.pageMovie = 1;
+            autoSync.pageTv = 1;
+            autoSync.pageAnime = 1;
+            autoSync.totalPagesSynced = 1;
+            showToast("Đã xóa bộ nhớ cache, bắt đầu đồng bộ lại từ đầu...", "fa-rotate", "text-amber-400");
+            startTurboAutoSync(2);
+        }
+
+        // ==============================================================
+        // HERO BANNER & TOP TRENDING
+        // ==============================================================
+        function renderHero(index) {
+            state.heroIndex = index;
+            const m = CINEVEX_CATALOG[index] || CINEVEX_CATALOG[0];
+            const hb = document.getElementById('heroBackdrop');
+            if (hb) {
+                hb.dataset.backdrop = m.poster || '';
+                hb.dataset.title = m.title || '';
+                hb.dataset.year = m.year || 2026;
+                hb.dataset.type = m.type || 'movie';
+                hb.referrerPolicy = 'no-referrer';
+                hb.onerror = () => handleCardPosterError(hb);
+                hb.src = m.backdrop || m.poster;
+            }
+            document.getElementById('heroTitle').textContent = m.title;
+            document.getElementById('heroOriginTitle').textContent = `${m.originTitle} (${m.year}) • ${m.genres.join(' / ')}`;
+            document.getElementById('heroSynopsis').textContent = m.synopsis;
+            document.getElementById('heroQuality').textContent = m.quality;
+            document.getElementById('heroImdb').innerHTML = `<i class="fa-solid fa-star mr-1"></i>${m.rating} IMDb`;
+
+            const inWl = state.watchlist.includes(m.id);
+            const wlBtn = document.getElementById('heroWatchlistBtn');
+            if (wlBtn) {
+                wlBtn.innerHTML = inWl
+                    ? `<i class="fa-solid fa-heart text-rose-500"></i> <span>Đã Lưu Trong Tủ</span>`
+                    : `<i class="fa-regular fa-heart"></i> <span>Lưu Vào Tủ</span>`;
+            }
+            renderHeroThumbnails();
+        }
+
+        function renderHeroThumbnails() {
+            const bar = document.getElementById('heroThumbnailsBar');
+            if (!bar) return;
+            bar.innerHTML = CINEVEX_CATALOG.slice(0, 5).map((m, idx) => `
+                <button onclick="renderHero(${idx})" class="relative group shrink-0 w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all ${idx === state.heroIndex ? 'border-cyan-400 scale-105 shadow-lg shadow-cyan-500/30' : 'border-white/15 opacity-60 hover:opacity-100'}">
+                    <img src="${m.poster}" 
+                         data-backdrop="${m.backdrop || ''}" 
+                         data-tmdb="${m.tmdbId || ''}" 
+                         data-title="${escapeHtmlAttr(m.title)}" 
+                         data-year="${m.year || 2026}" 
+                         data-type="${m.type || 'movie'}" 
+                         referrerpolicy="no-referrer" 
+                         loading="lazy" 
+                         onerror="handleCardPosterError(this)" 
+                         class="w-full h-full object-cover" 
+                         alt="${escapeHtmlAttr(m.title)}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                        <span class="text-[9px] font-bold text-white truncate">${escapeHtmlAttr(m.title)}</span>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function openHeroMovie() {
+            const m = CINEVEX_CATALOG[state.heroIndex] || CINEVEX_CATALOG[0];
+            openPlayer(m.id);
+        }
+
+        function toggleHeroWatchlist() {
+            const m = CINEVEX_CATALOG[state.heroIndex] || CINEVEX_CATALOG[0];
+            toggleWatchlist(m.id);
+            renderHero(state.heroIndex);
+        }
+
+        function renderTopTrending() {
+            const row = document.getElementById('topTrendingRow');
+            if (!row) return;
+            row.innerHTML = CINEVEX_CATALOG.slice(0, 5).map((m, i) => `
+                <div onclick="openPlayer('${m.id}')" class="group cursor-pointer relative bg-vex-card/70 hover:bg-vex-card border border-vex-border hover:border-cyan-500/50 rounded-2xl p-3 flex items-center gap-3.5 transition">
+                    <span class="font-display font-extrabold text-4xl sm:text-5xl rank-stroke select-none pl-1">${i + 1}</span>
+                    <img src="${m.poster}" 
+                         data-backdrop="${m.backdrop || ''}" 
+                         data-tmdb="${m.tmdbId || ''}" 
+                         data-title="${escapeHtmlAttr(m.title)}" 
+                         data-year="${m.year || 2026}" 
+                         data-type="${m.type || 'movie'}" 
+                         referrerpolicy="no-referrer" 
+                         loading="lazy" 
+                         onerror="handleCardPosterError(this)" 
+                         class="w-14 h-20 object-cover rounded-xl shrink-0 shadow-md group-hover:scale-105 transition" 
+                         alt="${escapeHtmlAttr(m.title)}">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                        <h3 class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-400 truncate mt-1">${escapeHtmlAttr(m.title)}</h3>
+                        <p class="text-[11px] text-slate-400 truncate">${escapeHtmlAttr(m.originTitle)}</p>
+                        <div class="text-[10px] text-amber-400 font-semibold mt-1"><i class="fa-solid fa-star mr-1"></i>${m.rating}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==============================================================
+        // BỘ LỌC DANH MỤC, THỂ LOẠI & RENDER LƯỚI PHIM
+        // ==============================================================
+        async function setCategory(cat) {
+            state.category = cat;
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isMatch = btn.getAttribute('data-cat') === cat;
+                btn.classList.toggle('bg-cyan-500/15', isMatch);
+                btn.classList.toggle('text-cyan-400', isMatch);
+                btn.classList.toggle('border', isMatch);
+                btn.classList.toggle('border-cyan-500/30', isMatch);
+                btn.classList.toggle('text-slate-400', !isMatch);
+            });
+
+            const hub = document.getElementById('genreHubSection');
+            if (hub) hub.classList.add('hidden');
+
+            const hero = document.getElementById('heroSection');
+            const ribbon = document.getElementById('trendingRibbonSection');
+
+            if (cat === 'all') {
+                if (hero) hero.classList.remove('hidden');
+                if (ribbon) ribbon.classList.remove('hidden');
+                state.genre = 'all';
+                renderGenreFilterPills();
+            } else if (cat === 'watchlist') {
+                if (hero) hero.classList.add('hidden');
+                if (ribbon) ribbon.classList.add('hidden');
+            } else {
+                if (hero) hero.classList.remove('hidden');
+                if (ribbon) ribbon.classList.remove('hidden');
+            }
+
+            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+
+            // Nếu người dùng chọn tab cụ thể (Phim Lẻ, Phim Bộ, Anime, Tủ Phim), cuộn nhẹ tới danh sách phim
+            if (cat !== 'all') {
+                const gridElem = document.getElementById('catalogHeaderBar') || document.getElementById('moviesGrid');
+                if (gridElem && typeof gridElem.scrollIntoView === 'function') {
+                    gridElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } else {
+                if (typeof window.scrollTo === 'function') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            // Tự động kiểm tra và đồng bộ nguồn gốc nếu danh mục này chưa có nhiều phim
+            if (['movie', 'tv', 'anime'].includes(cat)) {
+                const count = MOVIES_DB.filter(m => {
+                    const anime = isAnime(m);
+                    if (cat === 'movie') return !anime && m.type === 'movie';
+                    if (cat === 'tv') return !anime && m.type === 'tv';
+                    if (cat === 'anime') return anime || m.type === 'anime';
+                    return false;
+                }).length;
+                if (count < 24) {
+                    showToast(`Đang tự động đồng bộ thêm ${cat === 'movie' ? 'Phim Lẻ' : (cat === 'tv' ? 'Phim Bộ' : 'Anime')} từ nguồn gốc...`, 'fa-cloud-arrow-down', 'text-cyan-400');
+                    await fetchCategoryApi(cat, 1);
+                    applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+                    renderGenreHubCards();
+                }
+            }
+
+            // Kích hoạt kiểm tra nạp vô tận nếu danh mục có ít phim để lấp đầy màn hình
+            setTimeout(() => {
+                handleInfiniteScrollTrigger();
+            }, 250);
+        }
+
+        function setGenre(genre) {
+            state.genre = genre;
+            renderGenreFilterPills();
+            renderGenreHubCards();
+            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            if (genre !== 'all') {
+                fetchGenreFromCloud(genre);
+            }
+            setTimeout(() => {
+                handleInfiniteScrollTrigger();
+            }, 300);
+        }
+
+        function applyFilters(searchKeyword = '') {
+            deduplicateMoviesDb();
+            const rawQ = (searchKeyword !== undefined && searchKeyword !== null && searchKeyword !== '')
+                ? searchKeyword
+                : (document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            const q = removeVietnameseTones(rawQ.trim().toLowerCase());
+
+            let filtered = MOVIES_DB.filter(m => {
+                const anime = isAnime(m);
+
+                // Khi đang xem danh mục, tách bạch Anime riêng khỏi Phim Bộ và Phim Lẻ
+                if (!q) {
+                    // 1. Phim Lẻ: CHỈ CHỨA PHIM LẺ (LOẠI BỎ HOÀN TOÀN TẤT CẢ ANIME / HOẠT HÌNH)
+                    if (state.category === 'movie') {
+                        if (anime || m.type === 'anime') return false;
+                        if (m.type !== 'movie') return false;
+                    }
+
+                    // 2. Phim Bộ: CHỈ CHỨA PHIM BỘ TRUYỀN HÌNH (LOẠI BỎ HOÀN TOÀN TẤT CẢ ANIME / HOẠT HÌNH)
+                    if (state.category === 'tv') {
+                        if (anime || m.type === 'anime') return false;
+                        if (m.type !== 'tv') return false;
+                    }
+
+                    // 3. Anime: CHỈ CHỨA TOÀN BỘ CÁC TÁC PHẨM ANIME / HOẠT HÌNH (CẢ BỘ LẪN LẺ)
+                    if (state.category === 'anime') {
+                        if (!anime && m.type !== 'anime') return false;
+                    }
+
+                    if (state.category === 'watchlist' && !state.watchlist.includes(m.id)) return false;
+                    if (state.genre !== 'all' && !(m.genres || []).includes(state.genre)) return false;
+                } else {
+                    if (state.category === 'watchlist' && !state.watchlist.includes(m.id)) return false;
+                }
+
+                if (q) {
+                    const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.year} ${m.slug || ''}`.toLowerCase());
+                    return hay.includes(q);
+                }
+                return true;
+            });
+
+            const countLabel = document.getElementById('moviesCountLabel');
+            if (countLabel) {
+                if (q) {
+                    countLabel.textContent = `Tìm thấy ${filtered.length} phim cho "${rawQ.trim()}"`;
+                } else {
+                    countLabel.textContent = `Kho Phim: ${MOVIES_DB.length} phim (Auto-Sync Live)`;
+                }
+            }
+
+            renderGrid(filtered);
+        }
+
+        function renderGrid(movies) {
+            const grid = document.getElementById('moviesGrid');
+            document.getElementById('moviesCountLabel').textContent = `Hiển thị ${movies.length} phim chất lượng cao`;
+
+            if (!movies.length) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-3 bg-vex-card/40 rounded-3xl border border-vex-border">
+                        <i class="fa-solid fa-film text-3xl text-cyan-400"></i>
+                        <p class="text-sm text-slate-300 font-semibold">Không tìm thấy bộ phim nào khớp với bộ lọc hiện tại.</p>
+                        <button onclick="setCategory('all'); setGenre('all'); clearSearch();" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-bold">Xem Toàn Bộ Kho Phim</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = movies.map(m => {
+                const liked = state.watchlist.includes(m.id);
+                return `
+                <div onclick="openPlayer('${m.id}')" class="poster-card group cursor-pointer bg-vex-card border border-vex-border hover:border-cyan-400/60 rounded-2xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
+                        <img src="${m.poster}" 
+                             data-backdrop="${m.backdrop || ''}" 
+                             data-tmdb="${m.tmdbId || ''}" 
+                             data-title="${escapeHtmlAttr(m.title)}" 
+                             data-year="${m.year || 2026}" 
+                             data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
+                             referrerpolicy="no-referrer" 
+                             loading="lazy" 
+                             onerror="handleCardPosterError(this)" 
+                             class="poster-img w-full h-full object-cover transition-transform duration-500" 
+                             alt="${escapeHtmlAttr(m.title)}">
+                        <div class="poster-overlay opacity-0 absolute inset-0 bg-gradient-to-t from-vex-bg via-black/50 to-transparent transition-opacity flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-2xl bg-cyan-500 text-slate-950 flex items-center justify-center shadow-lg shadow-cyan-500/40 transform scale-95 group-hover:scale-100 transition">
+                                <i class="fa-solid fa-play text-lg ml-0.5"></i>
+                            </div>
+                        </div>
+                        <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-black/75 backdrop-blur-md text-cyan-300 border border-cyan-500/30">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                        <button onclick="event.stopPropagation(); toggleWatchlist('${m.id}')" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg bg-black/70 backdrop-blur-md text-xs flex items-center justify-center ${liked ? 'text-rose-500' : 'text-slate-300 hover:text-white'}">
+                            <i class="${liked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                        </button>
+                        <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-bold">
+                            <span class="px-1.5 py-0.5 rounded bg-black/70 text-amber-400"><i class="fa-solid fa-star mr-1"></i>${m.rating}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">CC Vietsub</span>
+                        </div>
+                    </div>
+                    <div class="p-3.5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-400 truncate transition">${escapeHtmlAttr(m.title)}</h3>
+                            <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtmlAttr(m.originTitle)}</p>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-vex-border/60">
+                            <span>${m.year}</span>
+                            <span class="uppercase text-cyan-400/90 font-semibold">${isAnime(m) ? 'Anime' : (m.type === 'tv' ? 'Phim Bộ' : 'Phim Lẻ')}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // ==============================================================
+        // TÍNH NĂNG GỢI Ý PHIM & TỪ KHÓA THÔNG MINH (AUTOCOMPLETE DROPDOWN)
+        // ==============================================================
+        function removeVietnameseTones(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        function openSearchSuggestions() {
+            const dropdown = document.getElementById('searchSuggestionDropdown');
+            dropdown.classList.remove('hidden');
+            const val = document.getElementById('searchInput').value;
+            renderSearchSuggestions(val);
+        }
+
+        function closeSearchSuggestions() {
+            document.getElementById('searchSuggestionDropdown').classList.add('hidden');
+            state.suggestionIndex = -1;
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            applyFilters('');
+            openSearchSuggestions();
+            input.focus();
+        }
+
+        function handleSearch(value) {
+            const trimmed = value.trim();
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', !trimmed);
+            document.getElementById('searchSuggestionDropdown').classList.remove('hidden');
+            applyFilters(trimmed);
+            renderSearchSuggestions(trimmed);
+
+            // Tự động tìm kiếm trực tiếp trên toàn bộ 25.000+ phim của PhimAPI
+            clearTimeout(searchDebounceTimer);
+            if (trimmed.length >= 2) {
+                const spinner = document.getElementById('searchApiSpinner');
+                if (spinner) spinner.classList.remove('hidden');
+                searchDebounceTimer = setTimeout(() => fetchLiveSearchFromApi(trimmed), 280);
+            } else {
+                const spinner = document.getElementById('searchApiSpinner');
+                if (spinner) spinner.classList.add('hidden');
+            }
+        }
+
+        async function fetchLiveSearchFromApi(keyword) {
+            if (!keyword || keyword.trim().length < 2) return;
+            const spinner = document.getElementById('searchApiSpinner');
+            if (spinner) spinner.classList.remove('hidden');
+
+            const query = keyword.trim();
+
+            try {
+                // TÌM KIẾM ĐỒNG THỜI CẢ 2 NGUỒN:
+                // 1. Kho quốc tế TMDB (Nguồn gốc của Movy.sx - hàng triệu phim)
+                // 2. Kho PhimAPI (Việt Nam - hỗ trợ Vietsub M3U8)
+                const [tmdbRes, phimApiRes] = await Promise.allSettled([
+                    fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=vi-VN&include_adult=false`)
+                        .then(r => r.json()),
+                    fetch(_dec(2) + encodeURIComponent(query) + '&limit=24')
+                        .then(r => r.json())
+                ]);
+
+                let newItems = [];
+
+                // 1. Dữ liệu từ TMDB (Movy.sx standard)
+                if (tmdbRes.status === 'fulfilled' && tmdbRes.value && Array.isArray(tmdbRes.value.results)) {
+                    const validTmdb = tmdbRes.value.results.filter(it => (it.media_type === 'movie' || it.media_type === 'tv') && (it.poster_path || it.backdrop_path));
+                    const mappedTmdb = validTmdb.map(it => mapTmdbItem(it));
+                    newItems.push(...mappedTmdb);
+                }
+
+                // 2. Dữ liệu từ PhimAPI (Việt Nam)
+                if (phimApiRes.status === 'fulfilled' && phimApiRes.value && phimApiRes.value.data && Array.isArray(phimApiRes.value.data.items)) {
+                    const mappedPhimApi = phimApiRes.value.data.items.map(it => mapPhimApiItem(it));
+                    newItems.push(...mappedPhimApi);
+                }
+
+                if (newItems.length > 0) {
+                    const addedCount = mergeMoviesIntoDb(newItems, true); // Đưa phim vừa tìm được lên đầu
+                    applyFilters(query);
+                    renderSearchSuggestions(query);
+
+                    if (addedCount > 0) {
+                        showToast(`Đã tìm thấy ${newItems.length} phim từ Movy (TMDB) & PhimAPI!`, 'fa-magnifying-glass', 'text-cyan-400');
+                    }
+                }
+            } catch (e) {
+                console.warn("Lỗi tìm kiếm trực tiếp trên máy chủ:", e);
+            } finally {
+                if (spinner) spinner.classList.add('hidden');
+            }
+        }
+
+        function renderSearchSuggestions(rawQuery) {
+            const container = document.getElementById('searchSuggestionContent');
+            const q = rawQuery.trim();
+            const qNorm = removeVietnameseTones(q.toLowerCase());
+
+            // Khi ô tìm kiếm đang trống: Hiện Lịch sử + Từ khóa Hot + Phim Đề Xuất
+            if (!q) {
+                container.innerHTML = `
+                    ${state.searchHistory.length ? `
+                    <div class="p-3.5">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                            <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-cyan-400"></i>Lịch Sử Tìm Kiếm</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${state.searchHistory.map(h => `
+                                <div class="inline-flex items-center bg-vex-card border border-vex-border rounded-xl text-xs text-slate-200 overflow-hidden">
+                                    <button onclick="selectSuggestedKeyword('${h}')" class="px-2.5 py-1 hover:text-cyan-400 transition">${h}</button>
+                                    <button onclick="removeHistoryItem(event, '${h}')" class="px-1.5 py-1 text-slate-500 hover:text-rose-400">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    <div class="p-3.5">
+                        <div class="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-fire text-amber-400 mr-1.5"></i>Từ Khóa Xu Hướng Hôm Nay
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${TRENDING_KEYWORDS.map(kw => `
+                                <button onclick="selectSuggestedKeyword('${kw}')" class="px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 text-cyan-300 text-xs font-medium transition">
+                                    #${kw}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="p-3.5">
+                        <div class="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-violet-400 mr-1.5"></i>Phim Đề Xuất Xem Ngay
+                        </div>
+                        <div class="space-y-1.5">
+                            ${MOVIES_DB.slice(0, 4).map(m => renderSuggestionMovieItem(m)).join('')}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Khi người dùng đang gõ từ khóa: Gợi ý từ khóa khớp + Danh sách phim có Poster
+            const matchedKeywords = TRENDING_KEYWORDS.filter(k => removeVietnameseTones(k.toLowerCase()).includes(qNorm));
+            const matchedMovies = MOVIES_DB.filter(m => {
+                const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.slug || ''}`.toLowerCase());
+                return hay.includes(qNorm);
+            }).slice(0, 8);
+
+            container.innerHTML = `
+                <div class="p-3">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5 px-1">Gợi ý từ khóa cho "${q}"</div>
+                    <div class="space-y-1">
+                        <button onclick="selectSuggestedKeyword('${q.replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-1.5 rounded-xl hover:bg-white/5 text-xs text-cyan-300 flex items-center justify-between">
+                            <span><i class="fa-solid fa-magnifying-glass mr-2 text-cyan-400"></i>Tìm tất cả phim có từ khóa "<strong>${q}</strong>"</span>
+                            <span class="text-[10px] text-slate-500">Enter</span>
+                        </button>
+                        ${matchedKeywords.map(kw => `
+                            <button onclick="selectSuggestedKeyword('${kw.replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-1.5 rounded-xl hover:bg-white/5 text-xs text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-trend-up text-amber-400 text-[11px]"></i>
+                                <span>${kw}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="p-3">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 px-1">Phim Khớp Từ Khóa (${matchedMovies.length})</div>
+                    <div class="space-y-1.5">
+                        ${matchedMovies.length
+                            ? matchedMovies.map(m => renderSuggestionMovieItem(m)).join('')
+                            : `
+                            <div class="py-4 text-center text-xs space-y-2">
+                                <p class="text-cyan-400 font-medium animate-pulse"><i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Đang tìm trên kho Movy.sx (TMDB) & PhimAPI...</p>
+                                <button onclick="fetchLiveSearchFromApi('${q.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 mx-auto shadow-lg shadow-cyan-500/20">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Tìm Ngay Trên Đám Mây Movy (TMDB)
+                                </button>
+                            </div>
+                            `
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSuggestionMovieItem(m) {
+            return `
+                <div onclick="saveSearchHistory('${escapeHtmlAttr(m.title)}'); closeSearchSuggestions(); openPlayer('${m.id}')" class="suggestion-movie-row cursor-pointer p-2 rounded-xl hover:bg-cyan-500/15 border border-transparent hover:border-cyan-500/30 flex items-center gap-3 transition">
+                    <img src="${m.poster}" 
+                         data-backdrop="${m.backdrop || ''}" 
+                         data-tmdb="${m.tmdbId || ''}" 
+                         data-title="${escapeHtmlAttr(m.title)}" 
+                         data-year="${m.year || 2026}" 
+                         data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
+                         referrerpolicy="no-referrer" 
+                         loading="lazy" 
+                         onerror="handleCardPosterError(this)" 
+                         class="w-10 h-14 object-cover rounded-lg shrink-0 border border-vex-border" 
+                         alt="${escapeHtmlAttr(m.title)}">
+                    <div class="min-w-0 flex-1">
+                        <h4 class="text-xs font-bold text-white truncate">${escapeHtmlAttr(m.title)}</h4>
+                        <p class="text-[11px] text-slate-400 truncate">${escapeHtmlAttr(m.originTitle)} • ${m.year}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-bold">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                            <span class="text-[10px] text-amber-400"><i class="fa-solid fa-star mr-0.5"></i>${m.rating}</span>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-play text-xs"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectSuggestedKeyword(kw) {
+            const input = document.getElementById('searchInput');
+            input.value = kw;
+            saveSearchHistory(kw);
+            handleSearch(kw);
+            closeSearchSuggestions();
+            fetchLiveSearchFromApi(kw);
+        }
+
+        function saveSearchHistory(kw) {
+            if (!kw) return;
+            state.searchHistory = [kw, ...state.searchHistory.filter(i => i !== kw)].slice(0, 6);
+            localStorage.setItem('cinevex_search_history', JSON.stringify(state.searchHistory));
+        }
+
+        function removeHistoryItem(e, kw) {
+            e.stopPropagation();
+            state.searchHistory = state.searchHistory.filter(i => i !== kw);
+            localStorage.setItem('cinevex_search_history', JSON.stringify(state.searchHistory));
+            renderSearchSuggestions(document.getElementById('searchInput').value);
+        }
+
+        function handleSearchKeydown(e) {
+            if (e.key === 'Escape') {
+                closeSearchSuggestions();
+                return;
+            }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = e.target.value.trim();
+                if (val) {
+                    saveSearchHistory(val);
+                    closeSearchSuggestions();
+                    clearTimeout(searchDebounceTimer);
+                    // Lọc tức thì & gọi trực tiếp máy chủ PhimAPI
+                    applyFilters(val);
+                    fetchLiveSearchFromApi(val);
+                }
+            }
+        }
+
+        function openPlayer(id) {
+            const movie = MOVIES_DB.find(m => m.id === id);
+            if (movie) {
+                try {
+                    sessionStorage.setItem('cinevex_active_movie', JSON.stringify(movie));
+                } catch (e) {}
+            }
+            const targetUrl = 'watch.html?id=' + encodeURIComponent(id);
+            const newTab = window.open(targetUrl, '_blank');
+            if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+                window.location.href = targetUrl;
+            }
+        }// ==============================================================
+        // TIỆN ÍCH TỦ PHIM, TẮT ĐÈN & NGẪU NHIÊN
+        // ==============================================================
+        function toggleWatchlist(id) {
+            const idx = state.watchlist.indexOf(id);
+            if (idx > -1) {
+                state.watchlist.splice(idx, 1);
+                showToast('Đã xóa khỏi Tủ Phim', 'fa-trash', 'text-rose-400');
+            } else {
+                state.watchlist.push(id);
+                showToast('Đã lưu vào Tủ Phim Yêu Thích!', 'fa-heart', 'text-rose-500');
+            }
+            localStorage.setItem('cinevex_watchlist', JSON.stringify(state.watchlist));
+            updateWatchlistBadge();
+            applyFilters(document.getElementById('searchInput').value);
+        }
+
+        function updateWatchlistBadge() {
+            const b = document.getElementById('watchlistBadge');
+            if (b) b.textContent = state.watchlist.length;
+        }
+
+        function toggleLightsOff() {
+            document.getElementById('videoPlayerWrapper').classList.toggle('lights-off-active');
+        }
+
+        function playRandomMovie() {
+            const randomItem = MOVIES_DB[Math.floor(Math.random() * MOVIES_DB.length)];
+            if (randomItem) openPlayer(randomItem.id);
+        }
+
+        function resetToHome(e) {
+            if (e) e.preventDefault();
+            setCategory('all');
+            setGenre('all');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(msg, icon = 'fa-circle-info', color = 'text-cyan-400') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel border border-cyan-500/40 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-medium';
+            toast.innerHTML = `<i class="fa-solid ${icon} ${color} text-sm"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2600);
+        }
+    </script>
+</body>
+</html>

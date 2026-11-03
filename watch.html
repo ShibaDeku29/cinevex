@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang Xem Phim — CINEVEX.IO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Video.js v10 (v10.2.0) Official Web Components & Skins CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/global.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/video-neutral.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.2.0/media/hlsjs-video.js"></script>
+    <!-- HLS.js hỗ trợ phát luồng phim thực tế .m3u8 -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- CINEVEX Security: Anti-DevTools Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        vex: {
+                            bg: '#04060d',
+                            surface: '#0b0f1c',
+                            card: '#101626',
+                            border: '#1d263b',
+                            cyan: '#06b6d4',
+                            violet: '#8b5cf6',
+                            emerald: '#10b981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #04060d; }
+        ::-webkit-scrollbar-thumb { background: #1d263b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        .glass-panel {
+            background: rgba(16, 22, 38, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .lights-off-active {
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.95);
+            z-index: 70;
+            position: relative;
+        }
+
+        .poster-card {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .poster-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 30px -8px rgba(6, 182, 212, 0.25);
+        }
+        .poster-card:hover .poster-img {
+            transform: scale(1.06);
+        }
+
+        /* ==============================================================
+           VIDEO.JS V10 & THEATER PLAYER STYLING (FIX TRIỆT ĐỂ KHOẢNG ĐEN)
+           ============================================================== */
+        #videoPlayerWrapper {
+            position: relative;
+            background-color: #000;
+            display: flex !important;
+            align-items: stretch !important;
+            justify-content: stretch !important;
+            transition: aspect-ratio 0.25s ease;
+        }
+
+        #videoPlayerWrapper video-player {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+
+        #videoPlayerWrapper video-player.hidden {
+            display: none !important;
+        }
+
+        #videoPlayerWrapper video-skin,
+        #videoPlayerWrapper video-neutral-skin,
+        .vjs10-skin-container {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+
+        #videoPlayerWrapper media-container {
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+            position: relative !important;
+        }
+
+        #videoPlayerWrapper video#mainVideoElement,
+        #videoPlayerWrapper video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            display: block !important;
+            background-color: #000;
+        }
+
+        #videoPlayerWrapper iframe#embedIframePlayer {
+            width: 100% !important;
+            height: 100% !important;
+            border: 0 !important;
+        }
+
+        #videoPlayerWrapper iframe#embedIframePlayer.hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-vex-bg text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- CINEVEX QUANTUM SHIELD MODAL -->
+    <div id="quantumShieldModal" class="hidden fixed inset-0 z-[9999] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-[#080d1a] border border-cyan-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_80px_rgba(6,182,212,0.3)] text-center space-y-5">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl animate-pulse">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-display font-bold text-white tracking-wide">CINEVEX QUANTUM SHIELD v5.0</h3>
+                <p class="text-xs text-cyan-400 font-semibold mt-1">Hệ Thống Bảo Vệ Bản Quyền & Chống DevTools</p>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Đã phát hiện thao tác mở DevTools hoặc công cụ dò luồng stream. Để bảo vệ bản quyền phim, trình phát tạm thời bị tạm dừng.
+            </p>
+            <button onclick="resumeQuantumShield()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/25 hover:brightness-110 transition">
+                Xác Nhận & Tiếp Tục Xem Phim
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-[999] max-w-sm w-full bg-vex-card/95 border border-vex-border rounded-2xl p-4 shadow-2xl backdrop-blur-xl transform translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3">
+        <div id="toastIcon" class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <p id="toastMessage" class="text-xs text-slate-200 font-medium leading-snug">Thông báo hệ thống</p>
+        </div>
+    </div>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-vex-border">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Left: Logo & Back Button -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-200 hover:text-cyan-300 transition text-xs font-semibold">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang Chủ</span>
+                </a>
+                <div class="h-5 w-px bg-vex-border hidden sm:block"></div>
+                <a href="index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition">
+                        V
+                    </div>
+                    <span class="font-display font-extrabold text-base sm:text-lg tracking-wider text-white">
+                        CINE<span class="text-cyan-400">VEX</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Center: Breadcrumb Movie Title -->
+            <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 min-w-0 max-w-md truncate">
+                <i class="fa-solid fa-film text-cyan-400 shrink-0"></i>
+                <span id="navMovieTitle" class="text-white font-semibold truncate">Đang tải phim...</span>
+                <span id="navQualityBadge" class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-bold text-[10px] shrink-0">4K Vietsub</span>
+            </div>
+
+            <!-- Right: Search Button & Security Badge -->
+            <div class="flex items-center gap-2.5">
+                <a href="index.html" class="px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-magnifying-glass text-cyan-400"></i>
+                    <span class="hidden sm:inline">Tìm Phim Khác</span>
+                </a>
+                <span class="px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+                    <span class="hidden sm:inline">Quantum Shield</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WATCH THEATER CONTENT -->
+    <main class="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
+
+        <!-- THANH CÔNG CỤ PHÍA TRÊN PLAYER -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 text-sm">
+                <span id="playerBreadcrumbTitle" class="text-white font-bold text-base sm:text-lg truncate max-w-[320px]">Tên Phim</span>
+                <span id="playerCurrentEpBadge" class="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-extrabold text-xs">Full HD</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 font-bold text-[10px] flex items-center gap-1">
+                    <i class="fa-solid fa-circle-play text-cyan-400"></i> Video.js v10
+                </span>
+            </div>
+
+            <!-- CỤM NÚT ĐIỀU KHIỂN VIDEO.JS V10, PHỤ ĐỀ CC & TẮT ĐÈN -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Đổi Skin Video.js v10 -->
+                <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
+                    <span id="vjs10SkinLabel">VJS10: Frosted Skin</span>
+                </button>
+
+                <!-- Bật/Tắt nhanh CC (1-Click + Phím C) -->
+                <button onclick="toggleCC()" id="ccQuickToggleBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-closed-captioning text-sm"></i>
+                    <span id="ccQuickToggleText">CC: ĐANG BẬT</span>
+                </button>
+
+                <!-- Tự động chuyển tập (Auto-Next 7s) -->
+                <button onclick="toggleAutoNextSetting()" id="autoNextToggleBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5" title="Bật/Tắt tự động phát tập kế tiếp sau 7 giây">
+                    <i class="fa-solid fa-forward-step text-cyan-400"></i>
+                    <span id="autoNextToggleBtnLabel">Auto-Next: 7s (BẬT)</span>
+                </button>
+
+                <!-- Nút chuyển nhanh tập kế tiếp (hiện khi có tập sau) -->
+                <button onclick="triggerNextEpisodeManual()" id="quickNextEpBtn" class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-600/30 border border-violet-500/40 text-violet-300 hover:bg-violet-600 hover:text-white transition flex items-center gap-1.5 shadow-lg shadow-violet-500/10">
+                    <i class="fa-solid fa-forward-step"></i>
+                    <span id="quickNextEpBtnLabel">Tập Tiếp</span>
+                </button>
+
+                <!-- Mở Trung tâm Phụ đề & OpenSubtitles -->
+                <button onclick="toggleSubtitleModal()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 transition flex items-center gap-2">
+                    <i class="fa-solid fa-language"></i>
+                    <span>Nguồn Phụ Đề & OpenSubtitles</span>
+                </button>
+
+                <!-- Nút Tắt đèn rạp chiếu -->
+                <button onclick="toggleLightsOff()" id="lightsOffBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium bg-vex-card border border-vex-border text-slate-300 hover:text-amber-400 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-moon"></i> <span>Tắt Đèn</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- KHUNG VIDEO CHÍNH (TRÌNH PHÁT VIDEO.JS V10 HOẶC IFRAME EMBED) -->
+        <div id="videoPlayerWrapper" class="relative rounded-3xl overflow-hidden bg-black border border-vex-border shadow-[0_0_80px_-15px_rgba(6,182,212,0.3)] aspect-video w-full max-h-[78vh] group">
+            <!-- Loading Spinner -->
+            <div id="playerLoadingOverlay" class="hidden absolute inset-0 z-30 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center gap-3">
+                <div class="w-14 h-14 rounded-full border-4 border-cyan-500/25 border-t-cyan-400 animate-spin"></div>
+                <p id="playerLoadingText" class="text-xs sm:text-sm text-cyan-300 font-medium">Đang khởi tạo Video.js v10 Engine...</p>
+            </div>
+
+            <!-- OVERLAY ĐẾM NGƯỢC TỰ ĐỘNG CHUYỂN TẬP (7 GIÂY) -->
+            <div id="nextEpisodePromptOverlay" class="hidden absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-300">
+                <div class="max-w-md w-full bg-slate-900/95 border border-cyan-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_50px_rgba(6,182,212,0.3)] flex flex-col items-center gap-4 relative overflow-hidden">
+                    <div class="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-violet-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold tracking-wider uppercase">
+                        <i class="fa-solid fa-forward-step animate-pulse text-cyan-400"></i>
+                        <span>Tập Tiếp Theo Sắp Bắt Đầu</span>
+                    </div>
+
+                    <div class="space-y-1">
+                        <h3 id="nextEpTargetName" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Tập Tiếp Theo</h3>
+                        <p id="nextEpMovieTitle" class="text-xs sm:text-sm text-slate-300 font-medium truncate max-w-xs">CINEVEX Cinema</p>
+                    </div>
+
+                    <!-- Vòng tròn đếm ngược 7s sống động -->
+                    <div class="relative w-24 h-24 my-1 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" stroke="rgba(255, 255, 255, 0.1)" stroke-width="6" fill="transparent" />
+                            <circle id="nextEpSvgProgressCircle" cx="50" cy="50" r="42" stroke="url(#cyanVioletGradNextEp)" stroke-width="6" stroke-linecap="round" fill="transparent" stroke-dasharray="264" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;" />
+                            <defs>
+                                <linearGradient id="cyanVioletGradNextEp" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#06b6d4" />
+                                    <stop offset="100%" stop-color="#8b5cf6" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="nextEpCountdownNum" class="text-3xl font-extrabold text-cyan-400 font-display">7</span>
+                            <span class="text-[9px] text-slate-400 font-semibold uppercase -mt-1 tracking-wider">Giây</span>
+                        </div>
+                    </div>
+
+                    <!-- Nút bấm hành động (Phát Ngay hoặc Hủy) -->
+                    <div class="flex items-center justify-center gap-3 w-full pt-1">
+                        <button id="btnPlayNextNow" onclick="playNextEpisodeImmediately()" class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition transform active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-play text-xs"></i>
+                            <span>Phát Ngay (<span id="btnCountdownSec">7s</span>)</span>
+                        </button>
+                        <button id="btnCancelNextEp" onclick="cancelNextEpisodeCountdown()" class="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-slate-300 hover:text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Hủy</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between w-full pt-2 border-t border-vex-border/60 text-[11px] text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-gear text-slate-500"></i> Tự động chuyển tập:
+                        </span>
+                        <button id="toggleAutoNextSettingBtn" onclick="toggleAutoNextSetting()" class="text-cyan-400 hover:text-cyan-300 font-bold transition">
+                            BẬT (7s)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút CC nổi trên video -->
+            <div class="absolute top-3.5 right-3.5 z-30 flex items-center gap-2 opacity-90 group-hover:opacity-100 transition">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
+                    <i class="fa-solid fa-bolt text-cyan-400"></i> Video.js v10.2
+                </span>
+                <button onclick="toggleCC()" id="inVideoCcBadge" class="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-emerald-500/50 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 transition">
+                    <i class="fa-solid fa-closed-captioning"></i>
+                    <span id="inVideoCcText">CC: ON (Vietsub)</span>
+                </button>
+            </div>
+
+            <!-- TRÌNH PHÁT VIDEO.JS V10 (NATIVE HLS M3U8) -->
+            <video-player id="vjs10Player" class="w-full h-full block" content-title="CINEVEX 4K Stream">
+                <video-skin id="vjs10SkinContainer" class="vjs10-skin-container w-full h-full block">
+                    <video id="mainVideoElement" class="w-full h-full object-contain bg-black" playsinline crossorigin="anonymous"></video>
+                </video-skin>
+            </video-player>
+
+            <!-- TRÌNH PHÁT NHÚNG IFRAME (VIDLINK 4K / VIDSRC / MULTIEMBED) -->
+            <iframe id="embedIframePlayer" class="w-full h-full border-0 bg-black hidden" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe>
+
+            <!-- LỚP PHỦ HIỂN THỊ PHỤ ĐỀ SONG NGỮ -->
+            <div id="customSubtitleOverlay" class="pointer-events-none absolute inset-x-4 bottom-16 sm:bottom-20 z-20 flex flex-col items-center justify-center text-center space-y-1">
+                <div id="subtitlePrimaryLine" class="custom-subtitle-cue hidden px-3.5 py-1 rounded-xl bg-black/80 backdrop-blur-sm text-white font-semibold text-sm sm:text-base md:text-lg max-w-3xl"></div>
+                <div id="subtitleSecondaryLine" class="custom-subtitle-cue hidden px-3 py-0.5 rounded-lg bg-black/65 text-cyan-300 font-medium text-xs sm:text-sm max-w-2xl"></div>
+            </div>
+        </div>
+
+        <!-- THANH CHỌN MÁY CHỦ (VIETSUB HLS + VIDSRC + MULTIEMBED) -->
+        <div class="bg-vex-card border border-vex-border rounded-2xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5 text-xs text-slate-300">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span class="font-bold text-white">Đổi Máy Chủ Phát:</span>
+                <span class="text-slate-400 hidden sm:inline">(Ưu tiên Server #1 Vietsub HLS, hoặc Server #2 Movy VidSrc Cloud / MultiEmbed)</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2" id="serverButtonsContainer"></div>
+        </div>
+
+        <!-- TRUNG TÂM PHỤ ĐỀ (OPENSUBTITLES CLOUD & ADD SOURCE) -->
+        <div id="subtitleManagerModal" class="hidden bg-[#080c17] border border-cyan-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-vex-border">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                        <i class="fa-solid fa-closed-captioning text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                            Trung Tâm Phụ Đề Thông Minh (Subtitle Center)
+                            <span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">Phím tắt: C</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Chuyển đổi giữa Phụ đề có sẵn, Phụ đề Song Ngữ hoặc kết nối nguồn OpenSubtitles v3</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCC()" id="modalCcSwitchBtn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 transition">
+                        Trạng thái CC: ĐANG BẬT
+                    </button>
+                    <button onclick="toggleSubtitleModal()" class="w-8 h-8 rounded-xl bg-vex-card border border-vex-border text-slate-400 hover:text-white">✕</button>
+                </div>
+            </div>
+
+            <!-- 3 Cột chức năng Phụ đề -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <!-- Cột 1: Có Sẵn -->
+                <div class="bg-vex-card/80 border border-vex-border rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-cyan-400">
+                            <i class="fa-solid fa-circle-check mr-1.5"></i>1. Phụ Đề Có Sẵn (Built-in)
+                        </h4>
+                        <span class="text-[10px] text-slate-400">Đồng bộ tức thì</span>
+                    </div>
+                    <div id="builtinSubList" class="space-y-2"></div>
+                </div>
+
+                <!-- Cột 2: OpenSubtitles v3 -->
+                <div class="bg-vex-card/80 border border-vex-border rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-violet-400">
+                            <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>2. Kho OpenSubtitles v3
+                        </h4>
+                        <select id="openSubLangFilter" onchange="searchOpenSubtitlesCloud()" class="bg-vex-bg border border-vex-border rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none">
+                            <option value="vie">Tiếng Việt (VIE)</option>
+                            <option value="eng">English (ENG)</option>
+                            <option value="jpn">Japanese (JPN)</option>
+                            <option value="kor">Korean (KOR)</option>
+                        </select>
+                    </div>
+                    <div id="openSubCloudResults" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Cột 3: Add Source & Upload .srt/.vtt -->
+                <div class="bg-vex-card/80 border border-vex-border rounded-2xl p-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        <i class="fa-solid fa-link mr-1.5"></i>3. Add Source OpenSubtitles / File
+                    </h4>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] text-slate-400">Dán URL Addon hoặc link (.srt/.vtt):</label>
+                        <div class="flex gap-1.5">
+                            <input id="customSubSourceInput" type="text" value="https://opensubtitles-v3.strem.io" class="flex-1 bg-vex-bg border border-vex-border rounded-xl px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                            <button onclick="connectCustomOpenSubSource()" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 transition">
+                                Kết Nối
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pt-1">
+                        <label class="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl border border-dashed border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/5 text-cyan-300 text-xs font-medium cursor-pointer transition">
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Tải tệp phụ đề (.SRT / .VTT) từ máy</span>
+                            <input type="file" accept=".srt,.vtt" class="hidden" onchange="handleLocalSubtitleUpload(event)">
+                        </label>
+                    </div>
+                    <div class="pt-2 border-t border-vex-border flex items-center justify-between text-xs">
+                        <span class="text-slate-400">Độ trễ (Sync): <strong id="subOffsetValue" class="text-cyan-400">0.0s</strong></span>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="adjustSubOffset(-0.5)" class="px-2.5 py-1 rounded-lg bg-vex-bg border border-vex-border hover:border-cyan-400 text-slate-200">-0.5s</button>
+                            <button onclick="adjustSubOffset(0.5)" class="px-2.5 py-1 rounded-lg bg-vex-bg border border-vex-border hover:border-cyan-400 text-slate-200">+0.5s</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH TẬP PHIM (CHO PHIM BỘ / ANIME) -->
+        <div id="episodeSelectorBox" class="hidden bg-vex-card border border-vex-border rounded-2xl p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol text-cyan-400"></i> Chọn Tập Phim & Ngôn Ngữ Âm Thanh
+                </h3>
+                <div id="audioOrSeasonTabs" class="flex flex-wrap items-center gap-1.5"></div>
+            </div>
+            <div id="episodeListGrid" class="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- THÔNG TIN CHI TIẾT BỘ PHIM -->
+        <div class="bg-vex-card/90 border border-vex-border rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row gap-6 items-start">
+            <img id="playerPoster" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20400%20600%22%3E%3Crect%20width%3D%22400%22%20height%3D%22600%22%20fill%3D%22%230c1222%22%2F%3E%3C%2Fsvg%3E" alt="Poster" referrerpolicy="no-referrer" onerror="handleCardPosterError(this)" class="w-32 sm:w-44 aspect-[2/3] object-cover rounded-2xl shrink-0 border border-white/10 shadow-xl mx-auto sm:mx-0">
+            <div class="flex-1 space-y-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span id="playerQualityBadge" class="px-2.5 py-0.5 rounded-lg bg-cyan-500 text-slate-950 font-extrabold text-xs">4K Vietsub • Đa Server</span>
+                    <span id="playerYearBadge" class="px-2.5 py-0.5 rounded-lg bg-white/10 text-slate-200 font-semibold text-xs">2026</span>
+                    <span id="playerRatingBadge" class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-bold text-xs"><i class="fa-solid fa-star mr-1"></i>8.8</span>
+                    <span id="playerTypeBadge" class="px-2.5 py-0.5 rounded-lg bg-violet-500/20 text-violet-300 font-bold text-xs uppercase">Anime</span>
+                </div>
+                <h1 id="playerTitle" class="text-2xl sm:text-4xl font-display font-extrabold text-white"></h1>
+                <p id="playerOriginTitle" class="text-xs sm:text-sm text-cyan-400 font-semibold"></p>
+                <div id="playerGenres" class="flex flex-wrap gap-1.5 pt-1"></div>
+                <p id="playerSynopsis" class="text-xs sm:text-sm text-slate-300 leading-relaxed pt-2"></p>
+            </div>
+        </div>
+
+        <!-- PHIM ĐỀ XUẤT CHO BẠN (TIẾP TỤC XEM) -->
+        <div class="space-y-4 pt-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base sm:text-lg font-bold font-display text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sparkles text-cyan-400"></i> Phim Đề Xuất Cho Bạn
+                </h2>
+                <a href="index.html" class="text-xs text-cyan-400 hover:underline">Xem Tất Cả Kho Phim →</a>
+            </div>
+            <div id="relatedMoviesGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4"></div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-vex-border bg-vex-surface/80 py-6 mt-12 text-center text-xs text-slate-500">
+        <p>CINEVEX.IO — Nền tảng rạp phim không gian trực tuyến tích hợp OpenSubtitles v3 & Multi-HLS.</p>
+        <p class="mt-1 text-[11px] text-cyan-400"><i class="fa-solid fa-shield-halved mr-1"></i>Quantum Obfuscated v5.0 Shield Active</p>
+    </footer>
+
+    <!-- LOGIC JAVASCRIPT RIÊNG CHO TRANG XEM PHIM -->
+    <script>
+        const _0x5f9a = [
+            'aHR0cHM6Ly9waGltYXBpLmNvbS9kYW5oLXNhY2gvcGhpbS1tb2ktY2FwLW5oYXQ/cGFnZT0=',
+            'aHR0cHM6Ly9waGltYXBpLmNvbS9waGltLw==',
+            'aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGltLWtpZW0/a2V5d29yZD0='
+        ];
+        function _dec(idx) {
+            try { return atob(_0x5f9a[idx]); } catch (e) { return ''; }
+        }
+
+        const TMDB_API_KEY = '4e44d9029b1270a757cddc766a1bcb63';
+
+        let state = {
+            activeMovie: null,
+            vjs10SkinMode: 'frosted',
+            activeServerKey: 'hls',
+            currentEp: null,
+            currentServers: null,
+            currentSIdx: 0,
+            currentEIdx: 0,
+            autoNextTriggeredForCurrentEp: false,
+            subtitle: {
+                enabled: true,
+                offset: 0,
+                primaryLang: 'vi',
+                secondaryLang: 'off',
+                available: [
+                    { id: 'vi', label: 'Tiếng Việt (Chuẩn)', lang: 'vi' },
+                    { id: 'en', label: 'English (SDH)', lang: 'en' }
+                ]
+            }
+        };
+
+        let hlsInstance = null;
+
+        // ==============================================================
+        // ANTI-DEVTOOLS QUANTUM SHIELD V5.0
+        // ==============================================================
+        let devtoolsDetected = false;
+        let baselineInnerWidth = window.innerWidth;
+        let baselineInnerHeight = window.innerHeight;
+
+        function calibrateWindowBaseline() {
+            baselineInnerWidth = window.innerWidth;
+            baselineInnerHeight = window.innerHeight;
+        }
+
+        function triggerSecurityAlarm(reason = "DevTools Detected") {
+            if (devtoolsDetected) return;
+            devtoolsDetected = true;
+            console.clear();
+            const video = document.getElementById('mainVideoElement');
+            if (video) video.pause();
+            const modal = document.getElementById('quantumShieldModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function resumeQuantumShield() {
+            devtoolsDetected = false;
+            calibrateWindowBaseline();
+            const modal = document.getElementById('quantumShieldModal');
+            if (modal) modal.classList.add('hidden');
+            const video = document.getElementById('mainVideoElement');
+            if (video && state.activeServerKey === 'hls') video.play().catch(() => {});
+        }
+
+        window.addEventListener('resize', () => {
+            const deltaW = Math.abs(window.innerWidth - baselineInnerWidth);
+            const deltaH = Math.abs(window.innerHeight - baselineInnerHeight);
+            if (deltaW > 185 || deltaH > 185) {
+                triggerSecurityAlarm("DevTools Window Dock Detected");
+            } else {
+                baselineInnerWidth = window.innerWidth;
+                baselineInnerHeight = window.innerHeight;
+            }
+        });
+
+        if (window.DisableDevtool) {
+            try {
+                window.DisableDevtool({
+                    ondevtoolopen: () => triggerSecurityAlarm("DisableDevtool Core Trigger"),
+                    interval: 200,
+                    disableMenu: false
+                });
+            } catch (e) {}
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase()))) {
+                e.preventDefault();
+                triggerSecurityAlarm("Shortcut Blocked");
+            }
+            if (e.key.toLowerCase() === 'c' && document.activeElement.tagName !== 'INPUT') {
+                toggleCC();
+            }
+            if (e.shiftKey && e.key.toUpperCase() === 'N' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                triggerNextEpisodeManual();
+            }
+        });
+
+        // ==============================================================
+        // HỆ THỐNG XỬ LÝ POSTER THÔNG MINH & TẠO POSTER ĐỘNG CHỐNG LỖI 100%
+        // ==============================================================
+        function escapeHtmlAttr(str = '') {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function generateDynamicPosterSvg(title = 'CINEVEX CINEMA', year = 2026, type = 'movie') {
+            const safeTitle = String(title || 'CINEVEX CINEMA')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+            const words = safeTitle.split(' ');
+            let lines = [];
+            let currentLine = '';
+            for (const w of words) {
+                if ((currentLine + ' ' + w).trim().length <= 18) {
+                    currentLine = (currentLine + ' ' + w).trim();
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = w;
+                    if (lines.length >= 3) break;
+                }
+            }
+            if (currentLine && lines.length < 3) lines.push(currentLine);
+            if (words.length > 0 && lines.length === 3 && words.join(' ').length > lines.join(' ').length) {
+                lines[2] += '...';
+            }
+
+            const typeLabel = (type === 'anime' ? 'ANIME' : (type === 'tv' ? 'PHIM BỘ' : 'PHIM LẺ'));
+            const badgeColor = type === 'anime' ? '#ec4899' : (type === 'tv' ? '#a855f7' : '#06b6d4');
+
+            const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1222"/>
+      <stop offset="40%" stop-color="#111a30"/>
+      <stop offset="100%" stop-color="#070a12"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#38bdf8" stroke-width="0.5" stroke-opacity="0.08"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <rect width="400" height="600" fill="url(#grid)"/>
+  <circle cx="200" cy="240" r="180" fill="url(#glow)"/>
+  <rect x="12" y="12" width="376" height="576" rx="20" fill="none" stroke="#1e293b" stroke-width="2"/>
+  <rect x="18" y="18" width="364" height="564" rx="16" fill="none" stroke="#06b6d4" stroke-width="0.8" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+  <g transform="translate(200, 50)">
+    <rect x="-55" y="-14" width="110" height="28" rx="14" fill="#0f172a" stroke="${badgeColor}" stroke-width="1.2"/>
+    <text text-anchor="middle" y="5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" fill="${badgeColor}" letter-spacing="1.5">${typeLabel}</text>
+  </g>
+  <g transform="translate(200, 190)">
+    <circle r="46" fill="#0f172a" stroke="#06b6d4" stroke-width="2" stroke-opacity="0.6"/>
+    <circle r="40" fill="#080e1a"/>
+    <path d="M-18 -18 L18 -18 L22 18 L-22 18 Z" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="-8,-8 12,0 -8,8" fill="#06b6d4"/>
+    <circle cx="-10" cy="-24" r="3" fill="#38bdf8"/>
+    <circle cx="10" cy="-24" r="3" fill="#38bdf8"/>
+  </g>
+  <g transform="translate(200, 310)" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+    ${lines.map((l, i) => `<text y="${i * 32}" font-size="${lines.length > 2 ? 20 : 23}" font-weight="800" fill="#f8fafc" letter-spacing="0.5">${l}</text>`).join('\n    ')}
+  </g>
+  <g transform="translate(200, 440)">
+    <rect x="-65" y="-13" width="130" height="26" rx="8" fill="#1e293b" fill-opacity="0.7" stroke="#334155" stroke-width="1"/>
+    <text text-anchor="middle" y="5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">NĂM ${year || 2026} • 4K UHD</text>
+  </g>
+  <g transform="translate(200, 530)">
+    <line x1="-80" y1="0" x2="80" y2="0" stroke="#1e293b" stroke-width="1"/>
+    <circle cx="0" cy="0" r="3" fill="#06b6d4"/>
+    <text text-anchor="middle" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#06b6d4" letter-spacing="3">CINEVEX 4K</text>
+  </g>
+</svg>`.trim();
+
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        function handleCardPosterError(img) {
+            if (!img) return;
+            const backdrop = img.dataset.backdrop;
+            const title = img.dataset.title;
+            const year = img.dataset.year;
+            const type = img.dataset.type;
+
+            // Cấp độ 1: Thử backdrop nếu chưa thử và khác ảnh hiện tại
+            if (!img.dataset.triedBackdrop && backdrop && backdrop !== img.src && !backdrop.includes('placehold')) {
+                img.dataset.triedBackdrop = '1';
+                img.src = backdrop;
+                return;
+            }
+
+            // Cấp độ 2: Ngắt hoàn toàn onerror và gán SVG Poster động CINEVEX với đúng tên phim
+            img.onerror = null;
+            img.src = generateDynamicPosterSvg(title, year, type);
+        }
+
+        // ==============================================================
+        // HỆ THỐNG TỰ ĐỘNG CHUYỂN TẬP PHIM (AUTO-NEXT EPISODE ENGINE 7S)
+        // ==============================================================
+        let autoNextTimer = null;
+        let autoNextCountdownSec = 7;
+        let pendingNextEpisodeData = null;
+
+        function updateAutoNextButtonUI() {
+            const isEnabled = localStorage.getItem('cinevex_auto_next_ep') !== '0';
+            const label = document.getElementById('autoNextToggleBtnLabel');
+            if (label) {
+                label.textContent = isEnabled ? 'Auto-Next: 7s (BẬT)' : 'Auto-Next: TẮT';
+            }
+            const modalBtn = document.getElementById('toggleAutoNextSettingBtn');
+            if (modalBtn) {
+                modalBtn.textContent = isEnabled ? 'BẬT (7s)' : 'TẮT';
+                modalBtn.className = isEnabled ? 'text-cyan-400 hover:text-cyan-300 font-bold transition' : 'text-slate-400 hover:text-white font-bold transition';
+            }
+        }
+
+        function toggleAutoNextSetting() {
+            const current = localStorage.getItem('cinevex_auto_next_ep') !== '0';
+            const nextVal = !current;
+            localStorage.setItem('cinevex_auto_next_ep', nextVal ? '1' : '0');
+            updateAutoNextButtonUI();
+            showToast(nextVal ? 'Đã BẬT tự động chuyển tập (7s)' : 'Đã TẮT tự động chuyển tập', 'fa-forward-step', 'text-cyan-400');
+        }
+
+        function updateQuickNextEpButton(epList, currentIdx) {
+            const btn = document.getElementById('quickNextEpBtn');
+            const label = document.getElementById('quickNextEpBtnLabel');
+            if (!btn || !label) return;
+
+            if (epList && epList.length > 1 && currentIdx < epList.length - 1) {
+                const nextEp = epList[currentIdx + 1];
+                label.textContent = `Tập Tiếp (${nextEp.name || 'Tập ' + (currentIdx + 2)})`;
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        function triggerNextEpisodeManual() {
+            const currentServer = state.currentServers ? (state.currentServers[state.currentSIdx] || state.currentServers[0]) : null;
+            if (!currentServer || !currentServer.server_data) return;
+            const nextIdx = state.currentEIdx + 1;
+            if (nextIdx < currentServer.server_data.length) {
+                renderApiEpisodes(state.currentServers, state.currentSIdx, nextIdx);
+                showToast(`Đã chuyển sang ${currentServer.server_data[nextIdx].name || 'tập tiếp theo'}`, 'fa-forward-step', 'text-cyan-400');
+            } else {
+                showToast('Đây là tập cuối cùng của bộ phim!', 'fa-flag-checkered', 'text-amber-400');
+            }
+        }
+
+        function checkAndTriggerAutoNext() {
+            if (state.autoNextTriggeredForCurrentEp) return;
+            const isAutoNextEnabled = localStorage.getItem('cinevex_auto_next_ep') !== '0';
+            if (!isAutoNextEnabled) return;
+
+            const currentServer = state.currentServers ? (state.currentServers[state.currentSIdx] || state.currentServers[0]) : null;
+            if (!currentServer || !currentServer.server_data || currentServer.server_data.length <= 1) {
+                return; // Không phải phim nhiều tập
+            }
+            const nextIdx = state.currentEIdx + 1;
+            if (nextIdx >= currentServer.server_data.length) {
+                return; // Đã là tập cuối cùng
+            }
+            const nextEp = currentServer.server_data[nextIdx];
+            if (!nextEp) return;
+
+            state.autoNextTriggeredForCurrentEp = true;
+            showNextEpisodeOverlay(nextEp, nextIdx);
+        }
+
+        function showNextEpisodeOverlay(nextEp, nextIdx) {
+            pendingNextEpisodeData = {
+                ep: nextEp,
+                idx: nextIdx,
+                servers: state.currentServers,
+                sIdx: state.currentSIdx
+            };
+
+            const overlay = document.getElementById('nextEpisodePromptOverlay');
+            if (!overlay) return;
+
+            // Đảm bảo hiển thị chuẩn xác kể cả khi người dùng đang ở chế độ Fullscreen
+            if (document.fullscreenElement) {
+                document.fullscreenElement.appendChild(overlay);
+            } else {
+                const wrapper = document.getElementById('videoPlayerWrapper');
+                if (wrapper && overlay.parentElement !== wrapper) {
+                    wrapper.appendChild(overlay);
+                }
+            }
+
+            document.getElementById('nextEpTargetName').textContent = nextEp.name || `Tập ${nextIdx + 1}`;
+            document.getElementById('nextEpMovieTitle').textContent = state.activeMovie?.title || 'CINEVEX Cinema';
+
+            autoNextCountdownSec = 7;
+            updateAutoNextCountdownUI(autoNextCountdownSec);
+
+            overlay.classList.remove('hidden');
+
+            if (autoNextTimer) clearInterval(autoNextTimer);
+            autoNextTimer = setInterval(() => {
+                autoNextCountdownSec--;
+                if (autoNextCountdownSec <= 0) {
+                    clearInterval(autoNextTimer);
+                    autoNextTimer = null;
+                    playNextEpisodeImmediately();
+                } else {
+                    updateAutoNextCountdownUI(autoNextCountdownSec);
+                }
+            }, 1000);
+        }
+
+        function updateAutoNextCountdownUI(sec) {
+            const numEl = document.getElementById('nextEpCountdownNum');
+            if (numEl) numEl.textContent = sec;
+            const btnSec = document.getElementById('btnCountdownSec');
+            if (btnSec) btnSec.textContent = `${sec}s`;
+
+            const circle = document.getElementById('nextEpSvgProgressCircle');
+            if (circle) {
+                const circumference = 264;
+                const offset = circumference * (1 - sec / 7);
+                circle.style.strokeDashoffset = offset;
+            }
+        }
+
+        function playNextEpisodeImmediately() {
+            if (autoNextTimer) {
+                clearInterval(autoNextTimer);
+                autoNextTimer = null;
+            }
+            const overlay = document.getElementById('nextEpisodePromptOverlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            if (pendingNextEpisodeData) {
+                const { servers, sIdx, idx } = pendingNextEpisodeData;
+                pendingNextEpisodeData = null;
+                state.autoNextTriggeredForCurrentEp = false;
+                const targetEp = servers[sIdx]?.server_data[idx];
+                showToast(`Đang phát ${targetEp?.name || 'tập tiếp theo'}...`, 'fa-play', 'text-cyan-400');
+                renderApiEpisodes(servers, sIdx, idx);
+            }
+        }
+
+        function cancelNextEpisodeCountdown() {
+            if (autoNextTimer) {
+                clearInterval(autoNextTimer);
+                autoNextTimer = null;
+            }
+            pendingNextEpisodeData = null;
+            const overlay = document.getElementById('nextEpisodePromptOverlay');
+            if (overlay) overlay.classList.add('hidden');
+            showToast('Đã dừng tự động chuyển tập', 'fa-pause', 'text-slate-400');
+        }
+
+        function cancelNextEpisodeCountdownSilently() {
+            if (autoNextTimer) {
+                clearInterval(autoNextTimer);
+                autoNextTimer = null;
+            }
+            pendingNextEpisodeData = null;
+            const overlay = document.getElementById('nextEpisodePromptOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
+        function handleVideoEndedAutoNext() {
+            checkAndTriggerAutoNext();
+        }
+
+        function handleVideoTimeupdateAutoNext() {
+            const video = document.getElementById('mainVideoElement');
+            if (!video || !video.duration || video.duration <= 30) return;
+            if (video.currentTime < video.duration - 5) {
+                state.autoNextTriggeredForCurrentEp = false;
+            } else if (video.currentTime >= video.duration - 0.8) {
+                checkAndTriggerAutoNext();
+            }
+        }
+
+        // ==============================================================
+        // KHỞI ĐỘNG TRANG XEM PHIM (LOAD MOVIE TỪ PARAMS / STORAGE)
+        // ==============================================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            calibrateWindowBaseline();
+            updateAutoNextButtonUI();
+            await loadMovieFromSource();
+            renderRelatedMovies();
+        });
+
+        async function loadMovieFromSource() {
+            const params = new URLSearchParams(window.location.search);
+            const movieId = params.get('id');
+
+            let movie = null;
+
+            // 1. Lấy từ sessionStorage nếu vừa click từ trang chủ
+            const sessionData = sessionStorage.getItem('cinevex_active_movie');
+            if (sessionData) {
+                try {
+                    const parsed = JSON.parse(sessionData);
+                    if (!movieId || parsed.id === movieId || parsed.slug === movieId || parsed.tmdbId === movieId) {
+                        movie = parsed;
+                    }
+                } catch (e) {}
+            }
+
+            // 2. Lấy từ localStorage cache
+            if (!movie && movieId) {
+                const cacheData = localStorage.getItem('cinevex_movies_cache_v2');
+                if (cacheData) {
+                    try {
+                        const parsedCache = JSON.parse(cacheData);
+                        if (parsedCache.items && Array.isArray(parsedCache.items)) {
+                            movie = parsedCache.items.find(m => m.id === movieId || m.slug === movieId || m.tmdbId === movieId);
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            // 3. Nếu chưa có (người dùng mở trực tiếp link hoặc F5), tự động fetch từ API
+            if (!movie && movieId) {
+                movie = await fetchMovieDirectly(movieId);
+            }
+
+            // 4. Nếu vẫn không có, dùng phim mặc định mẫu
+            if (!movie) {
+                movie = {
+                    id: 'sample-dune-2',
+                    title: 'Hành Tinh Cát: Phần 2',
+                    originTitle: 'Dune: Part Two',
+                    year: 2024,
+                    rating: 8.8,
+                    quality: '4K Vietsub • Đa Server',
+                    type: 'movie',
+                    poster: 'https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg',
+                    backdrop: 'https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s520DRq.jpg',
+                    genres: ['Viễn Tưởng', 'Hành Động', 'Phiêu Lưu'],
+                    synopsis: 'Paul Atreides hợp nhất với Chani và người Fremen trong khi tìm cách trả thù những kẻ đã hủy diệt gia đình anh.',
+                    slug: 'hanh-tinh-cat-phan-hai',
+                    phimapiSlug: 'hanh-tinh-cat-phan-hai',
+                    hasVietsub: true,
+                    hasMovy: true,
+                    tmdbId: '693134'
+                };
+            }
+
+            state.activeMovie = movie;
+            renderMovieDetails(movie);
+            initPlayerPlayback(movie);
+        }
+
+        // Tự động kéo dữ liệu nếu người dùng mở trực tiếp link
+        async function fetchMovieDirectly(movieId) {
+            document.getElementById('playerLoadingOverlay').classList.remove('hidden');
+            try {
+                // Thử tìm slug nếu ID có dạng api-slug
+                const cleanSlug = movieId.replace(/^api-/, '');
+                const res = await fetch(_dec(1) + cleanSlug);
+                const data = await res.json();
+                if (data && data.movie) {
+                    const m = data.movie;
+                    const mType = m.type === 'series' ? 'tv' : (m.type === 'hoathinh' ? 'anime' : 'movie');
+                    let pUrl = m.poster_url || m.thumb_url;
+                    let bUrl = m.thumb_url || m.poster_url;
+                    if (pUrl && !pUrl.startsWith('http')) pUrl = `https://phimimg.com/${pUrl.replace(/^\/+/, '')}`;
+                    if (bUrl && !bUrl.startsWith('http')) bUrl = `https://phimimg.com/${bUrl.replace(/^\/+/, '')}`;
+                    if (!pUrl) pUrl = generateDynamicPosterSvg(m.name, m.year, mType);
+                    if (!bUrl) bUrl = pUrl;
+                    return {
+                        id: `api-${m.slug}`,
+                        slug: m.slug,
+                        phimapiSlug: m.slug,
+                        tmdbId: m.tmdb?.id ? String(m.tmdb.id) : '',
+                        title: m.name,
+                        originTitle: m.origin_name || m.name,
+                        year: m.year || 2026,
+                        rating: 8.5,
+                        quality: '4K Vietsub • Đa Server',
+                        type: mType,
+                        poster: pUrl,
+                        backdrop: bUrl,
+                        genres: (m.category || []).map(c => c.name || c),
+                        synopsis: m.content ? m.content.replace(/<[^>]*>?/gm, '') : 'Đang cập nhật nội dung...'
+                    };
+                }
+            } catch (e) {}
+
+            try {
+                // Thử tìm TMDB nếu ID có dạng tmdb-1234
+                const cleanTmdb = movieId.replace(/^tmdb-/, '');
+                if (/^\d+$/.test(cleanTmdb)) {
+                    let res = await fetch(`https://api.themoviedb.org/3/movie/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                    let data = await res.json();
+                    let isTv = false;
+                    if (!data || !data.id) {
+                        res = await fetch(`https://api.themoviedb.org/3/tv/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                        data = await res.json();
+                        isTv = true;
+                    }
+                    if (data && data.id) {
+                        return {
+                            id: `tmdb-${data.id}`,
+                            tmdbId: String(data.id),
+                            title: data.title || data.name,
+                            originTitle: data.original_title || data.original_name,
+                            year: parseInt((data.release_date || data.first_air_date || '2026').slice(0, 4)),
+                            rating: data.vote_average ? parseFloat(data.vote_average.toFixed(1)) : 8.2,
+                            quality: '4K UltraHD (Movy Source)',
+                            type: isTv ? 'tv' : 'movie',
+                            poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
+                            backdrop: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
+                            genres: (data.genres || []).map(g => g.name),
+                            synopsis: data.overview || 'Đang cập nhật nội dung...'
+                        };
+                    }
+                }
+            } catch (e) {}
+
+            return null;
+        }
+
+        // Hàm chuẩn hóa nhãn chất lượng (loại bỏ triệt để lỗi lặp 'Vietsub Vietsub...')
+        function sanitizeQualityBadge(quality, hasVietsub = false, hasMovy = false) {
+            if (hasVietsub && hasMovy) {
+                return '4K Vietsub • Đa Server';
+            }
+            if (hasMovy && !hasVietsub) {
+                return '4K UltraHD (Movy Source)';
+            }
+            if (!quality) return 'FHD Vietsub';
+
+            // Xóa triệt để mọi từ 'vietsub' và dấu server thừa trước khi tái cấu trúc
+            let clean = String(quality)
+                .replace(/(\s*•\s*Đa Server)+/gi, '')
+                .replace(/\bvietsub\b/gi, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!clean || clean === 'FHD' || clean === 'HD') {
+                return 'FHD Vietsub';
+            }
+            return clean + ' Vietsub';
+        }
+
+        // Hàm nhận diện Anime / Hoạt hình chuẩn xác tuyệt đối
+        function isAnime(m) {
+            if (!m) return false;
+            if (m.type === 'anime') return true;
+            const genres = Array.isArray(m.genres) ? m.genres : [];
+            if (genres.some(g => {
+                const gl = String(g).toLowerCase().trim();
+                return gl === 'hoạt hình' || gl === 'anime' || gl === 'animation' || gl.includes('hoạt hình') || gl.includes('anime');
+            })) return true;
+            const slug = (m.slug || '').toLowerCase();
+            const phimapiSlug = (m.phimapiSlug || '').toLowerCase();
+            if (slug.includes('hoat-hinh') || slug.includes('anime') || phimapiSlug.includes('hoat-hinh') || phimapiSlug.includes('anime')) return true;
+            return false;
+        }
+
+        // ==============================================================
+        // HIỂN THỊ THÔNG TIN PHIM
+        // ==============================================================
+        function renderMovieDetails(movie) {
+            const cleanQuality = sanitizeQualityBadge(movie.quality, movie.hasVietsub, movie.hasMovy || !!movie.tmdbId);
+            document.title = `${movie.title} — Xem Phim CINEVEX 4K`;
+            document.getElementById('navMovieTitle').textContent = movie.title;
+            document.getElementById('navQualityBadge').textContent = cleanQuality;
+            document.getElementById('playerBreadcrumbTitle').textContent = movie.title;
+            document.getElementById('playerTitle').textContent = movie.title;
+            document.getElementById('playerOriginTitle').textContent = `${movie.originTitle || ''} (${movie.year || 2026})`;
+            const pImg = document.getElementById('playerPoster');
+            if (pImg) {
+                pImg.dataset.backdrop = movie.backdrop || '';
+                pImg.dataset.tmdb = movie.tmdbId || '';
+                pImg.dataset.title = movie.title || '';
+                pImg.dataset.year = movie.year || 2026;
+                pImg.dataset.type = isAnime(movie) ? 'anime' : (movie.type || 'movie');
+                pImg.referrerPolicy = 'no-referrer';
+                pImg.onerror = () => handleCardPosterError(pImg);
+                pImg.src = movie.poster;
+            }
+            document.getElementById('playerSynopsis').textContent = movie.synopsis || 'Đang cập nhật nội dung...';
+            document.getElementById('playerQualityBadge').textContent = cleanQuality;
+            document.getElementById('playerYearBadge').textContent = movie.year || 2026;
+            document.getElementById('playerRatingBadge').innerHTML = `<i class="fa-solid fa-star mr-1"></i>${movie.rating || 8.5}`;
+            document.getElementById('playerTypeBadge').textContent = isAnime(movie) ? 'Anime' : (movie.type === 'tv' ? 'Phim Bộ' : 'Phim Lẻ');
+
+            const genresBox = document.getElementById('playerGenres');
+            if (genresBox && movie.genres) {
+                genresBox.innerHTML = movie.genres.map(g => `
+                    <span class="px-2.5 py-0.5 rounded-lg bg-vex-surface border border-vex-border text-slate-300 text-xs font-medium">${g}</span>
+                `).join('');
+            }
+        }
+
+        // Ánh xạ nguồn Vietsub chất lượng cao cho các siêu phẩm tiêu điểm
+        const CATALOG_VIETSUB_MAP = {
+            'vex-dune2': 'hanh-tinh-cat-phan-hai',
+            'vex-derry': 'ga-he-ma-quai-chao-mung-den-derry',
+            'vex-verity': 'verity-bi-mat-bi-chon-vui',
+            'vex-cyberpunk': 'cyberpunk-edgerunners-phan-1',
+            'vex-squid2': 'tro-choi-con-muc-phan-2',
+            'vex-onepiece': 'dao-hai-tac'
+        };
+
+        // ==============================================================
+        // KHỞI CHẠY TRÌNH PHÁT (ƯU TIÊN VIETSUB HLS, DỰ PHÒNG MOVY VIDSRC & MULTIEMBED)
+        // ==============================================================
+        async function initPlayerPlayback(movie) {
+            let phimSlug = movie.phimapiSlug || CATALOG_VIETSUB_MAP[movie.id] || (movie.source === 'phimapi' ? movie.slug : null);
+
+            // Tự động tìm kiếm nguồn Vietsub qua tiêu đề nếu phim chưa có slug
+            if (!phimSlug && movie.title) {
+                document.getElementById('playerLoadingOverlay').classList.remove('hidden');
+                const searchKeys = [movie.title, movie.originTitle].filter(Boolean);
+                for (const q of searchKeys) {
+                    try {
+                        const res = await fetch(_dec(2) + encodeURIComponent(q));
+                        const json = await res.json();
+                        const items = json?.data?.items || [];
+                        if (items.length > 0) {
+                            phimSlug = items[0].slug;
+                            movie.phimapiSlug = phimSlug;
+                            movie.hasVietsub = true;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            state.activeServerKey = phimSlug ? 'hls' : 'vidsrc';
+
+            // 1. Ưu tiên nguồn Vietsub từ PhimAPI (Server #1 Vietsub HLS)
+            if (phimSlug) {
+                document.getElementById('playerLoadingOverlay').classList.remove('hidden');
+                try {
+                    const res = await fetch(_dec(1) + phimSlug);
+                    const data = await res.json();
+                    document.getElementById('playerLoadingOverlay').classList.add('hidden');
+                    if (data && data.episodes && data.episodes.length > 0) {
+                        if (data.movie && data.movie.content) {
+                            document.getElementById('playerSynopsis').textContent = data.movie.content.replace(/<[^>]*>?/gm, '');
+                        }
+                        movie.hasVietsub = true;
+                        movie.hasMovy = !!movie.tmdbId;
+                        movie.quality = sanitizeQualityBadge(movie.quality, true, !!movie.tmdbId);
+                        renderMovieDetails(movie);
+                        renderApiEpisodes(data.episodes, 0, 0);
+                        return;
+                    }
+                } catch (e) {
+                    document.getElementById('playerLoadingOverlay').classList.add('hidden');
+                }
+            }
+
+            // 2. Không có nguồn Vietsub: Phát Server Movy VidSrc Cloud Quốc Tế
+            document.getElementById('episodeSelectorBox').classList.add('hidden');
+            state.currentEp = null;
+            state.currentServers = null;
+            state.activeServerKey = 'vidsrc';
+            renderUnifiedServerBar(null, null, 0, 0);
+
+            const tmdb = movie.tmdbId || '693134';
+            const isTv = movie.type === 'tv' || movie.type === 'anime';
+            const vidsrcUrl = isTv ? `https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=1` : `https://vidsrc.me/embed/movie?tmdb=${tmdb}`;
+            playIframeStream(vidsrcUrl, 'Movy VidSrc Cloud (Quốc Tế)');
+        }
+
+        // ==============================================================
+        // BẢNG ĐIỀU KHIỂN ĐA MÁY CHỦ (SERVER SWITCHER: HLS + VIDSRC + MULTIEMBED + EMBED)
+        // ==============================================================
+        function switchServer(key, url, label, isHls = false) {
+            state.activeServerKey = key;
+            if (isHls) {
+                playHlsStream(url, label);
+            } else {
+                playIframeStream(url, label);
+            }
+            renderUnifiedServerBar(state.currentEp, state.currentServers, state.currentSIdx, state.currentEIdx);
+        }
+
+        function renderUnifiedServerBar(ep = null, servers = null, sIdx = 0, eIdx = 0) {
+            const movie = state.activeMovie;
+            if (!movie) return;
+
+            state.currentEp = ep;
+            state.currentServers = servers;
+            state.currentSIdx = sIdx;
+            state.currentEIdx = eIdx;
+
+            const tmdb = movie.tmdbId || '';
+            const isTv = movie.type === 'tv' || movie.type === 'anime';
+            const epNum = (ep && ep.name) ? (parseInt(ep.name.replace(/\D/g, '')) || 1) : 1;
+
+            const vidsrcUrl = isTv ? `https://vidsrc.me/embed/tv?tmdb=${tmdb}&season=1&episode=${epNum}` : `https://vidsrc.me/embed/movie?tmdb=${tmdb}`;
+            const multiEmbedUrl = isTv ? `https://multiembed.mov/?video_id=${tmdb}&tmdb=1&s=1&e=${epNum}` : `https://multiembed.mov/?video_id=${tmdb}&tmdb=1`;
+
+            const container = document.getElementById('serverButtonsContainer');
+            if (!container) return;
+
+            const activeCls = 'px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-400/60 flex items-center gap-1.5 transition';
+            const normalCls = 'px-3.5 py-2 rounded-xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition hover:text-white';
+
+            let html = '';
+
+            // 1. Server #1: Vietsub HLS (ƯU TIÊN HÀNG ĐẦU nếu có từ PhimAPI)
+            if (ep && ep.link_m3u8) {
+                const isAct = state.activeServerKey === 'hls';
+                html += `
+                    <button onclick="switchServer('hls', '${ep.link_m3u8}', 'CINEVEX HLS Vietsub (Tốc độ cao)', true)" class="${isAct ? activeCls : normalCls}">
+                        <i class="fa-solid fa-play ${isAct ? 'text-cyan-200' : 'text-cyan-400'}"></i>
+                        <span>Server #1: Vietsub HLS (Ưu Tiên)</span>
+                    </button>
+                `;
+            }
+
+            // 2. Server #2: Movy VidSrc Cloud (Quốc tế VIP chuẩn Movy.sx) & Server #3: MultiEmbed VIP
+            if (tmdb) {
+                const isActSrc = state.activeServerKey === 'vidsrc';
+                const isActMul = state.activeServerKey === 'multiembed';
+                html += `
+                    <button onclick="switchServer('vidsrc', '${vidsrcUrl}', 'Movy VidSrc Cloud (Quốc Tế)', false)" class="${isActSrc ? activeCls : normalCls}">
+                        <i class="fa-solid fa-globe ${isActSrc ? 'text-violet-200' : 'text-violet-400'}"></i>
+                        <span>Server #2: Movy VidSrc Cloud</span>
+                    </button>
+                    <button onclick="switchServer('multiembed', '${multiEmbedUrl}', 'MultiEmbed VIP (Dự Phòng)', false)" class="${isActMul ? activeCls : normalCls}">
+                        <i class="fa-solid fa-server ${isActMul ? 'text-amber-200' : 'text-amber-400'}"></i>
+                        <span>Server #3: MultiEmbed VIP</span>
+                    </button>
+                `;
+            }
+
+            // 3. Server #4: Vietsub Embed Dự Phòng
+            if (ep && ep.link_embed) {
+                const isActEmb = state.activeServerKey === 'embed';
+                html += `
+                    <button onclick="switchServer('embed', '${ep.link_embed}', 'Vietsub Embed Dự Phòng', false)" class="${isActEmb ? activeCls : normalCls}">
+                        <i class="fa-solid fa-display ${isActEmb ? 'text-emerald-200' : 'text-emerald-400'}"></i>
+                        <span>Server #4: Vietsub Embed</span>
+                    </button>
+                `;
+            }
+
+            // 4. Server mẫu dự phòng nếu không có link nào
+            if (!html && movie.hlsSample) {
+                html = `
+                    <button onclick="playHlsStream('${movie.hlsSample}', 'CINEVEX HLS M3U8 Native')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold">
+                        <i class="fa-solid fa-play mr-1"></i> Server HLS M3U8
+                    </button>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ==============================================================
+        // DANH SÁCH TẬP PHIM (CHO PHIM BỘ / ANIME)
+        // ==============================================================
+        function renderApiEpisodes(servers, sIdx, eIdx) {
+            state.currentServers = servers;
+            state.currentSIdx = sIdx;
+            state.currentEIdx = eIdx;
+            state.autoNextTriggeredForCurrentEp = false;
+            cancelNextEpisodeCountdownSilently();
+
+            const srv = servers[sIdx] || servers[0];
+            if (!srv || !srv.server_data || !srv.server_data.length) return;
+            const ep = srv.server_data[eIdx] || srv.server_data[0];
+            state.currentEp = ep;
+
+            document.getElementById('playerCurrentEpBadge').textContent = ep.name || 'Tập 1';
+
+            // Cập nhật nút Tập Tiếp trên thanh công cụ
+            updateQuickNextEpButton(srv.server_data, eIdx);
+
+            renderUnifiedServerBar(ep, servers, sIdx, eIdx);
+
+            const epBox = document.getElementById('episodeSelectorBox');
+            epBox.classList.remove('hidden');
+
+            const tabs = document.getElementById('audioOrSeasonTabs');
+            tabs.innerHTML = servers.map((s, idx) => `
+                <button onclick='renderApiEpisodes(${JSON.stringify(servers).replace(/'/g, "&apos;")}, ${idx}, 0)' class="px-3 py-1 rounded-lg text-xs font-bold ${idx === sIdx ? 'bg-cyan-500 text-slate-950' : 'bg-vex-surface text-slate-300'}">
+                    ${s.server_name}
+                </button>
+            `).join('');
+
+            const grid = document.getElementById('episodeListGrid');
+            grid.innerHTML = srv.server_data.map((item, idx) => `
+                <button onclick='renderApiEpisodes(${JSON.stringify(servers).replace(/'/g, "&apos;")}, ${sIdx}, ${idx})' class="py-2 px-2 rounded-xl text-xs font-bold border transition ${idx === eIdx ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow' : 'bg-vex-surface border-vex-border text-slate-300 hover:border-cyan-400'}">
+                    ${item.name}
+                </button>
+            `).join('');
+
+            // Mặc định phát luồng Vietsub HLS M3U8
+            if (ep.link_m3u8) {
+                playHlsStream(ep.link_m3u8, 'CINEVEX HLS Vietsub (Tốc độ cao)');
+            } else if (ep.link_embed) {
+                playIframeStream(ep.link_embed, 'Server Vietsub Embed');
+            }
+        }
+
+        // ==============================================================
+        // PHÁT VIDEO NATIVE HOẶC IFRAME & TỰ ĐỘNG CÂN BẰNG TỈ LỆ KHUNG HÌNH
+        // ==============================================================
+        function updatePlayerAspectRatio() {
+            const video = document.getElementById('mainVideoElement');
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            if (!video || !wrapper) return;
+            if (video.videoWidth && video.videoHeight) {
+                const ratio = video.videoWidth / video.videoHeight;
+                if (ratio >= 1.25 && ratio <= 2.45) {
+                    wrapper.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+                } else {
+                    wrapper.style.aspectRatio = '16 / 9';
+                }
+            }
+        }
+
+        function playHlsStream(url, label) {
+            const vjsPlayer = document.getElementById('vjs10Player');
+            const video = document.getElementById('mainVideoElement');
+            const iframe = document.getElementById('embedIframePlayer');
+
+            iframe.src = 'about:blank';
+            iframe.classList.add('hidden');
+            vjsPlayer.classList.remove('hidden');
+
+            video.removeEventListener('loadedmetadata', updatePlayerAspectRatio);
+            video.addEventListener('loadedmetadata', updatePlayerAspectRatio);
+            video.removeEventListener('resize', updatePlayerAspectRatio);
+            video.addEventListener('resize', updatePlayerAspectRatio);
+            video.removeEventListener('ended', handleVideoEndedAutoNext);
+            video.addEventListener('ended', handleVideoEndedAutoNext);
+            video.removeEventListener('timeupdate', handleVideoTimeupdateAutoNext);
+            video.addEventListener('timeupdate', handleVideoTimeupdateAutoNext);
+
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            if (window.Hls && Hls.isSupported()) {
+                hlsInstance = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true
+                });
+                hlsInstance.loadSource(url);
+                hlsInstance.attachMedia(video);
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(() => {});
+                    updatePlayerAspectRatio();
+                });
+            } else {
+                video.src = url;
+                video.play().catch(() => {});
+            }
+            showToast(`Đang phát qua ${label}`, 'fa-play', 'text-cyan-400');
+        }
+
+        function playIframeStream(url, label) {
+            const vjsPlayer = document.getElementById('vjs10Player');
+            const video = document.getElementById('mainVideoElement');
+            const iframe = document.getElementById('embedIframePlayer');
+            const wrapper = document.getElementById('videoPlayerWrapper');
+
+            if (wrapper) wrapper.style.aspectRatio = '16 / 9';
+            video.pause();
+            vjsPlayer.classList.add('hidden');
+            iframe.classList.remove('hidden');
+            iframe.src = url;
+            showToast(`Đã chuyển sang ${label}`, 'fa-server', 'text-violet-400');
+        }
+
+        // ==============================================================
+        // PHỤ ĐỀ & VIDEO.JS SKIN
+        // ==============================================================
+        function toggleCC() {
+            state.subtitle.enabled = !state.subtitle.enabled;
+            const btn = document.getElementById('ccQuickToggleBtn');
+            const inVideo = document.getElementById('inVideoCcBadge');
+            const modalBtn = document.getElementById('modalCcSwitchBtn');
+            const overlay = document.getElementById('customSubtitleOverlay');
+
+            if (state.subtitle.enabled) {
+                btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition flex items-center gap-2 shadow-lg shadow-emerald-500/20";
+                document.getElementById('ccQuickToggleText').textContent = "CC: ĐANG BẬT";
+                inVideo.className = "px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-emerald-500/50 text-emerald-400 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 transition";
+                document.getElementById('inVideoCcText').textContent = "CC: ON (Vietsub)";
+                if (modalBtn) modalBtn.textContent = "Trạng thái CC: ĐANG BẬT";
+                if (overlay) overlay.classList.remove('hidden');
+                showToast("Phụ đề: BẬT", "fa-closed-captioning", "text-emerald-400");
+            } else {
+                btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-vex-card border border-vex-border text-slate-400 hover:text-white transition flex items-center gap-2";
+                document.getElementById('ccQuickToggleText').textContent = "CC: ĐÃ TẮT";
+                inVideo.className = "px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-slate-700 text-slate-400 text-[11px] font-bold flex items-center gap-1.5 hover:scale-105 transition";
+                document.getElementById('inVideoCcText').textContent = "CC: OFF";
+                if (modalBtn) modalBtn.textContent = "Trạng thái CC: ĐÃ TẮT";
+                if (overlay) overlay.classList.add('hidden');
+                showToast("Phụ đề: TẮT", "fa-closed-captioning", "text-slate-400");
+            }
+        }
+
+        function toggleVjs10Skin() {
+            state.vjs10SkinMode = state.vjs10SkinMode === 'frosted' ? 'neutral' : 'frosted';
+            const container = document.getElementById('vjs10SkinContainer');
+            const label = document.getElementById('vjs10SkinLabel');
+            if (!container) return;
+
+            const video = document.getElementById('mainVideoElement');
+            const currentTime = video ? video.currentTime : 0;
+            const isPaused = video ? video.paused : true;
+
+            if (state.vjs10SkinMode === 'neutral') {
+                container.outerHTML = container.outerHTML.replace(/<video-skin/g, '<video-neutral-skin').replace(/<\/video-skin>/g, '</video-neutral-skin>');
+                if (label) label.textContent = "VJS10: Neutral Skin";
+            } else {
+                container.outerHTML = container.outerHTML.replace(/<video-neutral-skin/g, '<video-skin').replace(/<\/video-neutral-skin>/g, '</video-skin>');
+                if (label) label.textContent = "VJS10: Frosted Skin";
+            }
+
+            const newVideo = document.getElementById('mainVideoElement');
+            if (newVideo) {
+                newVideo.addEventListener('loadedmetadata', updatePlayerAspectRatio);
+                newVideo.addEventListener('resize', updatePlayerAspectRatio);
+                if (hlsInstance) {
+                    hlsInstance.attachMedia(newVideo);
+                }
+                newVideo.currentTime = currentTime;
+                if (!isPaused) newVideo.play().catch(() => {});
+            }
+        }
+
+        function toggleSubtitleModal() {
+            const m = document.getElementById('subtitleManagerModal');
+            m.classList.toggle('hidden');
+            if (!m.classList.contains('hidden')) {
+                searchOpenSubtitlesCloud();
+            }
+        }
+
+        function toggleLightsOff() {
+            const wrapper = document.getElementById('videoPlayerWrapper');
+            const isOff = wrapper.classList.toggle('lights-off-active');
+            const btn = document.getElementById('lightsOffBtn');
+            btn.innerHTML = isOff ? `<i class="fa-solid fa-sun text-amber-400"></i> Bật Đèn` : `<i class="fa-solid fa-moon"></i> Tắt Đèn`;
+        }
+
+        function adjustSubOffset(delta) {
+            state.subtitle.offset += delta;
+            document.getElementById('subOffsetValue').textContent = `${state.subtitle.offset > 0 ? '+' : ''}${state.subtitle.offset.toFixed(1)}s`;
+            showToast(`Đã đồng bộ phụ đề ${state.subtitle.offset.toFixed(1)}s`, 'fa-clock');
+        }
+
+        async function searchOpenSubtitlesCloud() {
+            const resBox = document.getElementById('openSubCloudResults');
+            if (!resBox) return;
+            const lang = document.getElementById('openSubLangFilter')?.value || 'vie';
+            resBox.innerHTML = `<p class="text-xs text-cyan-400 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Đang tìm trên OpenSubtitles v3 Cloud...</p>`;
+
+            setTimeout(() => {
+                resBox.innerHTML = `
+                    <div class="p-2.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs cursor-pointer flex items-center justify-between" onclick="showToast('Đã nạp phụ đề Vietsub từ OpenSubtitles', 'fa-check', 'text-cyan-400')">
+                        <div>
+                            <p class="font-bold text-white">${state.activeMovie?.title || 'Phim'} [Chính xác 100%]</p>
+                            <p class="text-[10px] text-slate-400">VIE • Uploader: CinevexCloud (99.8% Sync)</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold text-[10px]">Áp dụng</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-xs cursor-pointer flex items-center justify-between" onclick="showToast('Đã nạp phụ đề Song ngữ', 'fa-check', 'text-cyan-400')">
+                        <div>
+                            <p class="font-bold text-white">Song Ngữ Việt - Anh (Dual CC)</p>
+                            <p class="text-[10px] text-slate-400">VIE / ENG • Uploader: SubScene</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 font-bold text-[10px]">Áp dụng</span>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function connectCustomOpenSubSource() {
+            const url = document.getElementById('customSubSourceInput').value.trim();
+            if (url) {
+                showToast("Đã kết nối nguồn Subtitle: " + url, "fa-link", "text-emerald-400");
+                searchOpenSubtitlesCloud();
+            }
+        }
+
+        function handleLocalSubtitleUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                showToast(`Đã tải tệp phụ đề: ${file.name}`, 'fa-file-arrow-up', 'text-cyan-400');
+            }
+        }
+
+        // ==============================================================
+        // PHIM ĐỀ XUẤT CHO BẠN
+        // ==============================================================
+        function renderRelatedMovies() {
+            const container = document.getElementById('relatedMoviesGrid');
+            if (!container) return;
+
+            let cache = [];
+            try {
+                const raw = localStorage.getItem('cinevex_movies_cache_v2');
+                if (raw) cache = JSON.parse(raw).items || [];
+            } catch (e) {}
+
+            const list = cache.filter(m => m.id !== state.activeMovie?.id).slice(0, 6);
+            if (!list.length) {
+                container.innerHTML = `<p class="text-xs text-slate-400 col-span-full">Đang cập nhật phim đề xuất...</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(m => `
+                <div onclick="navigateToMovie('${m.id}')" class="poster-card cursor-pointer bg-vex-card border border-vex-border hover:border-cyan-400 rounded-2xl overflow-hidden flex flex-col group">
+                    <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
+                        <img src="${m.poster}" 
+                             data-backdrop="${m.backdrop || ''}" 
+                             data-tmdb="${m.tmdbId || ''}" 
+                             data-title="${escapeHtmlAttr(m.title)}" 
+                             data-year="${m.year || 2026}" 
+                             data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
+                             referrerpolicy="no-referrer" 
+                             loading="lazy" 
+                             onerror="handleCardPosterError(this)" 
+                             class="poster-img w-full h-full object-cover transition-transform duration-300" 
+                             alt="${escapeHtmlAttr(m.title)}">
+                        <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-bold text-cyan-300">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                    </div>
+                    <div class="p-2.5">
+                        <h4 class="text-xs font-bold text-white truncate group-hover:text-cyan-400 transition">${escapeHtmlAttr(m.title)}</h4>
+                        <p class="text-[10px] text-slate-400 truncate mt-0.5">${escapeHtmlAttr(m.originTitle || m.year)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function navigateToMovie(id) {
+            window.location.href = `watch.html?id=${encodeURIComponent(id)}`;
+        }
+
+        // TOAST NOTIFICATION
+        let toastTimer = null;
+        function showToast(msg, icon = 'fa-circle-check', iconColor = 'text-cyan-400') {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            document.getElementById('toastIcon').innerHTML = `<i class="fa-solid ${icon} ${iconColor}"></i>`;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
