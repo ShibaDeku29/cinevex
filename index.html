@@ -1056,7 +1056,8 @@
             { id: 'Phiêu Lưu', name: 'Phiêu Lưu', slug: 'phieu-luu', icon: 'fa-compass', color: 'from-sky-500 to-emerald-500', desc: 'Hành trình khám phá những vùng đất bí ẩn chưa từng biết tới' },
             { id: 'Hài Hước', name: 'Hài Hước', slug: 'hai-huoc', icon: 'fa-face-laugh-squint', color: 'from-yellow-500 to-orange-500', desc: 'Giải trí sảng khoái với những tình huống dở khóc dở cười' },
             { id: 'Tâm Lý', name: 'Tâm Lý / Chính Kịch', slug: 'tam-ly', icon: 'fa-masks-theater', color: 'from-indigo-500 to-purple-600', desc: 'Khắc họa chiều sâu nội tâm và những góc khuất con người' },
-            { id: 'Chiến Tranh', name: 'Chiến Tranh / Lịch Sử', slug: 'chien-tranh', icon: 'fa-shield-halved', color: 'from-slate-500 to-zinc-700', desc: 'Tái hiện những trận chiến lịch sử hào hùng và khốc liệt' }
+            { id: 'Chiến Tranh', name: 'Chiến Tranh / Lịch Sử', slug: 'chien-tranh', icon: 'fa-shield-halved', color: 'from-slate-500 to-zinc-700', desc: 'Tái hiện những trận chiến lịch sử hào hùng và khốc liệt' },
+            { id: 'Phim 18+', name: 'Phim 18+', slug: 'phim-18', icon: 'fa-fire-flame-curved', color: 'from-rose-600 to-pink-600', desc: 'Phim tâm lý, tình cảm nóng bỏng dành cho khán giả trưởng thành (18+)' }
         ];
 
         // ==============================================================
@@ -1790,6 +1791,10 @@
             const originTitle = item.original_title || item.original_name || title;
             const year = parseInt((item.release_date || item.first_air_date || '2026').slice(0, 4)) || 2026;
             const genres = Array.from(new Set((item.genre_ids || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean))).slice(0, 4);
+            const is18PlusMovie = !!item.adult || /(?:\b18\+|\b19\+|365\s*days|fifty\s*shades|erotic|sensual|obsessed|unfaithful|sex\/life|fatal\s*seduction|lady\s*chatterley|through\s*my\s*window|arjuna)/i.test(`${title} ${originTitle} ${item.overview || ''}`);
+            if (is18PlusMovie && !genres.includes('Phim 18+')) {
+                genres.unshift('Phim 18+');
+            }
             const isAnimeMovie = (item.genre_ids || []).includes(16) || genres.includes('Hoạt Hình');
             const movieType = isAnimeMovie ? 'anime' : (isTv ? 'tv' : 'movie');
 

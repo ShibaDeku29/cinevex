@@ -730,15 +730,24 @@
             </div>
         </div>
 
-        <!-- PHIM ĐỀ XUẤT CHO BẠN (TIẾP TỤC XEM) -->
+        <!-- PHIM ĐỀ XUẤT CHO BẠN (ĐỒNG BỘ THÔNG MINH THEO THỂ LOẠI & ĐỘ TƯƠNG ĐỒNG, KỂ CẢ PHIM 18+) -->
         <div class="space-y-4 pt-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-base sm:text-lg font-bold font-display text-white flex items-center gap-2">
-                    <i class="fa-solid fa-sparkles text-cyan-400"></i> Phim Đề Xuất Cho Bạn
-                </h2>
-                <a href="index.html" class="text-xs text-cyan-400 hover:underline">Xem Tất Cả Kho Phim →</a>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <h2 class="text-base sm:text-lg font-bold font-display text-white flex items-center gap-2">
+                        <i class="fa-solid fa-sparkles text-cyan-400"></i> Phim Đề Xuất Cho Bạn
+                    </h2>
+                    <span id="relatedGenreContextBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                        <span id="relatedGenreContextText">Đang phân tích thể loại tương tự...</span>
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div id="relatedGenreFilterPills" class="flex items-center gap-1.5 flex-wrap"></div>
+                    <a href="index.html" class="text-xs text-cyan-400 hover:underline font-semibold ml-1">Xem Tất Cả Kho Phim →</a>
+                </div>
             </div>
-            <div id="relatedMoviesGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4"></div>
+            <div id="relatedMoviesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4"></div>
         </div>
 
     </main>
@@ -858,7 +867,8 @@
         const _0x5f9a = [
             'aHR0cHM6Ly9waGltYXBpLmNvbS9kYW5oLXNhY2gvcGhpbS1tb2ktY2FwLW5oYXQ/cGFnZT0=',
             'aHR0cHM6Ly9waGltYXBpLmNvbS9waGltLw==',
-            'aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGltLWtpZW0/a2V5d29yZD0='
+            'aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGltLWtpZW0/a2V5d29yZD0=',
+            'aHR0cHM6Ly9waGltYXBpLmNvbS92MS9hcGkvdGhlLWxvYWkv'
         ];
         function _dec(idx) {
             try { return atob(_0x5f9a[idx]); } catch (e) { return ''; }
@@ -1648,21 +1658,35 @@
         };
 
         // ==============================================================
-        // TỰ ĐỘNG TÌM TMDB ID TỪ TÊN PHIM NẾU CHƯA CÓ (CHO NGUỒN 7MOVIES & QUỐC TẾ)
+        // TỰ ĐỘNG TÌM TMDB ID TỪ TÊN PHIM NẾU CHƯA CÓ (CHO NGUỒN 7MOVIES & QUỐC TẾ, BAO GỒM CẢ PHIM 18+)
         // ==============================================================
+        const TMDB_GENRE_ID_TO_NAME = {
+            28: 'Hành Động', 12: 'Phiêu Lưu', 16: 'Hoạt Hình', 35: 'Hài Hước',
+            80: 'Bí Ẩn', 99: 'Tài Liệu', 18: 'Tâm Lý', 10751: 'Gia Đình',
+            14: 'Viễn Tưởng', 36: 'Chiến Tranh', 27: 'Kinh Dị', 10402: 'Âm Nhạc',
+            9648: 'Bí Ẩn', 10749: 'Tình Cảm', 878: 'Viễn Tưởng', 10770: 'Tâm Lý',
+            53: 'Bí Ẩn', 10752: 'Chiến Tranh', 37: 'Phiêu Lưu',
+            10759: 'Hành Động', 10765: 'Viễn Tưởng', 10768: 'Chiến Tranh'
+        };
+
         async function ensureMovieTmdbId(movie) {
             if (!movie) return '';
             if (movie.tmdbId && movie.tmdbId !== '0') return movie.tmdbId;
             const query = movie.originTitle || movie.title;
             if (!query) return '';
             try {
-                const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`;
+                const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=true`;
                 const res = await fetch(searchUrl);
                 const data = await res.json();
                 if (data && data.results && data.results.length > 0) {
                     const match = data.results.find(r => r.media_type === 'movie' || r.media_type === 'tv') || data.results[0];
                     if (match && match.id) {
                         movie.tmdbId = String(match.id);
+                        if (match.adult) movie.adult = true;
+                        if (Array.isArray(match.genre_ids) && match.genre_ids.length > 0) {
+                            const mappedGenres = match.genre_ids.map(gid => TMDB_GENRE_ID_TO_NAME[gid]).filter(Boolean);
+                            movie.genres = Array.from(new Set([...(movie.genres || []), ...mappedGenres]));
+                        }
                         return movie.tmdbId;
                     }
                 }
@@ -1761,8 +1785,17 @@
                     const res = await fetch(_dec(1) + phimSlug);
                     const data = await res.json();
                     if (data && data.episodes && data.episodes.length > 0) {
-                        if (data.movie && data.movie.content) {
-                            document.getElementById('playerSynopsis').textContent = data.movie.content.replace(/<[^>]*>?/gm, '');
+                        if (data.movie) {
+                            if (data.movie.content) {
+                                movie.synopsis = data.movie.content.replace(/<[^>]*>?/gm, '');
+                                document.getElementById('playerSynopsis').textContent = movie.synopsis;
+                            }
+                            if (Array.isArray(data.movie.category) && data.movie.category.length > 0) {
+                                const apiGenres = data.movie.category.map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
+                                const has18Slug = data.movie.category.some(c => c && (c.slug === 'phim-18' || /18\+/.test(c.name || '')));
+                                if (has18Slug && !apiGenres.includes('Phim 18+')) apiGenres.unshift('Phim 18+');
+                                movie.genres = Array.from(new Set([...apiGenres, ...(movie.genres || [])]));
+                            }
                         }
                         if (!movie.tmdbId && data.movie?.tmdb?.id) {
                             movie.tmdbId = String(data.movie.tmdb.id);
@@ -1774,6 +1807,7 @@
                         movie.hasMovy = !!movie.tmdbId;
                         movie.quality = sanitizeQualityBadge(movie.quality, true, !!movie.tmdbId);
                         renderMovieDetails(movie);
+                        renderRelatedMovies();
                         renderApiEpisodes(data.episodes, 0, 0);
                         return;
                     }
@@ -1786,6 +1820,8 @@
             if (!movie.tmdbId) {
                 await ensureMovieTmdbId(movie);
             }
+            renderMovieDetails(movie);
+            renderRelatedMovies();
             document.getElementById('episodeSelectorBox').classList.add('hidden');
             state.currentEp = null;
             state.currentServers = null;
@@ -2106,47 +2142,425 @@
             btn.innerHTML = isOff ? `<i class="fa-solid fa-sun text-amber-400"></i> Bật Đèn` : `<i class="fa-solid fa-moon"></i> Tắt Đèn`;
         }
 
-        function renderRelatedMovies() {
+        // ==============================================================
+        // HỆ THỐNG ĐỀ XUẤT PHIM THÔNG MINH THEO THỂ LOẠI & ĐỘ TƯƠNG ĐỒNG (BAO GỒM CẢ PHIM 18+)
+        // ==============================================================
+        const RELATED_MOVIES_MAP = new Map();
+        let activeRelatedGenreFilter = 'all';
+        let relatedRenderToken = 0;
+
+        const GENRE_NAME_TO_PHIMAPI_SLUG = {
+            'phim 18+': 'phim-18',
+            '18+': 'phim-18',
+            'hành động': 'hanh-dong',
+            'viễn tưởng': 'vien-tuong',
+            'kinh dị': 'kinh-di',
+            'bí ẩn': 'bi-an',
+            'hình sự': 'hinh-su',
+            'hoạt hình': 'hoat-hinh',
+            'anime': 'hoat-hinh',
+            'tình cảm': 'tinh-cam',
+            'lãng mạn': 'tinh-cam',
+            'cổ trang': 'co-trang',
+            'kiếm hiệp': 'kiem-hiep',
+            'phiêu lưu': 'phieu-luu',
+            'hài hước': 'hai-huoc',
+            'tâm lý': 'tam-ly',
+            'chính kịch': 'chinh-kich',
+            'chiến tranh': 'chien-tranh',
+            'gia đình': 'gia-dinh',
+            'võ thuật': 'vo-thuat',
+            'ần thoại': 'than-thoai',
+            'thần thoại': 'than-thoai',
+            'âm nhạc': 'am-nhac',
+            'tài liệu': 'tai-lieu'
+        };
+
+        const GENRE_NAME_TO_TMDB_ID = {
+            'hành động': 28,
+            'phiêu lưu': 12,
+            'hoạt hình': 16,
+            'anime': 16,
+            'hài hước': 35,
+            'bí ẩn': 9648,
+            'hình sự': 80,
+            'tâm lý': 18,
+            'chính kịch': 18,
+            'gia đình': 10751,
+            'viễn tưởng': 878,
+            'chiến tranh': 10752,
+            'kinh dị': 27,
+            'tình cảm': 10749,
+            'phim 18+': 10749
+        };
+
+        function isMovie18PlusOrSensual(m) {
+            if (!m) return false;
+            if (m.adult === true || m.is18Plus === true) return true;
+            const genres = Array.isArray(m.genres) ? m.genres : [];
+            if (genres.some(g => /18\+|người lớn|erotic|adult|nóng bỏng/i.test(String(g)))) return true;
+            const text = `${m.title || ''} ${m.originTitle || ''} ${m.slug || ''} ${m.synopsis || ''}`;
+            return /(?:\b18\+|\b19\+|365\s*days|fifty\s*shades|erotic|sensual|obsessed|unfaithful|sex\/life|fatal\s*seduction|lady\s*chatterley|through\s*my\s*window|arjuna|ngoại\s*tình|dục\s*vọng|cấm\s*kỵ|nóng\s*bỏng|người\s*lớn|nhân\s*tình|tình\s*một\s*đêm|cám\s*dỗ|gợi\s*cảm|ẩn\s*tình|ái\s*tình|hoan\s*lạc|vợ\s*người\s*ta|bẫy\s*tình|khoái\s*cảm|đam\s*mê\s*cấm)/i.test(text);
+        }
+
+        function mapPhimApiRelatedItem(item, force18Plus = false) {
+            if (!item || !item.slug) return null;
+            const apiType = String(item.type || '').toLowerCase();
+            const isAnimeItem = apiType === 'hoathinh' || (Array.isArray(item.category) && item.category.some(c => /hoạt hình|anime/i.test(c.name || c.slug || '')));
+            const mType = isAnimeItem ? 'anime' : (apiType === 'series' || apiType === 'tvshows' ? 'tv' : 'movie');
+            let pUrl = item.poster_url || item.thumb_url || '';
+            let bUrl = item.thumb_url || item.poster_url || '';
+            if (pUrl && !pUrl.startsWith('http')) pUrl = `https://phimimg.com/${pUrl.replace(/^\/+/, '')}`;
+            if (bUrl && !bUrl.startsWith('http')) bUrl = `https://phimimg.com/${bUrl.replace(/^\/+/, '')}`;
+            if (!pUrl) pUrl = generateDynamicPosterSvg(item.name, item.year, mType);
+            if (!bUrl) bUrl = pUrl;
+
+            const cats = Array.isArray(item.category)
+                ? item.category.map(c => typeof c === 'string' ? c : c.name).filter(Boolean)
+                : [];
+            if (force18Plus && !cats.some(g => /18\+/.test(g))) {
+                cats.unshift('Phim 18+');
+            }
+            const obj = {
+                id: `api-${item.slug}`,
+                slug: item.slug,
+                phimapiSlug: item.slug,
+                tmdbId: item.tmdb?.id ? String(item.tmdb.id) : '',
+                title: item.name || 'Phim Đề Xuất',
+                originTitle: item.origin_name || item.name || '',
+                year: item.year || 2026,
+                rating: item.tmdb?.vote_average ? Number(item.tmdb.vote_average).toFixed(1) : 8.3,
+                quality: '4K Vietsub • Đa Server',
+                hasVietsub: true,
+                hasMovy: !!item.tmdb?.id,
+                type: mType,
+                poster: pUrl,
+                backdrop: bUrl,
+                genres: cats,
+                is18Plus: force18Plus || isMovie18PlusOrSensual({ title: item.name, originTitle: item.origin_name, slug: item.slug, genres: cats })
+            };
+            RELATED_MOVIES_MAP.set(obj.id, obj);
+            return obj;
+        }
+
+        function mapTmdbRelatedItem(item, fallbackMediaType = 'movie', force18Plus = false) {
+            if (!item || !item.id) return null;
+            if (!item.poster_path && !item.backdrop_path) return null;
+            const mediaType = item.media_type || fallbackMediaType;
+            const isTv = mediaType === 'tv';
+            const title = item.title || item.name || 'Phim Quốc Tế';
+            const originTitle = item.original_title || item.original_name || title;
+            const year = parseInt((item.release_date || item.first_air_date || '2026').slice(0, 4)) || 2026;
+            const genres = Array.from(new Set((item.genre_ids || []).map(id => TMDB_GENRE_ID_TO_NAME[id]).filter(Boolean)));
+            const is18 = force18Plus || !!item.adult || isMovie18PlusOrSensual({ title, originTitle, synopsis: item.overview, genres });
+            if (is18 && !genres.includes('Phim 18+')) {
+                genres.unshift('Phim 18+');
+            }
+            const isAnimeItem = (item.genre_ids || []).includes(16) || genres.includes('Hoạt Hình');
+            const mType = isAnimeItem ? 'anime' : (isTv ? 'tv' : 'movie');
+
+            const posterUrl = item.poster_path
+                ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                : `https://image.tmdb.org/t/p/w780${item.backdrop_path}`;
+            const backdropUrl = item.backdrop_path
+                ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
+                : posterUrl;
+
+            const obj = {
+                id: `tmdb-${item.id}`,
+                tmdbId: String(item.id),
+                source: 'intl',
+                slug: originTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                title,
+                originTitle,
+                year,
+                rating: item.vote_average ? Number(item.vote_average).toFixed(1) : 8.2,
+                quality: '4K UltraHD (Movy Source)',
+                hasVietsub: false,
+                hasMovy: true,
+                type: mType,
+                poster: posterUrl,
+                backdrop: backdropUrl,
+                genres,
+                adult: !!item.adult,
+                is18Plus: is18,
+                synopsis: item.overview || ''
+            };
+            RELATED_MOVIES_MAP.set(obj.id, obj);
+            return obj;
+        }
+
+        function setRelatedGenreFilter(genreName) {
+            activeRelatedGenreFilter = genreName || 'all';
+            renderRelatedMovies(activeRelatedGenreFilter);
+        }
+
+        async function renderRelatedMovies(customFilter = null) {
             const container = document.getElementById('relatedMoviesGrid');
+            const contextText = document.getElementById('relatedGenreContextText');
+            const contextBadge = document.getElementById('relatedGenreContextBadge');
+            const pillsBox = document.getElementById('relatedGenreFilterPills');
             if (!container) return;
 
+            const movie = state.activeMovie;
+            if (!movie) return;
+
+            const token = ++relatedRenderToken;
+            if (customFilter !== null) {
+                activeRelatedGenreFilter = customFilter;
+            }
+
+            // 1. Phân tích hồ sơ thể loại và nhận diện Phim 18+ / Tâm lý tình cảm người lớn
+            const isActive18Plus = isMovie18PlusOrSensual(movie);
+            let activeGenres = Array.isArray(movie.genres) ? [...movie.genres].filter(Boolean) : [];
+            if (isActive18Plus && !activeGenres.some(g => /18\+/.test(g))) {
+                activeGenres.unshift('Phim 18+');
+                movie.genres = activeGenres;
+                movie.is18Plus = true;
+                const genresBox = document.getElementById('playerGenres');
+                if (genresBox) {
+                    genresBox.innerHTML = movie.genres.map(g => `
+                        <span class="px-2.5 py-0.5 rounded-lg ${/18\+/.test(g) ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold' : 'bg-vex-surface border-vex-border text-slate-300 font-medium'} border text-xs">${g}</span>
+                    `).join('');
+                }
+            }
+            if (!activeGenres.length) {
+                activeGenres = isAnime(movie) ? ['Hoạt Hình', 'Hành Động'] : ['Tâm Lý', 'Tình Cảm'];
+            }
+
+            const filterIs18Plus = activeRelatedGenreFilter === 'Phim 18+' || (activeRelatedGenreFilter === 'all' && isActive18Plus);
+            const targetGenres = (activeRelatedGenreFilter && activeRelatedGenreFilter !== 'all')
+                ? [activeRelatedGenreFilter]
+                : activeGenres;
+
+            if (contextText) {
+                contextText.textContent = filterIs18Plus
+                    ? `Cùng Dòng Phim: 18+ • ${activeGenres.filter(g => !/18\+/.test(g)).slice(0, 2).join(' / ') || 'Tình Cảm Nóng Bỏng'}`
+                    : `Cùng Thể Loại: ${targetGenres.slice(0, 3).join(' • ')}`;
+            }
+            if (contextBadge) {
+                contextBadge.className = filterIs18Plus
+                    ? 'px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[11px] font-bold flex items-center gap-1.5'
+                    : 'px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold flex items-center gap-1.5';
+            }
+
+            // 2. Hiển thị các nút lọc nhanh theo đúng các thể loại của bộ phim đang xem
+            if (pillsBox) {
+                const pillList = ['all', ...activeGenres.slice(0, 4)];
+                if (!pillList.includes('Phim 18+') && (isActive18Plus || activeGenres.some(g => /tình cảm|tâm lý|lãng mạn/i.test(g)))) {
+                    pillList.push('Phim 18+');
+                }
+                pillsBox.innerHTML = pillList.map(g => {
+                    const isAct = activeRelatedGenreFilter === g;
+                    const label = g === 'all' ? 'Tương Tự Nhất' : g;
+                    const is18Pill = /18\+/.test(g);
+                    return `
+                        <button onclick="setRelatedGenreFilter('${escapeHtmlAttr(g)}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold border transition ${isAct ? (is18Pill ? 'bg-rose-500 text-white border-rose-400 shadow' : 'bg-cyan-500 text-slate-950 border-cyan-400 shadow') : 'bg-vex-card border-vex-border text-slate-300 hover:text-white'}">
+                            ${is18Pill ? '<i class="fa-solid fa-fire text-rose-300 mr-1"></i>' : ''}${escapeHtmlAttr(label)}
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            // 3. Kéo dữ liệu tức thì từ Cache địa phương (chấm điểm tương đồng thể loại) trước khi API trả về
             let cache = [];
             try {
                 const raw = localStorage.getItem('cinevex_movies_cache_v4') || localStorage.getItem('cinevex_movies_cache_v3') || localStorage.getItem('cinevex_movies_cache_v2');
                 if (raw) cache = JSON.parse(raw).items || [];
             } catch (e) {}
+            cache.forEach(m => { if (m && m.id) RELATED_MOVIES_MAP.set(m.id, m); });
 
-            const list = cache.filter(m => m.id !== state.activeMovie?.id).slice(0, 6);
-            if (!list.length) {
-                container.innerHTML = `<p class="text-xs text-slate-400 col-span-full">Đang cập nhật phim đề xuất...</p>`;
-                return;
+            const scoreCandidate = (cand, isDirectSimilar = false) => {
+                if (!cand || !cand.id) return -1;
+                if (cand.id === movie.id || (movie.slug && cand.slug === movie.slug) || (movie.tmdbId && cand.tmdbId && String(cand.tmdbId) === String(movie.tmdbId))) {
+                    return -1;
+                }
+                let score = isDirectSimilar ? 95 : 0;
+                const candGenres = (cand.genres || []).map(g => String(g).toLowerCase().trim());
+                const candIs18 = isMovie18PlusOrSensual(cand);
+
+                if (filterIs18Plus) {
+                    if (candIs18) score += 120;
+                    if (candGenres.some(g => g.includes('tình cảm') || g.includes('lãng mạn') || g.includes('tâm lý'))) score += 35;
+                }
+
+                for (const tg of targetGenres) {
+                    const tgLow = String(tg).toLowerCase().trim();
+                    if (candGenres.some(cg => cg === tgLow || cg.includes(tgLow) || tgLow.includes(cg))) {
+                        score += (activeRelatedGenreFilter !== 'all' ? 90 : 45);
+                    }
+                }
+
+                if (cand.type === movie.type) score += 12;
+                return score;
+            };
+
+            const renderCards = (items) => {
+                if (!items.length) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 col-span-full">Đang tìm phim cùng thể loại...</p>`;
+                    return;
+                }
+                container.innerHTML = items.slice(0, 12).map(m => {
+                    RELATED_MOVIES_MAP.set(m.id, m);
+                    const is18Card = isMovie18PlusOrSensual(m);
+                    const matchedGenres = (m.genres || []).filter(g => targetGenres.some(tg => String(tg).toLowerCase() === String(g).toLowerCase()));
+                    const displayGenres = (matchedGenres.length ? matchedGenres : (m.genres || [])).slice(0, 2).join(' • ') || (is18Card ? 'Phim 18+ • Tình Cảm' : 'Cùng Thể Loại');
+                    return `
+                        <div onclick="navigateToMovie('${escapeHtmlAttr(m.id)}')" class="poster-card cursor-pointer bg-vex-card border border-vex-border hover:border-cyan-400 rounded-2xl overflow-hidden flex flex-col group">
+                            <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
+                                <img src="${m.poster}" 
+                                     data-backdrop="${m.backdrop || ''}" 
+                                     data-tmdb="${m.tmdbId || ''}" 
+                                     data-title="${escapeHtmlAttr(m.title)}" 
+                                     data-year="${m.year || 2026}" 
+                                     data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
+                                     referrerpolicy="no-referrer" 
+                                     loading="lazy" 
+                                     onerror="handleCardPosterError(this)" 
+                                     class="poster-img w-full h-full object-cover transition-transform duration-300" 
+                                     alt="${escapeHtmlAttr(m.title)}">
+                                <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-bold text-cyan-300">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                                ${is18Card ? `<span class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-rose-600/90 text-white text-[9px] font-extrabold shadow">18+</span>` : ''}
+                                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2 pt-6 flex items-center justify-between text-[10px]">
+                                    <span class="text-cyan-300 font-semibold truncate">${escapeHtmlAttr(displayGenres)}</span>
+                                    <span class="text-amber-400 font-bold shrink-0 ml-1"><i class="fa-solid fa-star mr-0.5"></i>${m.rating || 8.2}</span>
+                                </div>
+                            </div>
+                            <div class="p-2.5">
+                                <h4 class="text-xs font-bold text-white truncate group-hover:text-cyan-400 transition">${escapeHtmlAttr(m.title)}</h4>
+                                <p class="text-[10px] text-slate-400 truncate mt-0.5">${escapeHtmlAttr(m.originTitle || m.year)}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            // Hiển thị nhanh danh sách cùng thể loại từ cache trong lúc chờ luồng API thời gian thực
+            const initialScored = cache
+                .map(c => ({ item: c, score: scoreCandidate(c, false) }))
+                .filter(x => x.score > 15)
+                .sort((a, b) => b.score - a.score)
+                .map(x => x.item);
+            if (initialScored.length > 0) {
+                renderCards(initialScored);
+            } else {
+                container.innerHTML = `<div class="col-span-full py-6 flex items-center justify-center gap-2 text-xs text-cyan-300 font-semibold"><i class="fa-solid fa-circle-notch animate-spin"></i> Đang tải danh sách phim tương tự cùng thể loại...</div>`;
             }
 
-            container.innerHTML = list.map(m => `
-                <div onclick="navigateToMovie('${m.id}')" class="poster-card cursor-pointer bg-vex-card border border-vex-border hover:border-cyan-400 rounded-2xl overflow-hidden flex flex-col group">
-                    <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
-                        <img src="${m.poster}" 
-                             data-backdrop="${m.backdrop || ''}" 
-                             data-tmdb="${m.tmdbId || ''}" 
-                             data-title="${escapeHtmlAttr(m.title)}" 
-                             data-year="${m.year || 2026}" 
-                             data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
-                             referrerpolicy="no-referrer" 
-                             loading="lazy" 
-                             onerror="handleCardPosterError(this)" 
-                             class="poster-img w-full h-full object-cover transition-transform duration-300" 
-                             alt="${escapeHtmlAttr(m.title)}">
-                        <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-bold text-cyan-300">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
-                    </div>
-                    <div class="p-2.5">
-                        <h4 class="text-xs font-bold text-white truncate group-hover:text-cyan-400 transition">${escapeHtmlAttr(m.title)}</h4>
-                        <p class="text-[10px] text-slate-400 truncate mt-0.5">${escapeHtmlAttr(m.originTitle || m.year)}</p>
-                    </div>
-                </div>
-            `).join('');
+            // 4. Kéo trực tiếp các bộ phim tương tự từ TMDB Similar/Recommendations & PhimAPI Thể Loại (Bao gồm kho Phim 18+)
+            try {
+                const mediaType = (movie.type === 'tv' || movie.type === 'anime') ? 'tv' : 'movie';
+                const requests = [];
+
+                // Luồng A: TMDB Recommendations & Similar của đúng bộ phim đang xem
+                if (movie.tmdbId) {
+                    requests.push(
+                        fetch(`https://api.themoviedb.org/3/${mediaType}/${movie.tmdbId}/recommendations?api_key=${TMDB_API_KEY}&language=vi-VN&include_adult=true`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_direct', items: d?.results || [] })).catch(() => null),
+                        fetch(`https://api.themoviedb.org/3/${mediaType}/${movie.tmdbId}/similar?api_key=${TMDB_API_KEY}&language=vi-VN&include_adult=true`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_direct', items: d?.results || [] })).catch(() => null)
+                    );
+                }
+
+                // Luồng B: Nếu là Phim 18+ hoặc người dùng chọn tab Phim 18+, kéo trực tiếp chuyên mục phim-18 + tìm kiếm phim tương tự 18+
+                if (filterIs18Plus) {
+                    requests.push(
+                        fetch(`${_dec(3)}phim-18?page=1&limit=18`)
+                            .then(r => r.json()).then(d => ({ source: 'phimapi_18', items: d?.data?.items || d?.items || [] })).catch(() => null),
+                        fetch(`${_dec(2)}${encodeURIComponent('18+')}`)
+                            .then(r => r.json()).then(d => ({ source: 'phimapi_18', items: d?.data?.items || [] })).catch(() => null),
+                        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=vi-VN&query=${encodeURIComponent('365 Days')}&include_adult=true`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_18', items: d?.results || [] })).catch(() => null),
+                        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=vi-VN&query=${encodeURIComponent('Fifty Shades')}&include_adult=true`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_18', items: d?.results || [] })).catch(() => null),
+                        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=vi-VN&include_adult=true&with_genres=10749,18&sort_by=popularity.desc`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_genre', items: d?.results || [] })).catch(() => null)
+                    );
+                }
+
+                // Luồng C: Kéo trực tiếp chuyên mục Thể Loại tương ứng từ PhimAPI & TMDB Discover
+                const genreSlugs = Array.from(new Set(
+                    targetGenres
+                        .map(g => GENRE_NAME_TO_PHIMAPI_SLUG[String(g).toLowerCase().trim()])
+                        .filter(Boolean)
+                )).slice(0, 2);
+
+                for (const gSlug of genreSlugs) {
+                    requests.push(
+                        fetch(`${_dec(3)}${gSlug}?page=1&limit=18`)
+                            .then(r => r.json()).then(d => ({ source: gSlug === 'phim-18' ? 'phimapi_18' : 'phimapi_genre', items: d?.data?.items || d?.items || [] })).catch(() => null)
+                    );
+                }
+
+                const tmdbGenreIds = Array.from(new Set(
+                    targetGenres
+                        .map(g => GENRE_NAME_TO_TMDB_ID[String(g).toLowerCase().trim()])
+                        .filter(Boolean)
+                )).slice(0, 2);
+                if (tmdbGenreIds.length > 0) {
+                    requests.push(
+                        fetch(`https://api.themoviedb.org/3/discover/${mediaType}?api_key=${TMDB_API_KEY}&language=vi-VN&include_adult=true&with_genres=${tmdbGenreIds.join(',')}&sort_by=popularity.desc`)
+                            .then(r => r.json()).then(d => ({ source: 'tmdb_genre', items: d?.results || [] })).catch(() => null)
+                    );
+                }
+
+                const settled = await Promise.allSettled(requests);
+                if (token !== relatedRenderToken) return;
+
+                const directSimilarIds = new Set();
+                const livePool = [];
+
+                for (const res of settled) {
+                    if (res.status !== 'fulfilled' || !res.value || !Array.isArray(res.value.items)) continue;
+                    const { source, items } = res.value;
+                    for (const rawItem of items) {
+                        let mapped = null;
+                        if (source.startsWith('phimapi')) {
+                            mapped = mapPhimApiRelatedItem(rawItem, source === 'phimapi_18');
+                        } else {
+                            mapped = mapTmdbRelatedItem(rawItem, mediaType, source === 'tmdb_18' || (source === 'tmdb_direct' && filterIs18Plus));
+                        }
+                        if (mapped) {
+                            if (source === 'tmdb_direct' || source === 'phimapi_18' || source === 'tmdb_18') {
+                                directSimilarIds.add(mapped.id);
+                            }
+                            livePool.push(mapped);
+                        }
+                    }
+                }
+
+                // Hợp nhất và chấm điểm tương đồng toàn bộ ứng viên
+                const seenKeys = new Set();
+                const mergedScored = [];
+                for (const cand of [...livePool, ...cache]) {
+                    if (!cand || !cand.id) continue;
+                    const normTitle = String(cand.originTitle || cand.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const dedupKey = cand.tmdbId ? `tmdb-${cand.tmdbId}` : (normTitle || cand.id);
+                    if (seenKeys.has(dedupKey)) continue;
+
+                    const sc = scoreCandidate(cand, directSimilarIds.has(cand.id));
+                    if (sc <= 0) continue;
+                    seenKeys.add(dedupKey);
+                    mergedScored.push({ item: cand, score: sc });
+                }
+
+                mergedScored.sort((a, b) => b.score - a.score);
+                const finalRecommendations = mergedScored.map(x => x.item).slice(0, 12);
+                if (finalRecommendations.length > 0) {
+                    renderCards(finalRecommendations);
+                }
+            } catch (e) {
+                console.warn('Lỗi tải phim đề xuất cùng thể loại:', e);
+            }
         }
 
         function navigateToMovie(id) {
+            const targetMovie = RELATED_MOVIES_MAP.get(id);
+            if (targetMovie) {
+                try {
+                    sessionStorage.setItem('cinevex_active_movie', JSON.stringify(targetMovie));
+                } catch (e) {}
+            }
             window.location.href = `watch.html?id=${encodeURIComponent(id)}`;
         }
 
