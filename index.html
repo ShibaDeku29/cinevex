@@ -574,15 +574,23 @@
                         <i class="fa-solid fa-compass"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2.5">
+                        <div class="flex items-center gap-2.5 flex-wrap">
                             <h2 id="catalogCategoryTitle" class="text-lg sm:text-xl font-display font-extrabold text-white">Khám Phá Kho Phim Mới Cập Nhật</h2>
                             <span id="catalogCategoryBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">Độc lập</span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span id="catalogLiveTimestamp">LIVE REAL-TIME</span>
+                            </span>
                         </div>
-                        <p id="catalogCategorySubtitle" class="text-xs text-slate-400">Danh sách phim chuẩn theo đúng chuyên mục — Tự động phân loại nghiêm ngặt</p>
+                        <p id="catalogCategorySubtitle" class="text-xs text-slate-400">Danh sách phim mới lên sóng thời gian thực — Tự động phân loại nghiêm ngặt</p>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
+                <div class="flex flex-wrap items-center justify-between md:justify-end gap-2.5 shrink-0">
+                    <button onclick="refreshLiveTrendingNow(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-cyan-300 text-xs font-bold transition">
+                        <i class="fa-solid fa-bolt text-amber-400"></i>
+                        <span>Làm Mới Real-Time</span>
+                    </button>
                     <button onclick="openGenresTab(true)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:border-emerald-400 text-emerald-300 text-xs font-semibold transition">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span>Tìm Phim / Lọc Thể Loại</span>
@@ -949,8 +957,9 @@
         // KHỞI TẠO ỨNG DỤNG VỚI HỆ THỐNG AUTO-SYNC
         // ==============================================================
         window.addEventListener('DOMContentLoaded', () => {
-            // Xóa cache v1/v2 cũ từng bị dính kết quả tìm kiếm hoặc phân loại nhầm
+            // Xóa cache v1/v2/v3 cũ từng lưu 6 phim mẫu cố định ở đầu trang
             try {
+                localStorage.removeItem('cinevex_movies_cache_v3');
                 localStorage.removeItem('cinevex_movies_cache_v2');
                 localStorage.removeItem('cinevex_movies_cache');
             } catch (e) {}
@@ -1570,7 +1579,14 @@
                     cleanList.push(item);
                 }
             }
-            MOVIES_DB = cleanList;
+            // Đẩy 6 phim mẫu cố định (id bắt đầu bằng 'vex-') xuống cuối danh sách khi đã có phim Real-Time từ API để hàng đầu luôn là phim mới nhất
+            if (cleanList.length > 6) {
+                const liveMovies = cleanList.filter(m => !String(m.id || '').startsWith('vex-'));
+                const seedFallback = cleanList.filter(m => String(m.id || '').startsWith('vex-'));
+                MOVIES_DB = [...liveMovies, ...seedFallback];
+            } else {
+                MOVIES_DB = cleanList;
+            }
             autoSync.totalMoviesSynced = MOVIES_DB.length;
         }
 
@@ -1578,8 +1594,9 @@
         function mergeMoviesIntoDb(newItems, prepend = false) {
             if (!newItems || !newItems.length) return 0;
             let addedCount = 0;
+            const itemsToProcess = prepend ? [...newItems].reverse() : newItems;
 
-            for (let item of newItems) {
+            for (let item of itemsToProcess) {
                 const existing = findMatchingMovie(item, MOVIES_DB);
 
                 if (existing) {
@@ -1642,6 +1659,15 @@
                     if (item.synopsis && item.synopsis.length > (existing.synopsis || '').length) {
                         existing.synopsis = item.synopsis;
                     }
+
+                    // Nếu là luồng cập nhật Real-Time (prepend = true), đưa bộ phim vừa cập nhật lên đầu danh sách
+                    if (prepend && !String(existing.id || '').startsWith('vex-')) {
+                        const idx = MOVIES_DB.indexOf(existing);
+                        if (idx > 0) {
+                            MOVIES_DB.splice(idx, 1);
+                            MOVIES_DB.unshift(existing);
+                        }
+                    }
                 } else {
                     // Chưa có bộ phim này trong kho -> Thêm mới
                     if (item.source === 'phimapi') {
@@ -1686,7 +1712,7 @@
                             totalMoviesSynced: MOVIES_DB.length
                         }
                     };
-                    localStorage.setItem('cinevex_movies_cache_v3', JSON.stringify(cachePayload));
+                    localStorage.setItem('cinevex_movies_cache_v4', JSON.stringify(cachePayload));
                 }
             } catch (e) {
                 // Fallback nếu bộ nhớ quota nhỏ hơn bình thường (cắt bớt synopsis dài và lưu 600 phim)
@@ -1710,9 +1736,11 @@
                         backdrop: m.backdrop,
                         synopsis: (m.synopsis || '').slice(0, 200),
                         hasVietsub: m.hasVietsub,
-                        hasMovy: m.hasMovy
+                        hasMovy: m.hasMovy,
+                        isRealtimeNew: m.isRealtimeNew,
+                        isRealtimeTrending: m.isRealtimeTrending
                     }));
-                    localStorage.setItem('cinevex_movies_cache_v3', JSON.stringify({
+                    localStorage.setItem('cinevex_movies_cache_v4', JSON.stringify({
                         time: Date.now(),
                         items: compact,
                         syncState: {
@@ -1733,7 +1761,7 @@
 
         function loadMoviesCache() {
             try {
-                const raw = localStorage.getItem('cinevex_movies_cache_v3');
+                const raw = localStorage.getItem('cinevex_movies_cache_v4');
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     if (parsed) {
@@ -1839,15 +1867,19 @@
             }
         }
 
-        // Tải danh sách phim mới cập nhật
-        async function fetchPhimMoiApi(page = 1) {
+        // Tải danh sách phim mới cập nhật (Real-time chống cache khi ở trang 1)
+        async function fetchPhimMoiApi(page = 1, prepend = false) {
             try {
-                const res = await fetch(_dec(0) + page);
+                const res = await fetch(`${_dec(0)}${page}&_t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
                 const items = data.items || [];
                 if (items.length) {
-                    const mapped = items.map(it => mapPhimApiItem(it));
-                    return mergeMoviesIntoDb(mapped);
+                    const mapped = items.map(it => {
+                        const m = mapPhimApiItem(it);
+                        if (page === 1) m.isRealtimeNew = true;
+                        return m;
+                    });
+                    return mergeMoviesIntoDb(mapped, page === 1 || prepend);
                 }
             } catch (e) {
                 console.warn(`Lỗi đồng bộ trang phim mới ${page}:`, e);
@@ -1856,18 +1888,22 @@
         }
 
         // Tải danh sách theo danh mục chuyên biệt (Phim Lẻ, Phim Bộ, Hoạt Hình)
-        async function fetchCategoryApi(category, page = 1) {
+        async function fetchCategoryApi(category, page = 1, prepend = false) {
             let endpointIndex = 5; // mặc định phim lẻ
             if (category === 'tv') endpointIndex = 6;
             else if (category === 'anime') endpointIndex = 7;
 
             try {
-                const res = await fetch(`${_dec(endpointIndex)}${page}&limit=24`);
+                const res = await fetch(`${_dec(endpointIndex)}${page}&limit=24&_t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
                 const items = (data && data.data && data.data.items) ? data.data.items : [];
                 if (items.length) {
-                    const mapped = items.map(it => mapPhimApiItem(it, category));
-                    return mergeMoviesIntoDb(mapped);
+                    const mapped = items.map(it => {
+                        const m = mapPhimApiItem(it, category);
+                        if (page === 1) m.isRealtimeNew = true;
+                        return m;
+                    });
+                    return mergeMoviesIntoDb(mapped, page === 1 || prepend);
                 }
             } catch (e) {
                 console.warn(`Lỗi đồng bộ danh mục ${category} trang ${page}:`, e);
@@ -2125,13 +2161,15 @@
         }
 
         function updateTrendingTimestampUI() {
-            const el = document.getElementById('trendingLiveTimestamp');
-            if (!el) return;
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             const ss = String(now.getSeconds()).padStart(2, '0');
-            el.textContent = `LIVE • Cập nhật ${hh}:${mm}:${ss}`;
+            const text = `LIVE • Cập nhật ${hh}:${mm}:${ss}`;
+            const el = document.getElementById('trendingLiveTimestamp');
+            if (el) el.textContent = text;
+            const catEl = document.getElementById('catalogLiveTimestamp');
+            if (catEl) catEl.textContent = text;
         }
 
         async function fetchTmdbTrending(isManual = false) {
@@ -2206,11 +2244,11 @@
 
                 if (intlItems.length > 0) {
                     LIVE_TRENDING_INTL = intlItems.slice(0, 15);
-                    mergeMoviesIntoDb(intlItems.slice(0, 12), false);
+                    mergeMoviesIntoDb(intlItems.slice(0, 12), true);
                 }
                 if (vietsubItems.length > 0) {
                     LIVE_TRENDING_VIETSUB = vietsubItems.slice(0, 15);
-                    mergeMoviesIntoDb(vietsubItems.slice(0, 12), false);
+                    mergeMoviesIntoDb(vietsubItems.slice(0, 12), true);
                 }
 
                 // 3. Tạo danh sách Tổng Hợp Hot Hôm Nay (Đan xen Top Quốc Tế 7Movies/TMDB & Phim Mới Lên Sóng Vietsub)
@@ -2258,9 +2296,12 @@
                 updateTrendingTimestampUI();
                 renderTopTrending();
                 renderHero(state.heroIndex || 0);
+                if (state.category !== 'genres') {
+                    applyFilters();
+                }
 
                 if (isManual) {
-                    showToast('Đã cập nhật Top Xu Hướng Hôm Nay theo thời gian thực!', 'fa-bolt', 'text-emerald-400');
+                    showToast('Đã cập nhật Kho Phim & Top Xu Hướng Hôm Nay theo thời gian thực!', 'fa-bolt', 'text-emerald-400');
                 }
             } catch (e) {
                 console.warn("Lỗi đồng bộ Real-time Trending:", e);
@@ -2270,7 +2311,16 @@
         }
 
         async function refreshLiveTrendingNow(isManual = true) {
-            await fetchTmdbTrending(isManual);
+            await Promise.allSettled([
+                fetchTmdbTrending(isManual),
+                fetchCategoryApi('movie', 1, true),
+                fetchCategoryApi('tv', 1, true),
+                fetchCategoryApi('anime', 1, true)
+            ]);
+            if (state.category !== 'genres') {
+                applyFilters();
+            }
+            saveMoviesCache();
         }
 
         function loadLiveTrendingCache() {
@@ -2333,10 +2383,22 @@
             initLiveTrendingAutoRefresh();
 
             if (MOVIES_DB.length > CINEVEX_CATALOG.length) {
-                // ĐÃ CÓ KHO PHIM CACHE SẴN (F5 HOẶC QUAY LẠI TRANG) -> HIỂN THỊ NGAY 0ms KHÔNG CHỜ ĐỢI
+                // ĐÃ CÓ KHO PHIM CACHE SẴN (F5 HOẶC QUAY LẠI TRANG) -> HIỂN THỊ NGAY 0ms VÀ ĐỒNG BỘ REAL-TIME ĐỢT MỚI NHẤT LÊN ĐẦU
                 updateSyncUI(`Kho phim sẵn sàng (${MOVIES_DB.length} phim)`, 100);
                 applyFilters();
                 renderGenreHubCards();
+                (async () => {
+                    try {
+                        await Promise.allSettled([
+                            fetchPhimMoiApi(1, true),
+                            fetchCategoryApi('movie', 1, true),
+                            fetchCategoryApi('tv', 1, true),
+                            fetchCategoryApi('anime', 1, true)
+                        ]);
+                        if (state.category !== 'genres') applyFilters();
+                        saveMoviesCache();
+                    } catch (e) {}
+                })();
             } else {
                 // Lần đầu tiên truy cập chưa có cache -> Kéo đợt đầu tiên song song
                 autoSync.isSyncing = true;
@@ -2484,6 +2546,7 @@
         }
 
         function clearCacheAndResync() {
+            localStorage.removeItem('cinevex_movies_cache_v4');
             localStorage.removeItem('cinevex_movies_cache_v3');
             localStorage.removeItem('cinevex_movies_cache_v2');
             MOVIES_DB = [...CINEVEX_CATALOG];
@@ -2804,7 +2867,11 @@
                         </button>
                         <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-bold">
                             <span class="px-1.5 py-0.5 rounded bg-black/70 text-amber-400"><i class="fa-solid fa-star mr-1"></i>${m.rating}</span>
-                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${m.has7Movies ? '7Movies HD' : '4K Stream'}</span>
+                            ${m.isRealtimeNew
+                                ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 border border-amber-500/40">MỚI LÊN SÓNG</span>`
+                                : (m.isRealtimeTrending
+                                    ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">HOT HÔM NAY</span>`
+                                    : `<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${m.has7Movies ? '7Movies HD' : '4K Stream'}</span>`)}
                         </div>
                     </div>
                     <div class="p-3.5 flex-1 flex flex-col justify-between">

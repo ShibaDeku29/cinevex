@@ -1068,7 +1068,7 @@
 
             // 2. Lấy từ localStorage cache
             if (!movie && movieId) {
-                const cacheData = localStorage.getItem('cinevex_movies_cache_v3') || localStorage.getItem('cinevex_movies_cache_v2');
+                const cacheData = localStorage.getItem('cinevex_movies_cache_v4') || localStorage.getItem('cinevex_movies_cache_v3') || localStorage.getItem('cinevex_movies_cache_v2');
                 if (cacheData) {
                     try {
                         const parsedCache = JSON.parse(cacheData);
@@ -1650,7 +1650,7 @@
 
             let cache = [];
             try {
-                const raw = localStorage.getItem('cinevex_movies_cache_v3') || localStorage.getItem('cinevex_movies_cache_v2');
+                const raw = localStorage.getItem('cinevex_movies_cache_v4') || localStorage.getItem('cinevex_movies_cache_v3') || localStorage.getItem('cinevex_movies_cache_v2');
                 if (raw) cache = JSON.parse(raw).items || [];
             } catch (e) {}
 
