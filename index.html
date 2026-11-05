@@ -311,8 +311,22 @@
 
         /* Hero Mesh Gradient */
         .hero-vignette {
-            background: radial-gradient(circle at 75% 35%, rgb(var(--vex-bg-rgb) / 0.12) 0%, rgb(var(--vex-bg-rgb) / 0.88) 72%, var(--vex-bg-hex) 100%),
-                        linear-gradient(180deg, rgb(var(--vex-bg-rgb) / 0.25) 0%, rgb(var(--vex-bg-rgb) / 0) 40%, var(--vex-bg-hex) 100%);
+            background: radial-gradient(circle at 75% 35%, rgb(var(--vex-bg-rgb) / 0.18) 0%, rgb(var(--vex-bg-rgb) / 0.88) 74%, var(--vex-bg-hex) 100%),
+                        linear-gradient(180deg, rgb(var(--vex-bg-rgb) / 0.35) 0%, rgb(var(--vex-bg-rgb) / 0.05) 42%, var(--vex-bg-hex) 100%);
+        }
+
+        /* Official Trailer Background Video Full-Bleed Cover */
+        .hero-trailer-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw;
+            min-height: 100%;
+            min-width: 177.78vh;
+            transform: translate(-50%, -50%) scale(1.14);
+            pointer-events: none;
+            border: 0;
         }
 
         /* Card Hover Effects */
@@ -657,11 +671,15 @@
         <!-- ============================================================== -->
         <!-- TRÌNH PHÁT PHIM ĐÃ ĐƯỢC TÁCH BIỆT HOÀN TOÀN THÀNH TRANG WATCH.HTML RIÊNG BIỆT -->
         <!-- ============================================================== -->
-        <!-- HERO SHOWCASE BANNER (GIAO DIỆN KHÔNG GIAN VỚI THUMBNAIL CHUYỂN CẢNH) -->
+        <!-- HERO SHOWCASE BANNER (GIAO DIỆN KHÔNG GIAN VỚI VIDEO OFFICIAL TRAILER & THUMBNAIL CHUYỂN CẢNH) -->
         <!-- ============================================================== -->
-        <section id="heroSection" class="relative w-full min-h-[480px] sm:min-h-[540px] flex items-end overflow-hidden border-b border-vex-border">
+        <section id="heroSection" onmouseenter="state.heroHovered = true" onmouseleave="state.heroHovered = false" class="relative w-full min-h-[500px] sm:min-h-[570px] flex items-end overflow-hidden border-b border-vex-border">
             <img id="heroBackdrop" src="" alt="Backdrop" class="absolute inset-0 w-full h-full object-cover scale-105 transition-all duration-1000">
-            <div class="absolute inset-0 hero-vignette"></div>
+            <!-- Lớp phát trực tiếp Official Trailer từng phim thay cho ảnh tĩnh -->
+            <div id="heroTrailerContainer" class="absolute inset-0 overflow-hidden pointer-events-none opacity-0 transition-opacity duration-700">
+                <div id="heroTrailerPlayerMount" class="w-full h-full"></div>
+            </div>
+            <div class="absolute inset-0 hero-vignette pointer-events-none"></div>
 
             <div class="relative z-10 max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                 <!-- Nội dung phim tiêu điểm bên trái -->
@@ -670,19 +688,32 @@
                         <span class="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[11px] font-bold tracking-wide uppercase flex items-center gap-1.5">
                             <i class="fa-solid fa-fire-flame-curved text-cyan-400"></i> Siêu Phẩm Tâm Điểm
                         </span>
+                        <span id="heroTrailerStatusBadge" class="inline-flex px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-200 text-[11px] font-bold items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+                            <i class="fa-brands fa-youtube text-rose-400"></i>
+                            <span id="heroTrailerStatusText">OFFICIAL TRAILER</span>
+                        </span>
                         <span id="heroQuality" class="px-2.5 py-1 rounded-full bg-violet-500/25 border border-violet-400/30 text-violet-200 text-[11px] font-bold">4K DOLBY VISION</span>
                         <span id="heroImdb" class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold"><i class="fa-solid fa-star mr-1"></i>8.6 IMDb</span>
                     </div>
 
-                    <h1 id="heroTitle" class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-none"></h1>
-                    <p id="heroOriginTitle" class="text-sm sm:text-base text-cyan-400 font-semibold"></p>
-                    <p id="heroSynopsis" class="text-slate-300 text-xs sm:text-sm leading-relaxed line-clamp-3 max-w-xl"></p>
+                    <h1 id="heroTitle" class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-none drop-shadow-lg"></h1>
+                    <p id="heroOriginTitle" class="text-sm sm:text-base text-cyan-400 font-semibold drop-shadow"></p>
+                    <p id="heroSynopsis" class="text-slate-200 text-xs sm:text-sm leading-relaxed line-clamp-3 max-w-xl drop-shadow"></p>
 
-                    <div class="pt-2 flex flex-wrap items-center gap-3">
-                        <button onclick="openHeroMovie()" class="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-cyan-500/25 transition transform hover:scale-[1.02]">
+                    <div class="pt-2 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                        <button onclick="openHeroMovie()" class="px-6 sm:px-7 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-cyan-500/25 transition transform hover:scale-[1.02]">
                             <i class="fa-solid fa-play"></i> Phát Phim Ngay
                         </button>
-                        <button onclick="toggleHeroWatchlist()" id="heroWatchlistBtn" class="px-5 py-3.5 rounded-2xl glass-panel border border-white/15 hover:border-cyan-400 text-white font-semibold text-sm flex items-center gap-2 transition">
+                        <button onclick="toggleHeroTrailerSound()" id="heroSoundToggleBtn" class="px-4 py-3.5 rounded-2xl glass-panel border border-cyan-400/35 hover:border-cyan-400 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 transition" title="Bật hoặc tắt âm thanh Official Trailer trên nền">
+                            <i id="heroSoundToggleIcon" class="fa-solid fa-volume-xmark text-cyan-400"></i>
+                            <span id="heroSoundToggleText">Bật Tiếng Trailer</span>
+                        </button>
+                        <button onclick="openHeroTrailerModal()" id="heroOpenTrailerModalBtn" class="px-4 py-3.5 rounded-2xl glass-panel border border-white/15 hover:border-rose-400/60 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 transition" title="Xem Official Trailer toàn màn hình có điều khiển">
+                            <i class="fa-brands fa-youtube text-rose-400"></i>
+                            <span>Trailer Full HD</span>
+                        </button>
+                        <button onclick="toggleHeroWatchlist()" id="heroWatchlistBtn" class="px-4 py-3.5 rounded-2xl glass-panel border border-white/15 hover:border-cyan-400 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 transition">
                             <i class="fa-regular fa-heart"></i> <span>Lưu Vào Tủ</span>
                         </button>
                     </div>
@@ -852,6 +883,32 @@
                 </div>
             </div>
         </section>
+
+        <!-- MODAL XEM OFFICIAL TRAILER TOÀN MÀN HÌNH (CÓ ĐIỀU KHIỂN & ÂM THANH) -->
+        <div id="trailerLightboxModal" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+            <div class="w-full max-w-5xl bg-vex-surface border border-vex-border rounded-3xl overflow-hidden shadow-2xl">
+                <div class="px-5 py-3.5 border-b border-vex-border flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+                            <i class="fa-brands fa-youtube"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h3 id="trailerModalTitle" class="text-sm sm:text-base font-display font-bold text-white truncate">Official Trailer</h3>
+                            <p id="trailerModalSubtitle" class="text-[11px] text-slate-400 truncate">Trình phát Official Trailer 4K chính thức</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="closeHeroTrailerModal(); openHeroMovie();" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> Xem Phim Ngay
+                        </button>
+                        <button onclick="closeHeroTrailerModal()" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 flex items-center justify-center transition">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="trailerModalMount" class="relative w-full aspect-video bg-black"></div>
+            </div>
+        </div>
 
         <!-- FOOTER HIỆN ĐẠI -->
         <footer class="mt-auto border-t border-vex-border/80 bg-vex-surface/60 py-8 px-4 sm:px-8">
@@ -2613,10 +2670,14 @@
                     LIVE_TRENDING_ALL = combined.slice(0, 15);
                 }
 
-                // 4. Cập nhật danh sách Hero Banner bằng các siêu phẩm Trending Hôm Nay có ảnh Backdrop HD nét nhất
+                // 4. Cập nhật danh sách Hero Banner bằng các siêu phẩm Trending Hôm Nay & giải mã trước Official Trailer từng phim
                 const heroCandidates = [...LIVE_TRENDING_INTL, ...LIVE_TRENDING_VIETSUB].filter(m => m && m.backdrop && !m.backdrop.startsWith('data:image/svg+xml'));
                 if (heroCandidates.length >= 5) {
-                    LIVE_HERO_LIST = heroCandidates.slice(0, 6);
+                    const topSlice = heroCandidates.slice(0, 10);
+                    await Promise.allSettled(topSlice.map(item => resolveOfficialTrailerKey(item)));
+                    const withTrailer = topSlice.filter(item => !!item.trailerKey);
+                    const withoutTrailer = topSlice.filter(item => !item.trailerKey);
+                    LIVE_HERO_LIST = [...withTrailer, ...withoutTrailer].slice(0, 6);
                 }
 
                 // Lưu cache Trending Real-time để khi F5 hiển thị ngay lập tức trước khi luồng mới trả về
@@ -2696,15 +2757,17 @@
             }, 60000);
 
             if (heroAutoRotateInterval) clearInterval(heroAutoRotateInterval);
+            // Tự động chuyển phim trên Hero sau 28 giây để người dùng xem trọn vẹn Official Trailer (tạm dừng nếu đang bật tiếng hoặc mở modal)
             heroAutoRotateInterval = setInterval(() => {
-                if (!document.hidden && state.category === 'all') {
+                const modalOpen = !document.getElementById('trailerLightboxModal')?.classList.contains('hidden');
+                if (!document.hidden && state.category === 'all' && isHeroTrailerMuted && !modalOpen && !state.heroHovered) {
                     const heroList = getActiveHeroList();
                     if (heroList.length > 1) {
                         const nextIdx = ((state.heroIndex || 0) + 1) % heroList.length;
                         renderHero(nextIdx);
                     }
                 }
-            }, 9000);
+            }, 28000);
         }
 
         // Khởi động toàn bộ cơ chế Auto-Sync khi mở trang
@@ -2899,6 +2962,310 @@
         }
 
         // ==============================================================
+        // HỆ THỐNG GIẢI MÃ & PHÁT TRỰC TIẾP OFFICIAL TRAILER TRÊN HERO BANNER
+        // Tự động truy vấn TMDB Videos API + PhimAPI trailer_url theo từng phim
+        // ==============================================================
+        const TRAILER_KEY_CACHE = new Map([
+            ['vex-dune2', 'Way9Dexny3w'],
+            ['tmdb-693134', 'Way9Dexny3w'],
+            ['vex-derry', 'jGfiPs93E4I'],
+            ['tmdb-200875', 'jGfiPs93E4I'],
+            ['vex-verity', 'Way9Dexny3w'],
+            ['vex-cyberpunk', 'JtqIas3bYhg'],
+            ['tmdb-105248', 'JtqIas3bYhg'],
+            ['vex-squid2', 'Ed1sGgHUo88'],
+            ['tmdb-93405', 'Ed1sGgHUo88'],
+            ['vex-onepiece', 'MCb13lbVGE0'],
+            ['tmdb-37854', 'MCb13lbVGE0']
+        ]);
+        try {
+            const savedTrailers = JSON.parse(localStorage.getItem('cinevex_trailer_keys_v1') || '{}');
+            Object.entries(savedTrailers).forEach(([k, v]) => {
+                if (k && v) TRAILER_KEY_CACHE.set(k, v);
+            });
+        } catch (e) {}
+
+        let isHeroTrailerMuted = true;
+        let heroRenderToken = 0;
+        let currentHeroRenderedMovieId = null;
+        let currentHeroRenderedTrailerKey = null;
+
+        function saveTrailerKeyCache(movieId, tmdbId, ytKey) {
+            if (!ytKey) return;
+            if (movieId) TRAILER_KEY_CACHE.set(String(movieId), ytKey);
+            if (tmdbId) TRAILER_KEY_CACHE.set('tmdb-' + String(tmdbId), ytKey);
+            try {
+                const obj = {};
+                for (const [k, v] of TRAILER_KEY_CACHE.entries()) {
+                    if (v) obj[k] = v;
+                }
+                localStorage.setItem('cinevex_trailer_keys_v1', JSON.stringify(obj));
+            } catch (e) {}
+        }
+
+        function extractYoutubeId(raw) {
+            if (!raw || typeof raw !== 'string') return '';
+            const trimmed = raw.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+            const m = trimmed.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+            return m ? m[1] : '';
+        }
+
+        function pickBestTmdbYoutubeKey(results) {
+            if (!Array.isArray(results) || !results.length) return '';
+            const ytList = results.filter(v => v && String(v.site || '').toLowerCase() === 'youtube' && v.key);
+            if (!ytList.length) return '';
+            const scoreVideo = (v) => {
+                let s = 0;
+                const type = String(v.type || '').toLowerCase();
+                const name = String(v.name || '').toLowerCase();
+                if (type === 'trailer') s += 100;
+                else if (type === 'teaser') s += 60;
+                else if (type === 'clip' || type === 'opening credits') s += 30;
+                if (v.official) s += 40;
+                if (name.includes('official trailer')) s += 25;
+                else if (name.includes('trailer')) s += 15;
+                return s;
+            };
+            ytList.sort((a, b) => scoreVideo(b) - scoreVideo(a));
+            return extractYoutubeId(ytList[0].key);
+        }
+
+        async function fetchTmdbVideosById(tmdbId, mediaType = 'movie') {
+            if (!tmdbId) return '';
+            const primaryType = (mediaType === 'tv' || mediaType === 'anime') ? 'tv' : 'movie';
+            const altType = primaryType === 'movie' ? 'tv' : 'movie';
+            try {
+                const [viRes, enRes] = await Promise.allSettled([
+                    fetch(`https://api.themoviedb.org/3/${primaryType}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&language=vi-VN`).then(r => r.json()),
+                    fetch(`https://api.themoviedb.org/3/${primaryType}/${tmdbId}/videos?api_key=${TMDB_API_KEY}`).then(r => r.json())
+                ]);
+                const merged = [
+                    ...(viRes.status === 'fulfilled' && Array.isArray(viRes.value?.results) ? viRes.value.results : []),
+                    ...(enRes.status === 'fulfilled' && Array.isArray(enRes.value?.results) ? enRes.value.results : [])
+                ];
+                const key = pickBestTmdbYoutubeKey(merged);
+                if (key) return key;
+
+                // Thử sang loại đối xứng (movie <-> tv) nếu chưa có
+                const altRes = await fetch(`https://api.themoviedb.org/3/${altType}/${tmdbId}/videos?api_key=${TMDB_API_KEY}`).then(r => r.json()).catch(() => null);
+                return pickBestTmdbYoutubeKey(altRes?.results || []);
+            } catch (e) {
+                return '';
+            }
+        }
+
+        async function resolveOfficialTrailerKey(m) {
+            if (!m) return '';
+            if (m.trailerKey) return m.trailerKey;
+            const cached = TRAILER_KEY_CACHE.get(String(m.id)) || (m.tmdbId ? TRAILER_KEY_CACHE.get('tmdb-' + String(m.tmdbId)) : '');
+            if (cached) {
+                m.trailerKey = cached;
+                return cached;
+            }
+
+            // Bước 1: Nếu đã có tmdbId thì lấy trực tiếp Official Trailer từ TMDB Videos API
+            if (m.tmdbId) {
+                const key = await fetchTmdbVideosById(m.tmdbId, m.type);
+                if (key) {
+                    m.trailerKey = key;
+                    saveTrailerKeyCache(m.id, m.tmdbId, key);
+                    return key;
+                }
+            }
+
+            // Bước 2: Nếu là phim từ PhimAPI (có slug), kiểm tra trailer_url hoặc tmdb.id trong chi tiết phim
+            const slug = m.phimapiSlug || m.slug;
+            if (slug && !String(slug).startsWith('tmdb-')) {
+                try {
+                    const detailRes = await fetch(`${_dec(1)}${encodeURIComponent(slug)}`).then(r => r.json()).catch(() => null);
+                    const mv = detailRes?.movie;
+                    if (mv) {
+                        const directKey = extractYoutubeId(mv.trailer_url || '');
+                        if (directKey) {
+                            m.trailerKey = directKey;
+                            saveTrailerKeyCache(m.id, mv.tmdb?.id || m.tmdbId, directKey);
+                            return directKey;
+                        }
+                        if (mv.tmdb?.id) {
+                            m.tmdbId = String(mv.tmdb.id);
+                            const tmdbKey = await fetchTmdbVideosById(m.tmdbId, mv.tmdb.type || m.type);
+                            if (tmdbKey) {
+                                m.trailerKey = tmdbKey;
+                                saveTrailerKeyCache(m.id, m.tmdbId, tmdbKey);
+                                return tmdbKey;
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // Bước 3: Tìm kiếm thông minh trên TMDB theo tên gốc / tên tiếng Việt để lấy Official Trailer
+            const queryTitle = (m.originTitle || m.title || '').trim();
+            if (queryTitle) {
+                try {
+                    const searchRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(queryTitle)}`).then(r => r.json()).catch(() => null);
+                    const hits = (searchRes?.results || []).filter(it => it && (it.media_type === 'movie' || it.media_type === 'tv'));
+                    if (hits.length > 0) {
+                        const bestHit = hits[0];
+                        m.tmdbId = m.tmdbId || String(bestHit.id);
+                        const searchKey = await fetchTmdbVideosById(bestHit.id, bestHit.media_type);
+                        if (searchKey) {
+                            m.trailerKey = searchKey;
+                            saveTrailerKeyCache(m.id, bestHit.id, searchKey);
+                            return searchKey;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            return '';
+        }
+
+        function updateHeroSoundButtonUI() {
+            const icon = document.getElementById('heroSoundToggleIcon');
+            const text = document.getElementById('heroSoundToggleText');
+            const btn = document.getElementById('heroSoundToggleBtn');
+            if (!icon || !text || !btn) return;
+            if (isHeroTrailerMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-cyan-400';
+                text.textContent = 'Bật Tiếng Trailer';
+                btn.classList.remove('border-cyan-400', 'bg-cyan-500/20');
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-emerald-400 animate-pulse';
+                text.textContent = 'Đang Phát Tiếng';
+                btn.classList.add('border-cyan-400', 'bg-cyan-500/20');
+            }
+        }
+
+        function sendHeroYoutubeCommand(func, args = []) {
+            const iframe = document.getElementById('heroTrailerIframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func,
+                    args
+                }), '*');
+            }
+        }
+
+        function toggleHeroTrailerSound() {
+            isHeroTrailerMuted = !isHeroTrailerMuted;
+            updateHeroSoundButtonUI();
+            if (isHeroTrailerMuted) {
+                sendHeroYoutubeCommand('mute');
+                showToast('Đã tắt tiếng Official Trailer nền', 'fa-volume-xmark', 'text-slate-300');
+            } else {
+                sendHeroYoutubeCommand('unMute');
+                sendHeroYoutubeCommand('setVolume', [100]);
+                sendHeroYoutubeCommand('playVideo');
+                showToast('Đang phát âm thanh Official Trailer!', 'fa-volume-high', 'text-emerald-400');
+            }
+        }
+
+        async function openHeroTrailerModal() {
+            const heroList = getActiveHeroList();
+            const m = heroList[state.heroIndex] || heroList[0] || CINEVEX_CATALOG[0];
+            if (!m) return;
+            const modal = document.getElementById('trailerLightboxModal');
+            const mount = document.getElementById('trailerModalMount');
+            const titleEl = document.getElementById('trailerModalTitle');
+            const subEl = document.getElementById('trailerModalSubtitle');
+            if (!modal || !mount) return;
+
+            titleEl.textContent = `Official Trailer: ${m.title}`;
+            subEl.textContent = `${m.originTitle || m.title} (${m.year || 2026}) • Trình phát Trailer chính thức Full HD`;
+            modal.classList.remove('hidden');
+
+            // Tạm tắt tiếng trailer nền khi mở modal
+            sendHeroYoutubeCommand('mute');
+
+            mount.innerHTML = `<div class="w-full h-full flex items-center justify-center text-cyan-300 text-xs font-bold gap-2"><i class="fa-solid fa-circle-notch animate-spin"></i> Đang tải Official Trailer...</div>`;
+            const ytKey = await resolveOfficialTrailerKey(m);
+            if (!ytKey) {
+                mount.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-3 p-6 text-center">
+                    <i class="fa-brands fa-youtube text-4xl text-rose-400"></i>
+                    <p class="text-sm font-bold">Hiện bộ phim này chưa cập nhật mã nhúng Trailer trực tiếp.</p>
+                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((m.originTitle || m.title) + ' ' + (m.year || '') + ' official trailer')}" target="_blank" rel="noopener" class="px-4 py-2 rounded-xl bg-rose-500 text-white text-xs font-bold">Tìm Official Trailer trên YouTube</a>
+                </div>`;
+                return;
+            }
+            mount.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.youtube-nocookie.com/embed/${ytKey}?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+        }
+
+        function closeHeroTrailerModal() {
+            const modal = document.getElementById('trailerLightboxModal');
+            const mount = document.getElementById('trailerModalMount');
+            if (mount) mount.innerHTML = '';
+            if (modal) modal.classList.add('hidden');
+            if (!isHeroTrailerMuted) {
+                sendHeroYoutubeCommand('unMute');
+            }
+        }
+
+        async function mountHeroOfficialTrailer(m, token) {
+            const container = document.getElementById('heroTrailerContainer');
+            const mount = document.getElementById('heroTrailerPlayerMount');
+            const statusBadge = document.getElementById('heroTrailerStatusBadge');
+            const statusText = document.getElementById('heroTrailerStatusText');
+            const soundBtn = document.getElementById('heroSoundToggleBtn');
+            if (!container || !mount) return;
+
+            // Nếu đang phát đúng trailer của cùng bộ phim này thì giữ nguyên luồng video không nạp lại
+            if (currentHeroRenderedMovieId === m.id && currentHeroRenderedTrailerKey && mount.querySelector('#heroTrailerIframe')) {
+                container.classList.remove('opacity-0');
+                container.classList.add('opacity-100');
+                return;
+            }
+
+            container.classList.remove('opacity-100');
+            container.classList.add('opacity-0');
+            if (statusText) statusText.textContent = 'ĐANG KẾT NỐI TRAILER...';
+
+            const ytKey = await resolveOfficialTrailerKey(m);
+            if (token !== heroRenderToken) return;
+
+            if (!ytKey) {
+                mount.innerHTML = '';
+                currentHeroRenderedMovieId = m.id;
+                currentHeroRenderedTrailerKey = null;
+                if (statusText) statusText.textContent = 'BACKDROP 4K';
+                if (soundBtn) soundBtn.classList.add('hidden');
+                return;
+            }
+
+            if (soundBtn) soundBtn.classList.remove('hidden');
+            if (statusBadge) statusBadge.classList.remove('hidden');
+            if (statusText) statusText.textContent = 'OFFICIAL TRAILER • LIVE';
+            updateHeroSoundButtonUI();
+
+            currentHeroRenderedMovieId = m.id;
+            currentHeroRenderedTrailerKey = ytKey;
+
+            const muteParam = isHeroTrailerMuted ? 1 : 0;
+            const embedUrl = `https://www.youtube-nocookie.com/embed/${ytKey}?autoplay=1&mute=${muteParam}&controls=0&showinfo=0&rel=0&loop=1&playlist=${ytKey}&modestbranding=1&iv_load_policy=3&playsinline=1&disablekb=1&fs=0&enablejsapi=1`;
+
+            mount.innerHTML = `<iframe id="heroTrailerIframe" class="hero-trailer-iframe" src="${embedUrl}" title="Official Trailer - ${escapeHtmlAttr(m.title)}" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+
+            const iframe = document.getElementById('heroTrailerIframe');
+            if (iframe) {
+                iframe.addEventListener('load', () => {
+                    if (token !== heroRenderToken) return;
+                    setTimeout(() => {
+                        if (token !== heroRenderToken) return;
+                        container.classList.remove('opacity-0');
+                        container.classList.add('opacity-100');
+                        if (!isHeroTrailerMuted) {
+                            sendHeroYoutubeCommand('unMute');
+                            sendHeroYoutubeCommand('setVolume', [100]);
+                        }
+                    }, 450);
+                });
+            }
+            renderHeroThumbnails();
+        }
+
+        // ==============================================================
         // HERO BANNER & TOP TRENDING (ĐỒNG BỘ TRỰC TIẾP TỪ LIVE TRENDING HÔM NAY)
         // ==============================================================
         function renderHero(index) {
@@ -2934,14 +3301,20 @@
                     : `<i class="fa-regular fa-heart"></i> <span>Lưu Vào Tủ</span>`;
             }
             renderHeroThumbnails();
+
+            // Tự động nạp & phát trực tiếp Official Trailer của bộ phim đang chọn trên Hero Banner
+            const token = ++heroRenderToken;
+            mountHeroOfficialTrailer(m, token);
         }
 
         function renderHeroThumbnails() {
             const bar = document.getElementById('heroThumbnailsBar');
             if (!bar) return;
             const heroList = getActiveHeroList();
-            bar.innerHTML = heroList.map((m, idx) => `
-                <button onclick="renderHero(${idx})" class="relative group shrink-0 w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all ${idx === state.heroIndex ? 'border-cyan-400 scale-105 shadow-lg shadow-cyan-500/30' : 'border-white/15 opacity-60 hover:opacity-100'}">
+            bar.innerHTML = heroList.map((m, idx) => {
+                const isCurrent = idx === state.heroIndex;
+                return `
+                <button onclick="renderHero(${idx})" class="relative group shrink-0 w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all ${isCurrent ? 'border-cyan-400 scale-105 shadow-lg shadow-cyan-500/30' : 'border-white/15 opacity-60 hover:opacity-100'}">
                     <img src="${m.backdrop || m.poster}" 
                          data-backdrop="${m.poster || ''}" 
                          data-tmdb="${m.tmdbId || ''}" 
@@ -2953,11 +3326,14 @@
                          onerror="handleCardPosterError(this)" 
                          class="w-full h-full object-cover" 
                          alt="${escapeHtmlAttr(m.title)}">
+                    <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/70 border border-white/20 flex items-center justify-center text-[8px] ${isCurrent ? 'text-rose-400' : 'text-white/80'}">
+                        <i class="fa-solid ${isCurrent ? 'fa-play' : 'fa-film'}"></i>
+                    </span>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-1.5">
                         <span class="text-[9px] font-bold text-white truncate">${escapeHtmlAttr(m.title)}</span>
                     </div>
                 </button>
-            `).join('');
+            `}).join('');
         }
 
         function openHeroMovie() {
