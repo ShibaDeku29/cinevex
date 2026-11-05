@@ -547,12 +547,11 @@
                 </button>
             </div>
 
-            <!-- Nút CC nổi trên video (Ẩn trên mobile để không che nút Fullscreen ở góc phải) -->
-            <div class="hidden sm:flex absolute top-3.5 right-3.5 z-30 items-center gap-2 opacity-90 group-hover:opacity-100 transition">
+            <!-- Nhãn Video.js nổi trên video (Chỉ hiển thị khi đang dùng trình phát Video.js HLS gốc) -->
+            <div id="vjsFloatingBadge" class="hidden sm:flex absolute top-3.5 right-3.5 z-30 items-center gap-2 opacity-90 group-hover:opacity-100 transition pointer-events-none">
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
                     <i class="fa-solid fa-bolt text-cyan-400"></i> Video.js v10.2
                 </span>
-
             </div>
 
             <!-- TRÌNH PHÁT VIDEO.JS V10 (NATIVE HLS M3U8) -->
@@ -1361,74 +1360,79 @@
 
         // Tự động kéo dữ liệu nếu người dùng mở trực tiếp link
         async function fetchMovieDirectly(movieId) {
-            document.getElementById('playerLoadingOverlay').classList.remove('hidden');
+            const loadingEl = document.getElementById('playerLoadingOverlay');
+            if (loadingEl) loadingEl.classList.remove('hidden');
             try {
-                // Thử tìm slug nếu ID có dạng api-slug
-                const cleanSlug = movieId.replace(/^api-/, '');
-                const res = await fetch(_dec(1) + cleanSlug);
-                const data = await res.json();
-                if (data && data.movie) {
-                    const m = data.movie;
-                    const mType = m.type === 'series' ? 'tv' : (m.type === 'hoathinh' ? 'anime' : 'movie');
-                    let pUrl = m.poster_url || m.thumb_url;
-                    let bUrl = m.thumb_url || m.poster_url;
-                    if (pUrl && !pUrl.startsWith('http')) pUrl = `https://phimimg.com/${pUrl.replace(/^\/+/, '')}`;
-                    if (bUrl && !bUrl.startsWith('http')) bUrl = `https://phimimg.com/${bUrl.replace(/^\/+/, '')}`;
-                    if (!pUrl) pUrl = generateDynamicPosterSvg(m.name, m.year, mType);
-                    if (!bUrl) bUrl = pUrl;
-                    return {
-                        id: `api-${m.slug}`,
-                        slug: m.slug,
-                        phimapiSlug: m.slug,
-                        tmdbId: m.tmdb?.id ? String(m.tmdb.id) : '',
-                        title: m.name,
-                        originTitle: m.origin_name || m.name,
-                        year: m.year || 2026,
-                        rating: 8.5,
-                        quality: '4K Vietsub • Đa Server',
-                        type: mType,
-                        poster: pUrl,
-                        backdrop: bUrl,
-                        genres: (m.category || []).map(c => c.name || c),
-                        synopsis: m.content ? m.content.replace(/<[^>]*>?/gm, '') : 'Đang cập nhật nội dung...'
-                    };
-                }
-            } catch (e) {}
-
-            try {
-                // Thử tìm TMDB nếu ID có dạng tmdb-1234 hoặc link 7movies.ac/movie/1234
-                let cleanTmdb = movieId.replace(/^(?:tmdb-|7movies-)/, '');
-                const m7Match = movieId.match(/7movies\.ac\/(?:movie|tv)\/(\d+)/i);
-                if (m7Match) cleanTmdb = m7Match[1];
-                if (/^\d+$/.test(cleanTmdb)) {
-                    let res = await fetch(`https://api.themoviedb.org/3/movie/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
-                    let data = await res.json();
-                    let isTv = false;
-                    if (!data || !data.id) {
-                        res = await fetch(`https://api.themoviedb.org/3/tv/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
-                        data = await res.json();
-                        isTv = true;
-                    }
-                    if (data && data.id) {
+                try {
+                    // Thử tìm slug nếu ID có dạng api-slug
+                    const cleanSlug = movieId.replace(/^api-/, '');
+                    const res = await fetch(_dec(1) + cleanSlug);
+                    const data = await res.json();
+                    if (data && data.movie) {
+                        const m = data.movie;
+                        const mType = m.type === 'series' ? 'tv' : (m.type === 'hoathinh' ? 'anime' : 'movie');
+                        let pUrl = m.poster_url || m.thumb_url;
+                        let bUrl = m.thumb_url || m.poster_url;
+                        if (pUrl && !pUrl.startsWith('http')) pUrl = `https://phimimg.com/${pUrl.replace(/^\/+/, '')}`;
+                        if (bUrl && !bUrl.startsWith('http')) bUrl = `https://phimimg.com/${bUrl.replace(/^\/+/, '')}`;
+                        if (!pUrl) pUrl = generateDynamicPosterSvg(m.name, m.year, mType);
+                        if (!bUrl) bUrl = pUrl;
                         return {
-                            id: `tmdb-${data.id}`,
-                            tmdbId: String(data.id),
-                            title: data.title || data.name,
-                            originTitle: data.original_title || data.original_name,
-                            year: parseInt((data.release_date || data.first_air_date || '2026').slice(0, 4)),
-                            rating: data.vote_average ? parseFloat(data.vote_average.toFixed(1)) : 8.2,
-                            quality: '4K UltraHD • 7Movies & Movy',
-                            type: isTv ? 'tv' : 'movie',
-                            poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
-                            backdrop: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
-                            genres: (data.genres || []).map(g => g.name),
-                            synopsis: data.overview || 'Đang cập nhật nội dung...'
+                            id: `api-${m.slug}`,
+                            slug: m.slug,
+                            phimapiSlug: m.slug,
+                            tmdbId: m.tmdb?.id ? String(m.tmdb.id) : '',
+                            title: m.name,
+                            originTitle: m.origin_name || m.name,
+                            year: m.year || 2026,
+                            rating: 8.5,
+                            quality: '4K Vietsub • Đa Server',
+                            type: mType,
+                            poster: pUrl,
+                            backdrop: bUrl,
+                            genres: (m.category || []).map(c => c.name || c),
+                            synopsis: m.content ? m.content.replace(/<[^>]*>?/gm, '') : 'Đang cập nhật nội dung...'
                         };
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
 
-            return null;
+                try {
+                    // Thử tìm TMDB nếu ID có dạng tmdb-1234 hoặc link 7movies.ac/movie/1234
+                    let cleanTmdb = movieId.replace(/^(?:tmdb-|7movies-)/, '');
+                    const m7Match = movieId.match(/7movies\.ac\/(?:movie|tv)\/(\d+)/i);
+                    if (m7Match) cleanTmdb = m7Match[1];
+                    if (/^\d+$/.test(cleanTmdb)) {
+                        let res = await fetch(`https://api.themoviedb.org/3/movie/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                        let data = await res.json();
+                        let isTv = false;
+                        if (!data || !data.id) {
+                            res = await fetch(`https://api.themoviedb.org/3/tv/${cleanTmdb}?api_key=${TMDB_API_KEY}&language=vi-VN`);
+                            data = await res.json();
+                            isTv = true;
+                        }
+                        if (data && data.id) {
+                            return {
+                                id: `tmdb-${data.id}`,
+                                tmdbId: String(data.id),
+                                title: data.title || data.name,
+                                originTitle: data.original_title || data.original_name,
+                                year: parseInt((data.release_date || data.first_air_date || '2026').slice(0, 4)),
+                                rating: data.vote_average ? parseFloat(data.vote_average.toFixed(1)) : 8.2,
+                                quality: '4K UltraHD • 7Movies & Movy',
+                                type: isTv ? 'tv' : 'movie',
+                                poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
+                                backdrop: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
+                                genres: (data.genres || []).map(g => g.name),
+                                synopsis: data.overview || 'Đang cập nhật nội dung...'
+                            };
+                        }
+                    }
+                } catch (e) {}
+
+                return null;
+            } finally {
+                if (loadingEl) loadingEl.classList.add('hidden');
+            }
         }
 
         // Hàm chuẩn hóa nhãn chất lượng (loại bỏ triệt để lỗi lặp 'Vietsub Vietsub...')
@@ -1561,6 +1565,7 @@
                         }
                     } catch (e) {}
                 }
+                document.getElementById('playerLoadingOverlay').classList.add('hidden');
             }
 
             state.activeServerKey = phimSlug ? 'hls' : 'vidrift';
@@ -1802,6 +1807,13 @@
         }
 
         function playHlsStream(url, label) {
+            const loadingOverlay = document.getElementById('playerLoadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            const fitCtrl = document.getElementById('inPlayerFitControl');
+            if (fitCtrl) fitCtrl.classList.remove('hidden');
+            const vjsBadge = document.getElementById('vjsFloatingBadge');
+            if (vjsBadge) vjsBadge.classList.remove('!hidden');
+
             const vjsPlayer = document.getElementById('vjs10Player');
             const video = document.getElementById('mainVideoElement');
             const iframe = document.getElementById('embedIframePlayer');
@@ -1839,6 +1851,13 @@
         }
 
         function playIframeStream(url, label) {
+            const loadingOverlay = document.getElementById('playerLoadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            const fitCtrl = document.getElementById('inPlayerFitControl');
+            if (fitCtrl) fitCtrl.classList.add('hidden');
+            const vjsBadge = document.getElementById('vjsFloatingBadge');
+            if (vjsBadge) vjsBadge.classList.add('!hidden');
+
             const vjsPlayer = document.getElementById('vjs10Player');
             const video = document.getElementById('mainVideoElement');
             const iframe = document.getElementById('embedIframePlayer');
@@ -1848,6 +1867,9 @@
             video.pause();
             vjsPlayer.classList.add('hidden');
             iframe.classList.remove('hidden');
+            iframe.onload = () => {
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            };
             iframe.src = url;
             showToast(`Đã chuyển sang ${label}`, 'fa-server', 'text-violet-400');
         }
