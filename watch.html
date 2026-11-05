@@ -32,13 +32,13 @@
                     },
                     colors: {
                         vex: {
-                            bg: '#04060d',
-                            surface: '#0b0f1c',
-                            card: '#101626',
-                            border: '#1d263b',
-                            cyan: '#06b6d4',
-                            violet: '#8b5cf6',
-                            emerald: '#10b981'
+                            bg: 'rgb(var(--vex-bg-rgb) / <alpha-value>)',
+                            surface: 'rgb(var(--vex-surface-rgb) / <alpha-value>)',
+                            card: 'rgb(var(--vex-card-rgb) / <alpha-value>)',
+                            border: 'rgb(var(--vex-border-rgb) / <alpha-value>)',
+                            cyan: '#38bdf8',
+                            violet: '#a78bfa',
+                            emerald: '#34d399'
                         }
                     }
                 }
@@ -47,13 +47,131 @@
     </script>
 
     <style>
+
+        /* ==============================================================
+           HỆ THỐNG BẢNG MÀU NHẠT DỊU MẮT (SOFT PASTEL THEME MODE)
+           ============================================================== */
+        :root,
+        html[data-theme="slate-mist"] {
+            --vex-bg-rgb: 21 28 40;
+            --vex-surface-rgb: 29 38 54;
+            --vex-card-rgb: 36 47 66;
+            --vex-border-rgb: 52 67 92;
+            --vex-accent: #7dd3fc;
+            --vex-accent-rgb: 125 211 252;
+            --vex-bg-hex: #151c28;
+            --vex-card-hex: #242f42;
+            --vex-border-hex: #34435c;
+        }
+
+        html[data-theme="matcha-sage"] {
+            --vex-bg-rgb: 21 32 29;
+            --vex-surface-rgb: 28 43 39;
+            --vex-card-rgb: 36 54 49;
+            --vex-border-rgb: 54 79 72;
+            --vex-accent: #86efac;
+            --vex-accent-rgb: 134 239 172;
+            --vex-bg-hex: #15201d;
+            --vex-card-hex: #243631;
+            --vex-border-hex: #364f48;
+        }
+
+        html[data-theme="lavender-haze"] {
+            --vex-bg-rgb: 27 25 38;
+            --vex-surface-rgb: 36 33 51;
+            --vex-card-rgb: 45 41 64;
+            --vex-border-rgb: 66 60 94;
+            --vex-accent: #c4b5fd;
+            --vex-accent-rgb: 196 181 253;
+            --vex-bg-hex: #1b1926;
+            --vex-card-hex: #2d2940;
+            --vex-border-hex: #423c5e;
+        }
+
+        html[data-theme="rose-milk"] {
+            --vex-bg-rgb: 34 25 30;
+            --vex-surface-rgb: 44 33 40;
+            --vex-card-rgb: 54 41 49;
+            --vex-border-rgb: 78 59 71;
+            --vex-accent: #fda4af;
+            --vex-accent-rgb: 253 164 175;
+            --vex-bg-hex: #22191e;
+            --vex-card-hex: #362931;
+            --vex-border-hex: #4e3b47;
+        }
+
+        html[data-theme="warm-sand"] {
+            --vex-bg-rgb: 33 30 26;
+            --vex-surface-rgb: 43 39 34;
+            --vex-card-rgb: 53 48 42;
+            --vex-border-rgb: 76 69 60;
+            --vex-accent: #fde68a;
+            --vex-accent-rgb: 253 230 138;
+            --vex-bg-hex: #211e1a;
+            --vex-card-hex: #35302a;
+            --vex-border-hex: #4c453c;
+        }
+
+        html[data-theme="pastel-daylight"] {
+            --vex-bg-rgb: 238 242 246;
+            --vex-surface-rgb: 226 232 240;
+            --vex-card-rgb: 248 250 252;
+            --vex-border-rgb: 203 213 225;
+            --vex-accent: #0284c7;
+            --vex-accent-rgb: 2 132 199;
+            --vex-bg-hex: #eef2f6;
+            --vex-card-hex: #f8fafc;
+            --vex-border-hex: #cbd5e1;
+        }
+
+        /* Tương thích chữ & bề mặt cho chế độ Sáng Kem Sương Sớm (pastel-daylight) */
+        html[data-theme="pastel-daylight"] body {
+            color: #1e293b !important;
+        }
+        html[data-theme="pastel-daylight"] .text-white {
+            color: #0f172a !important;
+        }
+        html[data-theme="pastel-daylight"] #heroSection .text-white,
+        html[data-theme="pastel-daylight"] #videoPlayerWrapper .text-white {
+            color: #ffffff !important;
+        }
+        html[data-theme="pastel-daylight"] .text-slate-100,
+        html[data-theme="pastel-daylight"] .text-slate-200,
+        html[data-theme="pastel-daylight"] .text-slate-300 {
+            color: #334155 !important;
+        }
+        html[data-theme="pastel-daylight"] #heroSection .text-slate-300 {
+            color: #e2e8f0 !important;
+        }
+        html[data-theme="pastel-daylight"] .text-slate-400 {
+            color: #475569 !important;
+        }
+        html[data-theme="pastel-daylight"] .text-cyan-300,
+        html[data-theme="pastel-daylight"] .text-cyan-400 {
+            color: #0369a1 !important;
+        }
+        html[data-theme="pastel-daylight"] .text-emerald-300,
+        html[data-theme="pastel-daylight"] .text-emerald-400 {
+            color: #047857 !important;
+        }
+        html[data-theme="pastel-daylight"] #searchInput {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="pastel-daylight"] #searchSuggestionDropdown {
+            background-color: rgba(255, 255, 255, 0.98) !important;
+        }
+        html[data-theme="pastel-daylight"] #genreHubSection > div:first-child {
+            background: linear-gradient(to right, #f8fafc, #e0f2fe, #f8fafc) !important;
+        }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #04060d; }
-        ::-webkit-scrollbar-thumb { background: #1d263b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        ::-webkit-scrollbar-track { background: var(--vex-bg-hex); }
+        ::-webkit-scrollbar-thumb { background: var(--vex-border-hex); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vex-accent); }
 
         .glass-panel {
-            background: rgba(16, 22, 38, 0.75);
+            background: rgb(var(--vex-card-rgb) / 0.78);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
@@ -284,6 +402,27 @@
         </div>
     </header>
 
+
+    <!-- MODAL CHỌN BẢNG MÀU GIAO DIỆN DỊU MẮT (SOFT PASTEL THEME PICKER) -->
+    <div id="themePickerModal" class="hidden fixed inset-0 z-[160] bg-black/70 backdrop-blur-md flex items-center justify-center p-4" onclick="if(event.target === this) closeThemeModal()">
+        <div class="bg-vex-card border border-vex-border rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 relative overflow-hidden">
+            <div class="flex items-center justify-between pb-3 border-b border-vex-border">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-display font-bold text-white">Chọn Bảng Màu Giao Diện (Pastel Dịu Mắt)</h3>
+                        <p class="text-[11px] text-slate-400">Tông màu nhạt, êm dịu giúp xem phim lâu không mỏi mắt</p>
+                    </div>
+                </div>
+                <button onclick="closeThemeModal()" class="w-8 h-8 rounded-xl bg-vex-surface border border-vex-border text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+            </div>
+
+            <div id="themePaletteGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+    </div>
+
     <!-- MAIN WATCH THEATER CONTENT -->
     <main class="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
 
@@ -319,6 +458,13 @@
                 <button onclick="triggerNextEpisodeManual()" id="quickNextEpBtn" class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-600/30 border border-violet-500/40 text-violet-300 hover:bg-violet-600 hover:text-white transition flex items-center gap-1.5 shadow-lg shadow-violet-500/10">
                     <i class="fa-solid fa-forward-step"></i>
                     <span id="quickNextEpBtnLabel">Tập Tiếp</span>
+                </button>
+
+                <!-- Nút Chọn Bảng Màu Dịu Mắt -->
+                <button onclick="openThemeModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5" title="Chọn bảng màu giao diện nhạt dịu mắt">
+                    <span id="headerThemeColorDot" class="w-2 h-2 rounded-full bg-sky-300"></span>
+                    <i class="fa-solid fa-palette text-cyan-400"></i>
+                    <span>Bảng Màu</span>
                 </button>
 
                 <!-- Nút Tắt đèn rạp chiếu -->
@@ -483,6 +629,108 @@
 
     <!-- LOGIC JAVASCRIPT RIÊNG CHO TRANG XEM PHIM -->
     <script>
+
+        // ==============================================================
+        // HỆ THỐNG CHỌN BẢNG MÀU NHẠT DỊU MẮT (SOFT PASTEL THEME ENGINE)
+        // ==============================================================
+        const SOFT_THEME_PALETTES = [
+            {
+                id: 'slate-mist',
+                name: 'Xanh Sương Mù (Mặc định)',
+                desc: 'Xám xanh pastel dịu nhẹ, không đen gắt',
+                swatches: ['#151c28', '#242f42', '#7dd3fc']
+            },
+            {
+                id: 'matcha-sage',
+                name: 'Xanh Matcha Nhạt',
+                desc: 'Tông trà xanh sage trầm mát mắt',
+                swatches: ['#15201d', '#243631', '#86efac']
+            },
+            {
+                id: 'lavender-haze',
+                name: 'Tím Oải Hương Khói',
+                desc: 'Tím khói pastel nhẹ nhàng, thư giãn',
+                swatches: ['#1b1926', '#2d2940', '#c4b5fd']
+            },
+            {
+                id: 'rose-milk',
+                name: 'Hồng Phấn Sương Mai',
+                desc: 'Tông hồng đất pha sữa êm dịu',
+                swatches: ['#22191e', '#362931', '#fda4af']
+            },
+            {
+                id: 'warm-sand',
+                name: 'Kem Cát Latte Ấm',
+                desc: 'Nâu kem ấm áp, giảm ánh sáng xanh',
+                swatches: ['#211e1a', '#35302a', '#fde68a']
+            },
+            {
+                id: 'pastel-daylight',
+                name: 'Trắng Kem Sương Sớm',
+                desc: 'Nền sáng kem pastel dịu nhẹ ban ngày',
+                swatches: ['#eef2f6', '#ffffff', '#0284c7']
+            }
+        ];
+
+        function getSavedThemePalette() {
+            return localStorage.getItem('cinevex_theme_palette') || 'slate-mist';
+        }
+
+        function applyThemePalette(themeId, showNotification = false) {
+            const found = SOFT_THEME_PALETTES.find(t => t.id === themeId) || SOFT_THEME_PALETTES[0];
+            document.documentElement.setAttribute('data-theme', found.id);
+            localStorage.setItem('cinevex_theme_palette', found.id);
+
+            const dot = document.getElementById('headerThemeColorDot');
+            if (dot) dot.style.backgroundColor = found.swatches[2];
+            const label = document.getElementById('headerThemeLabel');
+            if (label) label.textContent = found.name.replace(' (Mặc định)', '');
+
+            renderThemePaletteOptions();
+            if (showNotification && typeof showToast === 'function') {
+                showToast(`Đã áp dụng bảng màu: ${found.name}`, 'fa-palette', 'text-cyan-400');
+            }
+        }
+
+        function openThemeModal() {
+            renderThemePaletteOptions();
+            const modal = document.getElementById('themePickerModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeThemeModal() {
+            const modal = document.getElementById('themePickerModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function renderThemePaletteOptions() {
+            const grid = document.getElementById('themePaletteGrid');
+            if (!grid) return;
+            const current = getSavedThemePalette();
+            grid.innerHTML = SOFT_THEME_PALETTES.map(t => {
+                const active = t.id === current;
+                return `
+                    <button onclick="applyThemePalette('${t.id}', true)" class="text-left p-3 rounded-2xl border transition flex items-center justify-between gap-3 ${active ? 'bg-vex-surface border-cyan-400 shadow-md' : 'bg-vex-surface/60 border-vex-border hover:border-cyan-400/50'}">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs font-bold text-white truncate">${t.name}</span>
+                                ${active ? '<i class="fa-solid fa-circle-check text-cyan-400 text-[11px]"></i>' : ''}
+                            </div>
+                            <p class="text-[10px] text-slate-400 truncate mt-0.5">${t.desc}</p>
+                        </div>
+                        <div class="flex items-center -space-x-1.5 shrink-0">
+                            <span class="w-5 h-5 rounded-full border border-white/20 shadow" style="background-color: ${t.swatches[0]}"></span>
+                            <span class="w-5 h-5 rounded-full border border-white/20 shadow" style="background-color: ${t.swatches[1]}"></span>
+                            <span class="w-5 h-5 rounded-full border border-white/20 shadow" style="background-color: ${t.swatches[2]}"></span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Khởi tạo màu ngay lập tức
+        applyThemePalette(getSavedThemePalette(), false);
+
         const _0x5f9a = [
             'aHR0cHM6Ly9waGltYXBpLmNvbS9kYW5oLXNhY2gvcGhpbS1tb2ktY2FwLW5oYXQ/cGFnZT0=',
             'aHR0cHM6Ly9waGltYXBpLmNvbS9waGltLw==',
