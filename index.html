@@ -290,7 +290,7 @@
                 <span class="text-[9px] font-semibold mt-0.5">Anime</span>
             </button>
 
-            <button onclick="openGenresTab()" data-cat="genres" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Tab Thể Loại Phim Riêng">
+            <button onclick="openGenresTab()" data-cat="genres" class="nav-btn group relative w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition" title="Trang Tìm Kiếm & Thể Loại Riêng Biệt">
                 <i class="fa-solid fa-shapes text-lg text-emerald-400"></i>
                 <span class="text-[9px] font-semibold mt-0.5">Thể Loại</span>
             </button>
@@ -359,43 +359,20 @@
                     </div>
                 </a>
 
-                <!-- Center Command Search Bar with Keyword & Movie Autocomplete -->
-                <div id="searchBoxContainer" class="relative flex-1 max-w-xl">
-                    <div class="relative flex items-center">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 text-cyan-400 text-sm pointer-events-none"></i>
-                        <input
-                            id="searchInput"
-                            type="text"
-                            autocomplete="off"
-                            placeholder="Tìm kiếm 25.000+ phim, từ khóa, diễn viên (gõ có dấu hoặc không dấu)..."
-                            onfocus="openSearchSuggestions()"
-                            oninput="handleSearch(this.value)"
-                            onkeydown="handleSearchKeydown(event)"
-                            class="w-full bg-vex-surface/90 border border-vex-border focus:border-cyan-400 rounded-2xl pl-11 pr-20 py-2.5 sm:py-3 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition shadow-inner"
-                        >
-                        <div class="absolute right-3 flex items-center gap-1.5">
-                            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden text-slate-400 hover:text-white p-1">
-                                <i class="fa-solid fa-circle-xmark"></i>
-                            </button>
-                            <kbd id="searchShortcutHint" class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono bg-white/5 border border-white/10 rounded-lg text-slate-400 pointer-events-none">/</kbd>
-                        </div>
-                    </div>
-
-                    <!-- BẢNG GỢI Ý TỪ KHÓA & PHIM THÔNG MINH (AUTOCOMPLETE DROPDOWN) -->
-                    <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-2.5 bg-[#090d18]/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl shadow-2xl shadow-black/95 z-[90] overflow-hidden">
-                        <div id="searchApiSpinner" class="hidden px-4 py-2 bg-cyan-500/10 border-b border-vex-border flex items-center justify-between text-[11px] text-cyan-300">
-                            <span class="flex items-center gap-2">
-                                <i class="fa-solid fa-circle-notch animate-spin text-cyan-400"></i>
-                                Đang tìm trực tiếp trên kho 7Movies.ac, Movy & Vietsub Cloud...
+                <!-- Nút Mở Nhanh Trang Tìm Kiếm & Thể Loại Riêng Biệt -->
+                <div class="flex-1 max-w-xl flex items-center justify-center">
+                    <button onclick="openGenresTab(true)" class="w-full bg-vex-surface/90 hover:bg-vex-card border border-vex-border hover:border-emerald-400/60 rounded-2xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-300 hover:text-white transition flex items-center justify-between gap-3 shadow-inner group">
+                        <span class="flex items-center gap-3 truncate">
+                            <i class="fa-solid fa-magnifying-glass text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                            <span id="headerQuickSearchLabel" class="truncate">Tìm kiếm 25.000+ phim (7Movies, Movy, Vietsub) & Lọc Thể Loại...</span>
+                        </span>
+                        <span class="flex items-center gap-1.5 shrink-0">
+                            <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                                <i class="fa-solid fa-shapes text-[9px]"></i> Thể Loại & Tìm Kiếm
                             </span>
-                            <span class="text-[10px] text-slate-400">25.000+ Phim</span>
-                        </div>
-                        <div id="searchSuggestionContent" class="max-h-[70vh] overflow-y-auto divide-y divide-vex-border/60"></div>
-                        <div class="px-4 py-2 bg-black/60 border-t border-vex-border flex items-center justify-between text-[10px] text-slate-400">
-                            <span>Dùng phím <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">↑</kbd> <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">↓</kbd> và <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">Enter</kbd> để chọn</span>
-                            <span class="text-cyan-400 font-semibold"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Smart Suggest AI</span>
-                        </div>
-                    </div>
+                            <kbd class="hidden md:inline-block px-2 py-0.5 text-[10px] font-mono bg-white/5 border border-white/10 rounded-lg text-slate-400">/</kbd>
+                        </span>
+                    </button>
                 </div>
 
                 <!-- Right Quick Badges -->
@@ -405,8 +382,8 @@
                         <span class="text-slate-300 font-medium">UltraHD 4K Cloud</span>
                         <span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold text-[10px]">READY</span>
                     </div>
-                    <button onclick="openGenresTab()" class="px-3.5 py-2 rounded-2xl bg-vex-surface border border-vex-border hover:border-emerald-400 text-emerald-300 text-xs font-semibold transition flex items-center gap-2">
-                        <i class="fa-solid fa-shapes"></i> Tab Thể Loại
+                    <button onclick="openGenresTab(true)" class="px-3.5 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 hover:border-emerald-400 text-emerald-300 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-500/10">
+                        <i class="fa-solid fa-magnifying-glass"></i> Trang Tìm Kiếm & Thể Loại
                     </button>
                     <button onclick="openAutoSyncModal()" id="headerSyncBtn" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-emerald-500/20 border border-cyan-400/50 hover:border-cyan-300 text-cyan-300 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-cyan-500/10">
                         <i id="headerSyncIcon" class="fa-solid fa-arrows-rotate text-cyan-400"></i>
@@ -471,63 +448,125 @@
         </section>
 
         <!-- ============================================================== -->
-        <!-- TAB THỂ LOẠI PHIM RIÊNG BIỆT (GENRE HUB VIEW) -->
+        <!-- TRANG RIÊNG: TÌM KIẾM ĐA NGUỒN (7MOVIES + MOVY + VIETSUB) & THỂ LOẠI -->
         <!-- ============================================================== -->
-        <section id="genreHubSection" class="hidden max-w-[1440px] w-full mx-auto px-4 sm:px-8 pt-8 pb-4">
-            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-vex-card via-[#0d1529] to-vex-card border border-cyan-500/30 p-6 sm:p-8 mb-6 shadow-2xl">
-                <div class="absolute -right-20 -top-20 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <section id="genreHubSection" class="hidden max-w-[1440px] w-full mx-auto px-4 sm:px-8 pt-6 pb-8">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-vex-card via-[#0d1529] to-vex-card border border-emerald-500/30 p-5 sm:p-8 mb-6 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
                     <div class="space-y-2">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
-                            <i class="fa-solid fa-shapes"></i> Chuyên Mục Thể Loại Riêng Biệt
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Trang Độc Lập: Tìm Kiếm Đa Nguồn & Vũ Trụ Thể Loại
                         </div>
-                        <h1 class="text-2xl sm:text-4xl font-display font-extrabold text-white">Khám Phá Thế Giới Phim Theo Thể Loại</h1>
-                        <p class="text-xs sm:text-sm text-slate-300 max-w-2xl">
-                            Chọn một vũ trụ điện ảnh bên dưới để lọc tức thì và tự động tải thêm hàng nghìn bộ phim đúng gu từ máy chủ CINEVEX Cloud.
+                        <h1 class="text-2xl sm:text-4xl font-display font-extrabold text-white">Tìm Kiếm 7Movies • Movy • Vietsub & Lọc Thể Loại</h1>
+                        <p class="text-xs sm:text-sm text-slate-300 max-w-3xl">
+                            Tìm kiếm trực tiếp trên <strong>7Movies.ac</strong>, <strong>Movy Quốc Tế</strong> và <strong>PhimAPI Vietsub</strong> hoặc duyệt theo 12 vũ trụ thể loại. Kết quả được tách biệt hoàn toàn tại trang này, không bao giờ làm lẫn phim sang các danh mục khác.
                         </p>
                     </div>
-                    <div class="flex items-center gap-2.5 shrink-0">
-                        <button onclick="selectGenreFromHub('all')" class="px-4 py-2.5 rounded-2xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-xs font-bold text-slate-200 transition">
-                            <i class="fa-solid fa-border-all mr-1.5 text-cyan-400"></i>Xem Tất Cả Thể Loại
+                    <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                        <button onclick="resetGenreAndSearchPage()" class="px-4 py-2.5 rounded-2xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-xs font-bold text-slate-200 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left text-cyan-400"></i> Đặt Lại Tìm Kiếm & Bộ Lọc
                         </button>
                     </div>
                 </div>
 
+                <!-- KHUNG TÌM KIẾM TRUNG TÂM TÍCH HỢP TRONG TRANG THỂ LOẠI -->
+                <div id="searchBoxContainer" class="relative z-30 w-full max-w-4xl mx-auto mb-7">
+                    <div class="relative flex items-center">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 sm:left-5 text-emerald-400 text-base pointer-events-none"></i>
+                        <input
+                            id="searchInput"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Nhập tên phim tiếng Việt, tiếng Anh, diễn viên, hoặc dán link 7movies.ac / IMDb ID..."
+                            onfocus="openSearchSuggestions()"
+                            oninput="handleSearch(this.value)"
+                            onkeydown="handleSearchKeydown(event)"
+                            class="w-full bg-[#070b14]/95 border-2 border-emerald-500/40 focus:border-cyan-400 rounded-2xl pl-12 sm:pl-13 pr-32 py-3.5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 transition shadow-2xl"
+                        >
+                        <div class="absolute right-3 flex items-center gap-2">
+                            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden px-2.5 py-1 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 text-xs font-semibold transition">
+                                <i class="fa-solid fa-xmark mr-1"></i>Xóa
+                            </button>
+                            <button onclick="triggerImmediateCloudSearch()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+                                <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">Tìm Ngay</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG GỢI Ý TỪ KHÓA & PHIM THÔNG MINH (AUTOCOMPLETE DROPDOWN) -->
+                    <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-2.5 bg-[#090d18]/98 backdrop-blur-2xl border border-cyan-500/40 rounded-2xl shadow-2xl shadow-black/95 z-[90] overflow-hidden">
+                        <div id="searchApiSpinner" class="hidden px-4 py-2.5 bg-cyan-500/10 border-b border-vex-border flex items-center justify-between text-[11px] text-cyan-300">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-circle-notch animate-spin text-cyan-400"></i>
+                                Đang tìm trực tiếp trên kho 7Movies.ac, Movy & Vietsub Cloud...
+                            </span>
+                            <span class="text-[10px] text-emerald-400 font-bold">7Movies • Movy • PhimAPI</span>
+                        </div>
+                        <div id="searchSuggestionContent" class="max-h-[65vh] overflow-y-auto divide-y divide-vex-border/60"></div>
+                        <div class="px-4 py-2 bg-black/60 border-t border-vex-border flex items-center justify-between text-[10px] text-slate-400">
+                            <span>Nhấn <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-200">Enter</kbd> để tìm toàn bộ hoặc đóng bảng gợi ý</span>
+                            <button onclick="closeSearchSuggestions()" class="text-cyan-400 hover:underline font-semibold">Đóng gợi ý ✕</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Lưới Card Thể Loại Không Gian (Spatial Genre Cards) -->
-                <div id="genreHubCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 mt-6"></div>
+                <div id="genreHubCardsGrid" class="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5"></div>
+
+                <!-- Thanh chọn Thể loại dạng Pill nhanh -->
+                <div class="relative z-10 flex items-center gap-2 overflow-x-auto pt-5 mt-5 border-t border-vex-border/60 pb-1" id="genreFilterPills"></div>
             </div>
 
-            <!-- Banner trạng thái thể loại đang chọn trong Tab -->
-            <div id="activeGenreBanner" class="flex flex-wrap items-center justify-between gap-3 bg-vex-card/90 border border-vex-border rounded-2xl px-5 py-3.5">
+            <!-- Banner trạng thái Tìm kiếm & Thể loại đang chọn trong Trang Riêng -->
+            <div id="activeGenreBanner" class="flex flex-wrap items-center justify-between gap-3 bg-vex-card/90 border border-vex-border rounded-2xl px-5 py-3.5 mb-6">
                 <div class="flex items-center gap-3">
-                    <div id="activeGenreIconBox" class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+                    <div id="activeGenreIconBox" class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg">
                         <i class="fa-solid fa-film"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <h3 id="activeGenreTitle" class="text-sm sm:text-base font-display font-bold text-white">Thể Loại: Tất Cả Phim</h3>
-                            <span id="activeGenreCountBadge" class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">Sẵn sàng</span>
+                            <span id="activeGenreCountBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Sẵn sàng</span>
                         </div>
                         <p id="activeGenreDesc" class="text-xs text-slate-400">Tổng hợp toàn bộ kho phim đa thể loại chất lượng cao</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="fetchGenreFromCloud(state.genre)" id="syncGenreCloudBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold shadow flex items-center gap-1.5 hover:opacity-95 transition">
-                        <i class="fa-solid fa-cloud-bolt"></i> Quét Thêm Phim Cùng Thể Loại
+                    <button onclick="fetchGenreFromCloud(state.genre)" id="syncGenreCloudBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-slate-950 text-xs font-extrabold shadow flex items-center gap-1.5 hover:opacity-95 transition">
+                        <i class="fa-solid fa-cloud-bolt"></i> Tải Thêm Phim Thể Loại Này
                     </button>
                 </div>
             </div>
+
+            <!-- LƯỚI PHIM DÀNH RIÊNG CHO TRANG TÌM KIẾM & THỂ LOẠI (TÁCH BIỆT 100% KHỎI CÁC TAB KHÁC) -->
+            <div id="genreSearchMoviesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5"></div>
         </section>
 
         <!-- ============================================================== -->
-        <!-- BỘ LỌC THỂ LOẠI & LƯỚI KHO PHIM CHÍNH -->
+        <!-- KHO PHIM DANH MỤC CHÍNH (KHÁM PHÁ / PHIM LẺ / PHIM BỘ / ANIME / TỦ PHIM) -->
         <!-- ============================================================== -->
-        <section class="max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-8">
-            <!-- Thanh chọn Thể loại dạng Pill hiện đại -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-vex-border">
-                <div class="flex items-center gap-2 overflow-x-auto pb-1" id="genreFilterPills"></div>
+        <section id="mainCatalogSection" class="max-w-[1440px] w-full mx-auto px-4 sm:px-8 py-8">
+            <!-- Header Danh Mục Độc Lập (Không dính bộ lọc Thể Loại hay Tìm Kiếm) -->
+            <div id="catalogHeaderBar" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-vex-border">
+                <div class="flex items-center gap-3">
+                    <div id="catalogCategoryIconBox" class="w-10 h-10 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg shrink-0">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h2 id="catalogCategoryTitle" class="text-lg sm:text-xl font-display font-extrabold text-white">Khám Phá Kho Phim Mới Cập Nhật</h2>
+                            <span id="catalogCategoryBadge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">Độc lập</span>
+                        </div>
+                        <p id="catalogCategorySubtitle" class="text-xs text-slate-400">Danh sách phim chuẩn theo đúng chuyên mục — Tự động phân loại nghiêm ngặt</p>
+                    </div>
+                </div>
 
                 <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
+                    <button onclick="openGenresTab(true)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:border-emerald-400 text-emerald-300 text-xs font-semibold transition">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Tìm Phim / Lọc Thể Loại</span>
+                    </button>
                     <button onclick="openAutoSyncModal()" id="filterSyncStatusBtn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-semibold transition">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="moviesCountLabel">Đang đồng bộ từ nguồn gốc...</span>
@@ -539,7 +578,7 @@
                 </div>
             </div>
 
-            <!-- Lưới Phim -->
+            <!-- Lưới Phim Danh Mục Chính -->
             <div id="moviesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5"></div>
 
             <!-- Sentinel & Infinite Scroll Loader (Tự động đồng bộ nguồn gốc khi cuộn đến cuối) -->
@@ -666,10 +705,10 @@
                 triggerDevToolsProtection();
                 return false;
             }
-            // Phím tắt '/' để nhảy vào ô tìm kiếm
+            // Phím tắt '/' để mở ngay Trang Tìm Kiếm & Thể Loại riêng biệt
             if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                 e.preventDefault();
-                document.getElementById('searchInput').focus();
+                openGenresTab(true);
             }
         });
 
@@ -839,7 +878,20 @@
             "Verity", "Cyberpunk", "Phim Kinh Dị 2026", "Phim Hành Động 4K"
         ];
 
+        CINEVEX_CATALOG.forEach(item => { item.strictType = item.type; });
         let MOVIES_DB = [...CINEVEX_CATALOG];
+        let SEARCH_RESULTS_DB = [];
+        let GENRE_CLOUD_DB = [];
+        let EXTRA_MOVIES_MAP = new Map();
+        CINEVEX_CATALOG.forEach(item => EXTRA_MOVIES_MAP.set(item.id, item));
+
+        function registerExtraMovie(m) {
+            if (m && m.id) EXTRA_MOVIES_MAP.set(m.id, m);
+        }
+
+        function findMovieById(id) {
+            return MOVIES_DB.find(m => m.id === id) || EXTRA_MOVIES_MAP.get(id) || SEARCH_RESULTS_DB.find(m => m.id === id) || GENRE_CLOUD_DB.find(m => m.id === id) || null;
+        }
         let hlsInstance = null;
         let searchDebounceTimer = null;
 
@@ -877,6 +929,11 @@
         // KHỞI TẠO ỨNG DỤNG VỚI HỆ THỐNG AUTO-SYNC
         // ==============================================================
         window.addEventListener('DOMContentLoaded', () => {
+            // Xóa cache v1/v2 cũ từng bị dính kết quả tìm kiếm hoặc phân loại nhầm
+            try {
+                localStorage.removeItem('cinevex_movies_cache_v3');
+                localStorage.removeItem('cinevex_movies_cache');
+            } catch (e) {}
             // 1. NẠP TOÀN BỘ PHIM VÀ TIẾN TRÌNH ĐỒNG BỘ ĐÃ LƯU TRƯỚC ĐÓ VÀO MOVIES_DB TỨC THÌ (0ms)
             loadMoviesCache();
             deduplicateMoviesDb();
@@ -920,26 +977,38 @@
             }).join('');
         }
 
+        function getCombinedGenrePool() {
+            const seen = new Set();
+            const pool = [];
+            for (const m of [...GENRE_CLOUD_DB, ...MOVIES_DB]) {
+                if (!m || !m.id || seen.has(m.id)) continue;
+                seen.add(m.id);
+                pool.push(m);
+            }
+            return pool;
+        }
+
         function renderGenreHubCards() {
             const grid = document.getElementById('genreHubCardsGrid');
             if (!grid) return;
+            const pool = getCombinedGenrePool();
 
             grid.innerHTML = GENRE_DIRECTORY.map(g => {
                 const isSelected = state.genre === g.id;
                 const count = g.id === 'all'
-                    ? MOVIES_DB.length
-                    : MOVIES_DB.filter(m => (m.genres || []).includes(g.id)).length;
+                    ? pool.length
+                    : pool.filter(m => (m.genres || []).includes(g.id)).length;
 
                 return `
-                    <div onclick="selectGenreFromHub('${g.id}')" class="cursor-pointer group relative rounded-2xl p-4 border transition-all duration-300 overflow-hidden ${isSelected ? 'bg-vex-surface border-cyan-400 shadow-xl shadow-cyan-500/20 scale-[1.02]' : 'bg-vex-surface/70 border-vex-border hover:border-cyan-500/50 hover:-translate-y-1'}">
+                    <div onclick="selectGenreFromHub('${g.id}')" class="cursor-pointer group relative rounded-2xl p-4 border transition-all duration-300 overflow-hidden ${isSelected ? 'bg-vex-surface border-emerald-400 shadow-xl shadow-emerald-500/20 scale-[1.02]' : 'bg-vex-surface/70 border-vex-border hover:border-emerald-500/50 hover:-translate-y-1'}">
                         <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-gradient-to-br ${g.color} opacity-15 group-hover:opacity-30 blur-xl transition"></div>
                         <div class="relative z-10 flex items-center justify-between mb-3">
                             <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${g.color} flex items-center justify-center text-white shadow-md">
                                 <i class="fa-solid ${g.icon} text-sm"></i>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-300'}">${count}+ Phim</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? 'bg-emerald-400 text-slate-950' : 'bg-white/5 text-slate-300'}">${count}+ Phim</span>
                         </div>
-                        <h3 class="relative z-10 text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition truncate">${g.name}</h3>
+                        <h3 class="relative z-10 text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition truncate">${g.name}</h3>
                         <p class="relative z-10 text-[10px] text-slate-400 line-clamp-1 mt-0.5">${g.desc}</p>
                     </div>
                 `;
@@ -948,29 +1017,41 @@
             updateActiveGenreBanner();
         }
 
-        function updateActiveGenreBanner() {
+        function updateActiveGenreBanner(customCount = null) {
             const g = GENRE_DIRECTORY.find(item => item.id === state.genre) || GENRE_DIRECTORY[0];
             const titleEl = document.getElementById('activeGenreTitle');
             const descEl = document.getElementById('activeGenreDesc');
             const iconBox = document.getElementById('activeGenreIconBox');
             const countBadge = document.getElementById('activeGenreCountBadge');
+            const searchInput = document.getElementById('searchInput');
+            const rawQ = searchInput ? searchInput.value.trim() : '';
 
             if (!titleEl) return;
-            const count = g.id === 'all'
-                ? MOVIES_DB.length
-                : MOVIES_DB.filter(m => (m.genres || []).includes(g.id)).length;
+            const pool = getCombinedGenrePool();
+            const count = customCount !== null
+                ? customCount
+                : (g.id === 'all'
+                    ? pool.length
+                    : pool.filter(m => (m.genres || []).includes(g.id)).length);
 
-            titleEl.textContent = `Chuyên Mục: ${g.name}`;
-            descEl.textContent = g.desc;
-            iconBox.innerHTML = `<i class="fa-solid ${g.icon}"></i>`;
-            countBadge.textContent = `${count} bộ phim sẵn sàng`;
+            if (rawQ) {
+                titleEl.textContent = `Kết Quả Tìm Kiếm: "${rawQ}"${g.id !== 'all' ? ' • Thể Loại: ' + g.name : ''}`;
+                descEl.textContent = `Tìm trực tiếp trên kho 7Movies.ac, Movy Quốc Tế & PhimAPI Vietsub (Tách biệt hoàn toàn khỏi các mục khác)`;
+                iconBox.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`;
+                countBadge.textContent = `${count} phim khớp`;
+            } else {
+                titleEl.textContent = `Chuyên Mục Thể Loại: ${g.name}`;
+                descEl.textContent = g.desc;
+                iconBox.innerHTML = `<i class="fa-solid ${g.icon}"></i>`;
+                countBadge.textContent = `${count} bộ phim sẵn sàng`;
+            }
         }
 
         function closePlayer() {
             // Không gian rạp chiếu phim đã được chuyển sang trang riêng watch.html
         }
 
-        function openGenresTab() {
+        function openGenresTab(focusSearch = false) {
             state.category = 'genres';
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const isMatch = btn.getAttribute('data-cat') === 'genres';
@@ -981,32 +1062,66 @@
                 btn.classList.toggle('text-slate-400', !isMatch);
             });
 
+            // Ẩn hoàn toàn Hero, Top Trending và Lưới Danh Mục Chính để Trang Tìm Kiếm & Thể Loại hoạt động như 1 trang riêng độc lập
             const hero = document.getElementById('heroSection');
             if (hero) hero.classList.add('hidden');
             const ribbon = document.getElementById('trendingRibbonSection');
             if (ribbon) ribbon.classList.add('hidden');
+            const mainCatalog = document.getElementById('mainCatalogSection');
+            if (mainCatalog) mainCatalog.classList.add('hidden');
+
             const hub = document.getElementById('genreHubSection');
             if (hub) hub.classList.remove('hidden');
 
+            renderGenreFilterPills();
             renderGenreHubCards();
-            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            renderGenreSearchPageGrid();
+
             if (typeof window.scrollTo === 'function') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            if (focusSearch) {
+                setTimeout(() => {
+                    const input = document.getElementById('searchInput');
+                    if (input) {
+                        input.focus();
+                        openSearchSuggestions();
+                    }
+                }, 80);
+            }
+        }
+
+        function resetGenreAndSearchPage() {
+            state.genre = 'all';
+            SEARCH_RESULTS_DB = [];
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            const headerLabel = document.getElementById('headerQuickSearchLabel');
+            if (headerLabel) headerLabel.textContent = 'Tìm kiếm 25.000+ phim (7Movies, Movy, Vietsub) & Lọc Thể Loại...';
+            closeSearchSuggestions();
+            renderGenreFilterPills();
+            renderGenreHubCards();
+            renderGenreSearchPageGrid();
         }
 
         async function selectGenreFromHub(genreId) {
+            if (state.category !== 'genres') {
+                openGenresTab(false);
+            }
             state.genre = genreId;
             renderGenreFilterPills();
             renderGenreHubCards();
-            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            renderGenreSearchPageGrid();
 
             if (genreId !== 'all') {
                 await fetchGenreFromCloud(genreId);
             }
-            setTimeout(() => {
-                handleInfiniteScrollTrigger();
-            }, 300);
+            const gridEl = document.getElementById('activeGenreBanner');
+            if (gridEl && typeof gridEl.scrollIntoView === 'function') {
+                gridEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // ==============================================================
@@ -1152,30 +1267,49 @@
             return false;
         }
 
-        // Chuyển đổi dữ liệu chuẩn hóa từ PhimAPI sang cấu trúc CINEVEX
+        // Chuyển đổi dữ liệu chuẩn hóa từ PhimAPI sang cấu trúc CINEVEX (Phân loại nghiêm ngặt, chống lẫn danh mục)
         function mapPhimApiItem(item, forceType = null) {
-            let rawType = item.type || (item.tmdb && item.tmdb.type) || forceType;
-            let isSeries = rawType === 'series' || rawType === 'tv' || (item.episode_current && !item.episode_current.toLowerCase().includes('full'));
-            let isAnimeMovie = rawType === 'hoathinh' || 
-                               forceType === 'anime' ||
-                               (item.category && item.category.some(c => {
-                                   const slug = (c.slug || '').toLowerCase();
-                                   const name = (c.name || '').toLowerCase();
-                                   return slug === 'hoat-hinh' || slug === 'anime' || name.includes('hoạt hình') || name.includes('anime');
-                               }));
+            const apiType = String(item.type || '').toLowerCase().trim();
+            const tmdbType = String(item.tmdb?.type || '').toLowerCase().trim();
+            const epCur = String(item.episode_current || '').toLowerCase().trim();
 
-            // TÁCH ANIME RIÊNG BIỆT (Không gộp vào Phim Lẻ hay Phim Bộ)
+            const isAnimeMovie = forceType === 'anime' ||
+                                 apiType === 'hoathinh' ||
+                                 (Array.isArray(item.category) && item.category.some(c => {
+                                     const slug = (c.slug || '').toLowerCase();
+                                     const name = (c.name || '').toLowerCase();
+                                     return slug === 'hoat-hinh' || slug === 'anime' || name.includes('hoạt hình') || name.includes('anime');
+                                 }));
+
+            // Nếu API ghi rõ 'single' hoặc được gọi từ nguồn Phim Lẻ ('movie'), tuyệt đối là Phim Lẻ ('movie')
+            const isExplicitSingle = !isAnimeMovie && (forceType === 'movie' || apiType === 'single' || (tmdbType === 'movie' && apiType !== 'series' && apiType !== 'tvshows'));
+
+            // Chỉ nhận là Phim Bộ ('tv') khi thực sự là series/tvshows hoặc có số tập rõ ràng (Tập X, Hoàn tất (X/Y))
+            const isExplicitSeries = !isAnimeMovie && !isExplicitSingle && (
+                forceType === 'tv' ||
+                apiType === 'series' ||
+                apiType === 'tvshows' ||
+                tmdbType === 'tv' ||
+                (epCur && (/tập\s*\d+|hoàn tất|\(\d+\/\d+\)/i.test(epCur)))
+            );
+
             let movieType = 'movie';
             if (isAnimeMovie) movieType = 'anime';
-            else if (isSeries) movieType = 'tv';
+            else if (isExplicitSeries) movieType = 'tv';
 
-            // Phân tích danh mục thể loại thực tế từ API
+            // Xác định strictType để đảm bảo các tab Phim Lẻ / Phim Bộ / Anime không bao giờ bị lẫn phim chưa rõ loại
+            let strictType = null;
+            if (isAnimeMovie) strictType = 'anime';
+            else if (forceType === 'movie' || apiType === 'single' || tmdbType === 'movie') strictType = 'movie';
+            else if (forceType === 'tv' || apiType === 'series' || apiType === 'tvshows' || tmdbType === 'tv' || isExplicitSeries) strictType = 'tv';
+
+            // Phân tích danh mục thể loại thực tế từ API (Không tự gán thể loại giả để tránh làm bẩn bộ lọc Thể Loại)
             let categories = [];
             if (Array.isArray(item.category) && item.category.length > 0) {
                 categories = item.category.map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
             }
-            if (categories.length === 0) {
-                categories = isAnimeMovie ? ['Hoạt Hình', 'Phiêu Lưu'] : (isSeries ? ['Tâm Lý', 'Hành Động'] : ['Hành Động', 'Viễn Tưởng']);
+            if (isAnimeMovie && !categories.includes('Hoạt Hình')) {
+                categories.unshift('Hoạt Hình');
             }
 
             let vote = 8.2;
@@ -1190,7 +1324,7 @@
             let cleanQuality = (item.quality || 'FHD').replace(/\bvietsub\b/gi, '').trim() || 'FHD';
             let cleanLang = (item.lang || 'Vietsub').trim();
 
-            return {
+            const mappedObj = {
                 id: `api-${item.slug}`,
                 slug: item.slug,
                 tmdbId: item.tmdb?.id ? String(item.tmdb.id) : '',
@@ -1199,6 +1333,7 @@
                 title: item.name,
                 originTitle: item.origin_name || item.name,
                 type: movieType,
+                strictType: strictType,
                 year: item.year || 2026,
                 rating: parseFloat(vote) > 0 ? parseFloat(vote) : 8.2,
                 quality: `${cleanQuality} ${cleanLang}`,
@@ -1208,18 +1343,20 @@
                 backdrop: normalizeImgUrl(item.thumb_url || item.poster_url, item.name, item.year, movieType),
                 synopsis: `${item.name} (${item.origin_name || ''}) — Phát hành năm ${item.year || 2026} với chất lượng ${cleanQuality} ${cleanLang}. Tự động đồng bộ từ nguồn gốc PhimAPI trên CINEVEX.IO.`
             };
+            registerExtraMovie(mappedObj);
+            return mappedObj;
         }
 
         // ==============================================================
-        // BỘ CHUYỂN ĐỔI DỮ LIỆU TMDB (CHUẨN KHO PHIM QUỐC TẾ MOVY.SX)
+        // BỘ CHUYỂN ĐỔI DỮ LIỆU TMDB (CHUẨN KHO PHIM QUỐC TẾ 7MOVIES & MOVY.SX)
         // ==============================================================
         const TMDB_API_KEY = '4e44d9029b1270a757cddc766a1bcb63';
         const TMDB_GENRE_MAP = {
             28: 'Hành Động', 12: 'Phiêu Lưu', 16: 'Hoạt Hình', 35: 'Hài Hước',
-            80: 'Hình Sự', 99: 'Tài Liệu', 18: 'Tâm Lý', 10751: 'Gia Đình',
-            14: 'Viễn Tưởng', 36: 'Lịch Sử', 27: 'Kinh Dị', 10402: 'Âm Nhạc',
-            9648: 'Bí Ẩn', 10749: 'Tình Cảm', 878: 'Viễn Tưởng', 10770: 'Phim Bộ',
-            53: 'Gay Cấn', 10752: 'Chiến Tranh', 37: 'Miền Tây',
+            80: 'Bí Ẩn', 99: 'Tài Liệu', 18: 'Tâm Lý', 10751: 'Gia Đình',
+            14: 'Viễn Tưởng', 36: 'Chiến Tranh', 27: 'Kinh Dị', 10402: 'Âm Nhạc',
+            9648: 'Bí Ẩn', 10749: 'Tình Cảm', 878: 'Viễn Tưởng', 10770: 'Tâm Lý',
+            53: 'Bí Ẩn', 10752: 'Chiến Tranh', 37: 'Phiêu Lưu',
             10759: 'Hành Động', 10765: 'Viễn Tưởng', 10768: 'Chiến Tranh'
         };
 
@@ -1228,9 +1365,9 @@
             const title = item.title || item.name || 'Phim Quốc Tế';
             const originTitle = item.original_title || item.original_name || title;
             const year = parseInt((item.release_date || item.first_air_date || '2026').slice(0, 4)) || 2026;
-            const genres = (item.genre_ids || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean).slice(0, 3);
-            const isAnimeMovie = (item.genre_ids || []).includes(16) || genres.includes('Hoạt Hình') || (item.original_language === 'ja' && isTv);
-            let movieType = isAnimeMovie ? 'anime' : (isTv ? 'tv' : 'movie');
+            const genres = Array.from(new Set((item.genre_ids || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean))).slice(0, 4);
+            const isAnimeMovie = (item.genre_ids || []).includes(16) || genres.includes('Hoạt Hình');
+            const movieType = isAnimeMovie ? 'anime' : (isTv ? 'tv' : 'movie');
 
             const posterUrl = item.poster_path 
                 ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
@@ -1239,24 +1376,27 @@
                 ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}` 
                 : posterUrl;
 
-            return {
+            const mappedObj = {
                 id: `tmdb-${item.id}`,
                 tmdbId: String(item.id),
                 imdbId: '',
-                source: 'intl', // Đánh dấu phim chuẩn quốc tế Movy.sx
+                source: 'intl', // Đánh dấu phim chuẩn quốc tế 7Movies / Movy.sx
                 slug: (item.original_title || item.title || item.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                 title: title,
                 originTitle: originTitle,
                 type: movieType,
+                strictType: movieType,
                 year: year,
                 rating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 8.2,
                 quality: '4K UltraHD (Movy Source)',
-                genres: genres.length ? genres : ['Viễn Tưởng', 'Hành Động'],
+                genres: genres,
                 actors: ['Diễn viên Quốc Tế TMDB'],
                 poster: posterUrl,
                 backdrop: backdropUrl,
-                synopsis: item.overview || `${title} (${originTitle}) — Siêu phẩm điện ảnh 4K quốc tế được đồng bộ từ kho phim Movy.sx & TMDB.`
+                synopsis: item.overview || `${title} (${originTitle}) — Siêu phẩm điện ảnh 4K quốc tế được đồng bộ từ kho phim 7Movies.ac, Movy.sx & TMDB.`
             };
+            registerExtraMovie(mappedObj);
+            return mappedObj;
         }
 
         // Danh sách từ dừng khi so khớp tiêu đề phim
@@ -1270,19 +1410,14 @@
                 .trim();
         }
 
-        // Tạo tập khóa so khớp đa tầng cho một bộ phim (tiêu đề, tên gốc, slug, các phần phân tách)
+        // Tạo tập khóa so khớp chính xác theo toàn bộ tên phim (không cắt nhỏ từ khóa gây gộp nhầm phim khác nhau)
         function getComparableMovieKeys(item) {
             if (!item) return [];
             const raw = [item.title, item.originTitle, item.slug ? item.slug.replace(/-/g, ' ') : ''].filter(Boolean);
             const set = new Set();
             for (const text of raw) {
                 const norm = normalizeComparableTitle(text);
-                if (norm && norm.length >= 3 && !DEDUP_STOP_WORDS.has(norm)) set.add(norm);
-                const parts = text.split(/[\/\:\-\|\(\)\[\]\.\,\+]+/);
-                for (const p of parts) {
-                    const pNorm = normalizeComparableTitle(p);
-                    if (pNorm && pNorm.length >= 4 && !DEDUP_STOP_WORDS.has(pNorm)) set.add(pNorm);
-                }
+                if (norm && norm.length >= 4 && !DEDUP_STOP_WORDS.has(norm)) set.add(norm);
             }
             return Array.from(set);
         }
@@ -1360,8 +1495,15 @@
                         existing.phimapiSlug = item.slug || item.phimapiSlug;
                         existing.slug = item.slug || existing.slug;
                         existing.hasVietsub = true;
-                        if (item.type) existing.type = item.type;
-                        if (isAnime(item) || isAnime(existing)) existing.type = 'anime';
+                        if (isAnime(item) || isAnime(existing) || item.strictType === 'anime' || existing.strictType === 'anime') {
+                            existing.type = 'anime';
+                            existing.strictType = 'anime';
+                        } else if (item.strictType) {
+                            existing.type = item.strictType;
+                            existing.strictType = item.strictType;
+                        } else if (!existing.strictType && item.type) {
+                            existing.type = item.type;
+                        }
                         if (item.originTitle && (!existing.originTitle || /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.originTitle))) {
                             existing.originTitle = item.originTitle;
                         }
@@ -1432,8 +1574,15 @@
                         existing.phimapiSlug = item.slug;
                         existing.slug = item.slug;
                         existing.hasVietsub = true;
-                        existing.type = item.type; // Ưu tiên type chi tiết từ Vietsub (Anime, Series, Movie)
-                        if (isAnime(item) || isAnime(existing)) existing.type = 'anime';
+                        if (isAnime(item) || isAnime(existing) || item.strictType === 'anime' || existing.strictType === 'anime') {
+                            existing.type = 'anime';
+                            existing.strictType = 'anime';
+                        } else if (item.strictType) {
+                            existing.type = item.strictType;
+                            existing.strictType = item.strictType;
+                        } else if (!existing.strictType && item.type) {
+                            existing.type = item.type;
+                        }
                         if (item.originTitle && (!existing.originTitle || /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.originTitle))) {
                             existing.originTitle = item.originTitle;
                         }
@@ -1516,7 +1665,7 @@
                             totalMoviesSynced: MOVIES_DB.length
                         }
                     };
-                    localStorage.setItem('cinevex_movies_cache_v2', JSON.stringify(cachePayload));
+                    localStorage.setItem('cinevex_movies_cache_v3', JSON.stringify(cachePayload));
                 }
             } catch (e) {
                 // Fallback nếu bộ nhớ quota nhỏ hơn bình thường (cắt bớt synopsis dài và lưu 600 phim)
@@ -1531,6 +1680,7 @@
                         title: m.title,
                         originTitle: m.originTitle,
                         type: m.type,
+                        strictType: m.strictType,
                         year: m.year,
                         rating: m.rating,
                         quality: m.quality,
@@ -1541,7 +1691,7 @@
                         hasVietsub: m.hasVietsub,
                         hasMovy: m.hasMovy
                     }));
-                    localStorage.setItem('cinevex_movies_cache_v2', JSON.stringify({
+                    localStorage.setItem('cinevex_movies_cache_v3', JSON.stringify({
                         time: Date.now(),
                         items: compact,
                         syncState: {
@@ -1562,7 +1712,7 @@
 
         function loadMoviesCache() {
             try {
-                const raw = localStorage.getItem('cinevex_movies_cache_v2') || localStorage.getItem('cinevex_movies_cache');
+                const raw = localStorage.getItem('cinevex_movies_cache_v3');
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     if (parsed) {
@@ -1704,7 +1854,7 @@
             return 0;
         }
 
-        // Tải danh sách phim theo trang của Thể Loại từ Cloud
+        // Tải danh sách phim theo trang của Thể Loại từ Cloud (Lưu riêng vào GENRE_CLOUD_DB để không làm dính sang các mục khác)
         async function fetchGenreFromCloudPage(genreId, page = 1) {
             const gObj = GENRE_DIRECTORY.find(item => item.id === genreId);
             if (!gObj || !gObj.slug) return 0;
@@ -1713,12 +1863,22 @@
                 const json = await res.json();
                 const items = json?.data?.items || [];
                 if (items.length) {
-                    const mapped = items.map(item => {
-                        const m = mapPhimApiItem(item);
+                    let added = 0;
+                    const existingIds = new Set(GENRE_CLOUD_DB.map(m => m.id));
+                    for (const raw of items) {
+                        const m = mapPhimApiItem(raw);
                         if (!m.genres.includes(genreId)) m.genres.unshift(genreId);
-                        return m;
-                    });
-                    return mergeMoviesIntoDb(mapped);
+                        m.hasVietsub = true;
+                        m.phimapiSlug = m.slug;
+                        m.quality = sanitizeQualityBadge(m.quality, true, !!m.tmdbId);
+                        registerExtraMovie(m);
+                        if (!existingIds.has(m.id)) {
+                            existingIds.add(m.id);
+                            GENRE_CLOUD_DB.push(m);
+                            added++;
+                        }
+                    }
+                    return added;
                 }
             } catch (e) {
                 console.warn(`Lỗi đồng bộ thể loại ${genreId} trang ${page}:`, e);
@@ -1730,20 +1890,20 @@
         async function fetchGenreFromCloud(genreId, isAppend = false) {
             const gObj = GENRE_DIRECTORY.find(item => item.id === genreId);
             if (!gObj || !gObj.slug) {
-                await fetchPhimMoiApi(1);
                 renderGenreHubCards();
+                renderGenreSearchPageGrid();
                 return;
             }
 
             autoSync.genrePages = autoSync.genrePages || {};
             autoSync.genrePages[genreId] = 1;
 
-            showToast(`Đang tự động đồng bộ thể loại "${gObj.name}" từ nguồn gốc...`, 'fa-shapes', 'text-emerald-400');
+            showToast(`Đang tải kho phim thể loại "${gObj.name}"...`, 'fa-shapes', 'text-emerald-400');
             const added = await fetchGenreFromCloudPage(genreId, 1);
             renderGenreHubCards();
-            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            renderGenreSearchPageGrid();
             if (added > 0) {
-                showToast(`Đã đồng bộ xong thể loại "${gObj.name}" (${added} phim)!`, 'fa-circle-check', 'text-emerald-400');
+                showToast(`Đã nạp thêm ${added} phim thể loại "${gObj.name}"!`, 'fa-circle-check', 'text-emerald-400');
             }
         }
 
@@ -1775,7 +1935,7 @@
             const searchKeyword = searchInput ? searchInput.value.trim() : '';
 
             try {
-                if (searchKeyword) {
+                if (state.category === 'genres' && searchKeyword && !isBackground) {
                     autoSync.searchPages = autoSync.searchPages || {};
                     const page = (autoSync.searchPages[searchKeyword] || 1) + 1;
                     autoSync.searchPages[searchKeyword] = page;
@@ -1785,8 +1945,19 @@
                         const json = await res.json();
                         const items = json?.data?.items || [];
                         if (items.length) {
-                            const mapped = items.map(it => mapPhimApiItem(it));
-                            addedCount = mergeMoviesIntoDb(mapped);
+                            const existingIds = new Set(SEARCH_RESULTS_DB.map(m => m.id));
+                            for (const it of items) {
+                                const m = mapPhimApiItem(it);
+                                m.hasVietsub = true;
+                                m.phimapiSlug = m.slug;
+                                m.quality = sanitizeQualityBadge(m.quality, true, !!m.tmdbId);
+                                registerExtraMovie(m);
+                                if (!existingIds.has(m.id)) {
+                                    existingIds.add(m.id);
+                                    SEARCH_RESULTS_DB.push(m);
+                                    addedCount++;
+                                }
+                            }
                         }
                     } catch (err) {}
                 } else if (state.category === 'movie') {
@@ -1801,7 +1972,7 @@
                     autoSync.pageAnime++;
                     sourceDesc = `Anime / Hoạt Hình (Trang ${autoSync.pageAnime})`;
                     addedCount = await fetchCategoryApi('anime', autoSync.pageAnime);
-                } else if (state.category === 'genres' && state.genre !== 'all') {
+                } else if (state.category === 'genres' && state.genre !== 'all' && !isBackground) {
                     autoSync.genrePages = autoSync.genrePages || {};
                     const page = (autoSync.genrePages[state.genre] || 1) + 1;
                     autoSync.genrePages[state.genre] = page;
@@ -1819,8 +1990,12 @@
                 if (!isSilent && !isBackground && addedCount > 0) {
                     showToast(`Đã tự động đồng bộ thêm ${addedCount} phim mới từ nguồn gốc!`, 'fa-circle-check', 'text-emerald-400');
                 }
-                applyFilters(searchKeyword);
-                renderGenreHubCards();
+                if (state.category === 'genres') {
+                    renderGenreHubCards();
+                    renderGenreSearchPageGrid();
+                } else {
+                    applyFilters();
+                }
                 saveMoviesCache();
                 return addedCount;
             } finally {
@@ -1872,7 +2047,11 @@
                 autoSync.totalPagesSynced += (pagesPerSource * 4);
                 updateSyncUI("Đồng bộ hoàn tất toàn bộ danh mục!", 100);
 
-                applyFilters(document.getElementById('searchInput').value);
+                if (state.category === 'genres') {
+                    renderGenreSearchPageGrid();
+                } else {
+                    applyFilters();
+                }
                 renderGenreHubCards();
                 showToast(`Đã đồng bộ thành công ${MOVIES_DB.length} phim từ nguồn gốc!`, 'fa-circle-check', 'text-emerald-400');
             } catch (err) {
@@ -2071,8 +2250,11 @@
         }
 
         function clearCacheAndResync() {
+            localStorage.removeItem('cinevex_movies_cache_v3');
             localStorage.removeItem('cinevex_movies_cache_v2');
             MOVIES_DB = [...CINEVEX_CATALOG];
+            SEARCH_RESULTS_DB = [];
+            GENRE_CLOUD_DB = [];
             autoSync.pageAll = 1;
             autoSync.pageMovie = 1;
             autoSync.pageTv = 1;
@@ -2176,9 +2358,58 @@
         }
 
         // ==============================================================
-        // BỘ LỌC DANH MỤC, THỂ LOẠI & RENDER LƯỚI PHIM
+        // BỘ LỌC DANH MỤC ĐỘC LẬP & TRANG RIÊNG TÌM KIẾM + THỂ LOẠI
         // ==============================================================
+        const CATEGORY_HEADER_META = {
+            all: {
+                icon: 'fa-compass',
+                title: 'Khám Phá Kho Phim Mới Cập Nhật',
+                badge: 'Toàn Bộ Kho Phim',
+                subtitle: 'Tổng hợp siêu phẩm điện ảnh mới nhất — Tách biệt hoàn toàn với trang Tìm Kiếm & Thể Loại'
+            },
+            movie: {
+                icon: 'fa-clapperboard',
+                title: 'Kho Phim Lẻ Điện Ảnh (Movies)',
+                badge: 'Chỉ Phim Lẻ',
+                subtitle: 'Tuyển tập 100% Phim Lẻ chiếu rạp — Đã lọc sạch Phim Bộ và Anime'
+            },
+            tv: {
+                icon: 'fa-layer-group',
+                title: 'Kho Phim Bộ Dài Tập (TV Series)',
+                badge: 'Chỉ Phim Bộ',
+                subtitle: 'Tuyển tập 100% Phim Bộ truyền hình nhiều tập — Đã lọc sạch Phim Lẻ và Anime'
+            },
+            anime: {
+                icon: 'fa-wand-magic-sparkles',
+                title: 'Thế Giới Anime & Hoạt Hình',
+                badge: 'Chỉ Anime / Hoạt Hình',
+                subtitle: 'Tuyển tập 100% Anime Nhật Bản & Hoạt hình 3D — Tách biệt hoàn toàn khỏi Phim Lẻ & Phim Bộ'
+            },
+            watchlist: {
+                icon: 'fa-heart',
+                title: 'Tủ Phim Yêu Thích Của Bạn',
+                badge: 'Bộ Sưu Tập Cá Nhân',
+                subtitle: 'Danh sách các bộ phim bạn đã đánh dấu trái tim để xem lại bất cứ lúc nào'
+            }
+        };
+
+        function updateCatalogCategoryHeader(cat, count) {
+            const meta = CATEGORY_HEADER_META[cat] || CATEGORY_HEADER_META.all;
+            const iconBox = document.getElementById('catalogCategoryIconBox');
+            const titleEl = document.getElementById('catalogCategoryTitle');
+            const badgeEl = document.getElementById('catalogCategoryBadge');
+            const subEl = document.getElementById('catalogCategorySubtitle');
+            if (iconBox) iconBox.innerHTML = `<i class="fa-solid ${meta.icon}"></i>`;
+            if (titleEl) titleEl.textContent = meta.title;
+            if (badgeEl) badgeEl.textContent = `${meta.badge} (${count} phim)`;
+            if (subEl) subEl.textContent = meta.subtitle;
+        }
+
         async function setCategory(cat) {
+            if (cat === 'genres') {
+                openGenresTab(false);
+                return;
+            }
             state.category = cat;
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const isMatch = btn.getAttribute('data-cat') === cat;
@@ -2189,8 +2420,11 @@
                 btn.classList.toggle('text-slate-400', !isMatch);
             });
 
+            // Ẩn hoàn toàn Trang Tìm Kiếm & Thể Loại khi đang ở các mục Khám Phá / Phim Lẻ / Phim Bộ / Anime / Tủ Phim
             const hub = document.getElementById('genreHubSection');
             if (hub) hub.classList.add('hidden');
+            const mainCatalog = document.getElementById('mainCatalogSection');
+            if (mainCatalog) mainCatalog.classList.remove('hidden');
 
             const hero = document.getElementById('heroSection');
             const ribbon = document.getElementById('trendingRibbonSection');
@@ -2198,138 +2432,97 @@
             if (cat === 'all') {
                 if (hero) hero.classList.remove('hidden');
                 if (ribbon) ribbon.classList.remove('hidden');
-                state.genre = 'all';
-                renderGenreFilterPills();
-            } else if (cat === 'watchlist') {
+            } else {
+                // Khi vào Phim Lẻ, Phim Bộ, Anime, Tủ Phim: ẩn Hero/Trending của trang chủ để hiển thị trực tiếp đúng danh mục đó (không bị dính phim khác trên đầu trang)
                 if (hero) hero.classList.add('hidden');
                 if (ribbon) ribbon.classList.add('hidden');
-            } else {
-                if (hero) hero.classList.remove('hidden');
-                if (ribbon) ribbon.classList.remove('hidden');
             }
 
-            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            applyFilters();
 
-            // Nếu người dùng chọn tab cụ thể (Phim Lẻ, Phim Bộ, Anime, Tủ Phim), cuộn nhẹ tới danh sách phim
-            if (cat !== 'all') {
-                const gridElem = document.getElementById('catalogHeaderBar') || document.getElementById('moviesGrid');
-                if (gridElem && typeof gridElem.scrollIntoView === 'function') {
-                    gridElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } else {
-                if (typeof window.scrollTo === 'function') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+            if (typeof window.scrollTo === 'function') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // Tự động kiểm tra và đồng bộ nguồn gốc nếu danh mục này chưa có nhiều phim
+            // Tự động kiểm tra và đồng bộ nguồn gốc nếu danh mục này chưa có nhiều phim chuẩn
             if (['movie', 'tv', 'anime'].includes(cat)) {
-                const count = MOVIES_DB.filter(m => {
-                    const anime = isAnime(m);
-                    if (cat === 'movie') return !anime && m.type === 'movie';
-                    if (cat === 'tv') return !anime && m.type === 'tv';
-                    if (cat === 'anime') return anime || m.type === 'anime';
-                    return false;
-                }).length;
+                const count = MOVIES_DB.filter(m => isMovieStrictlyInCategory(m, cat)).length;
                 if (count < 24) {
-                    showToast(`Đang tự động đồng bộ thêm ${cat === 'movie' ? 'Phim Lẻ' : (cat === 'tv' ? 'Phim Bộ' : 'Anime')} từ nguồn gốc...`, 'fa-cloud-arrow-down', 'text-cyan-400');
+                    showToast(`Đang đồng bộ chuyên mục ${cat === 'movie' ? 'Phim Lẻ' : (cat === 'tv' ? 'Phim Bộ' : 'Anime')}...`, 'fa-cloud-arrow-down', 'text-cyan-400');
                     await fetchCategoryApi(cat, 1);
-                    applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
-                    renderGenreHubCards();
+                    applyFilters();
                 }
             }
 
-            // Kích hoạt kiểm tra nạp vô tận nếu danh mục có ít phim để lấp đầy màn hình
             setTimeout(() => {
                 handleInfiniteScrollTrigger();
             }, 250);
         }
 
         function setGenre(genre) {
+            if (state.category !== 'genres') {
+                openGenresTab(false);
+            }
             state.genre = genre;
             renderGenreFilterPills();
             renderGenreHubCards();
-            applyFilters(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+            renderGenreSearchPageGrid();
             if (genre !== 'all') {
                 fetchGenreFromCloud(genre);
             }
-            setTimeout(() => {
-                handleInfiniteScrollTrigger();
-            }, 300);
         }
 
-        function applyFilters(searchKeyword = '') {
+        // Kiểm tra nghiêm ngặt 100% một bộ phim có thuộc đúng danh mục hay không (Không bao giờ để dính phim sang mục khác)
+        function isMovieStrictlyInCategory(m, cat) {
+            if (!m) return false;
+            const anime = isAnime(m) || m.type === 'anime' || m.strictType === 'anime';
+            if (cat === 'movie') {
+                if (anime) return false;
+                return m.type === 'movie' && m.strictType === 'movie';
+            }
+            if (cat === 'tv') {
+                if (anime) return false;
+                return m.type === 'tv' && m.strictType === 'tv';
+            }
+            if (cat === 'anime') {
+                return anime;
+            }
+            if (cat === 'watchlist') {
+                return state.watchlist.includes(m.id);
+            }
+            return true;
+        }
+
+        // applyFilters CHỈ lọc cho các danh mục chính (Khám Phá, Phim Lẻ, Phim Bộ, Anime, Tủ Phim) - Hoàn toàn độc lập khỏi ô Tìm Kiếm và Thể Loại
+        function applyFilters() {
             deduplicateMoviesDb();
-            const rawQ = (searchKeyword !== undefined && searchKeyword !== null && searchKeyword !== '')
-                ? searchKeyword
-                : (document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
-            const q = removeVietnameseTones(rawQ.trim().toLowerCase());
 
-            let filtered = MOVIES_DB.filter(m => {
-                const anime = isAnime(m);
+            if (state.category === 'genres') {
+                renderGenreSearchPageGrid();
+                return;
+            }
 
-                // Khi đang xem danh mục, tách bạch Anime riêng khỏi Phim Bộ và Phim Lẻ
-                if (!q) {
-                    // 1. Phim Lẻ: CHỈ CHỨA PHIM LẺ (LOẠI BỎ HOÀN TOÀN TẤT CẢ ANIME / HOẠT HÌNH)
-                    if (state.category === 'movie') {
-                        if (anime || m.type === 'anime') return false;
-                        if (m.type !== 'movie') return false;
-                    }
+            let sourcePool = MOVIES_DB;
+            if (state.category === 'watchlist') {
+                sourcePool = state.watchlist.map(id => findMovieById(id)).filter(Boolean);
+            }
 
-                    // 2. Phim Bộ: CHỈ CHỨA PHIM BỘ TRUYỀN HÌNH (LOẠI BỎ HOÀN TOÀN TẤT CẢ ANIME / HOẠT HÌNH)
-                    if (state.category === 'tv') {
-                        if (anime || m.type === 'anime') return false;
-                        if (m.type !== 'tv') return false;
-                    }
+            const filtered = sourcePool.filter(m => isMovieStrictlyInCategory(m, state.category));
 
-                    // 3. Anime: CHỈ CHỨA TOÀN BỘ CÁC TÁC PHẨM ANIME / HOẠT HÌNH (CẢ BỘ LẪN LẺ)
-                    if (state.category === 'anime') {
-                        if (!anime && m.type !== 'anime') return false;
-                    }
-
-                    if (state.category === 'watchlist' && !state.watchlist.includes(m.id)) return false;
-                    if (state.genre !== 'all' && !(m.genres || []).includes(state.genre)) return false;
-                } else {
-                    if (state.category === 'watchlist' && !state.watchlist.includes(m.id)) return false;
-                }
-
-                if (q) {
-                    const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.year} ${m.slug || ''}`.toLowerCase());
-                    return hay.includes(q);
-                }
-                return true;
-            });
-
+            updateCatalogCategoryHeader(state.category, filtered.length);
             const countLabel = document.getElementById('moviesCountLabel');
             if (countLabel) {
-                if (q) {
-                    countLabel.textContent = `Tìm thấy ${filtered.length} phim cho "${rawQ.trim()}"`;
-                } else {
-                    countLabel.textContent = `Kho Phim: ${MOVIES_DB.length} phim (Auto-Sync Live)`;
-                }
+                countLabel.textContent = `Hiển thị ${filtered.length} phim chuẩn danh mục`;
             }
 
             renderGrid(filtered);
         }
 
-        function renderGrid(movies) {
-            const grid = document.getElementById('moviesGrid');
-            document.getElementById('moviesCountLabel').textContent = `Hiển thị ${movies.length} phim chất lượng cao`;
-
-            if (!movies.length) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center space-y-3 bg-vex-card/40 rounded-3xl border border-vex-border">
-                        <i class="fa-solid fa-film text-3xl text-cyan-400"></i>
-                        <p class="text-sm text-slate-300 font-semibold">Không tìm thấy bộ phim nào khớp với bộ lọc hiện tại.</p>
-                        <button onclick="setCategory('all'); setGenre('all'); clearSearch();" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-bold">Xem Toàn Bộ Kho Phim</button>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = movies.map(m => {
-                const liked = state.watchlist.includes(m.id);
-                return `
+        function createMovieCardHtml(m) {
+            const liked = state.watchlist.includes(m.id);
+            const anime = isAnime(m) || m.type === 'anime' || m.strictType === 'anime';
+            const typeBadgeText = anime ? 'Anime' : (m.type === 'tv' ? 'Phim Bộ' : 'Phim Lẻ');
+            return `
                 <div onclick="openPlayer('${m.id}')" class="poster-card group cursor-pointer bg-vex-card border border-vex-border hover:border-cyan-400/60 rounded-2xl overflow-hidden flex flex-col">
                     <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
                         <img src="${m.poster}" 
@@ -2337,7 +2530,7 @@
                              data-tmdb="${m.tmdbId || ''}" 
                              data-title="${escapeHtmlAttr(m.title)}" 
                              data-year="${m.year || 2026}" 
-                             data-type="${isAnime(m) ? 'anime' : (m.type || 'movie')}" 
+                             data-type="${anime ? 'anime' : (m.type || 'movie')}" 
                              referrerpolicy="no-referrer" 
                              loading="lazy" 
                              onerror="handleCardPosterError(this)" 
@@ -2354,7 +2547,7 @@
                         </button>
                         <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-bold">
                             <span class="px-1.5 py-0.5 rounded bg-black/70 text-amber-400"><i class="fa-solid fa-star mr-1"></i>${m.rating}</span>
-                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">CC Vietsub</span>
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${m.has7Movies ? '7Movies HD' : '4K Stream'}</span>
                         </div>
                     </div>
                     <div class="p-3.5 flex-1 flex flex-col justify-between">
@@ -2364,11 +2557,95 @@
                         </div>
                         <div class="flex items-center justify-between text-[10px] text-slate-500 mt-2 pt-2 border-t border-vex-border/60">
                             <span>${m.year}</span>
-                            <span class="uppercase text-cyan-400/90 font-semibold">${isAnime(m) ? 'Anime' : (m.type === 'tv' ? 'Phim Bộ' : 'Phim Lẻ')}</span>
+                            <span class="uppercase text-cyan-400/90 font-semibold">${typeBadgeText}</span>
                         </div>
                     </div>
                 </div>
-            `}).join('');
+            `;
+        }
+
+        function renderGrid(movies) {
+            const grid = document.getElementById('moviesGrid');
+            if (!grid) return;
+
+            if (!movies.length) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-3 bg-vex-card/40 rounded-3xl border border-vex-border">
+                        <i class="fa-solid fa-film text-3xl text-cyan-400"></i>
+                        <p class="text-sm text-slate-300 font-semibold">Đang đồng bộ danh mục phim hoặc chưa có phim trong mục này.</p>
+                        <button onclick="setCategory('all')" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-bold">Về Trang Khám Phá</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = movies.map(m => createMovieCardHtml(m)).join('');
+        }
+
+        // Render Lưới Phim Độc Lập dành riêng cho Trang Tìm Kiếm & Thể Loại (#genreSearchMoviesGrid)
+        function renderGenreSearchPageGrid() {
+            const grid = document.getElementById('genreSearchMoviesGrid');
+            if (!grid) return;
+
+            const searchInput = document.getElementById('searchInput');
+            const rawQ = searchInput ? searchInput.value.trim() : '';
+            const q = removeVietnameseTones(rawQ.toLowerCase());
+
+            const headerLabel = document.getElementById('headerQuickSearchLabel');
+            if (headerLabel) {
+                if (rawQ) {
+                    headerLabel.textContent = `Đang tìm: "${rawQ}" (${state.genre === 'all' ? 'Tất cả thể loại' : state.genre})`;
+                } else if (state.genre !== 'all') {
+                    headerLabel.textContent = `Đang lọc Thể Loại: ${state.genre}`;
+                } else {
+                    headerLabel.textContent = 'Tìm kiếm 25.000+ phim (7Movies, Movy, Vietsub) & Lọc Thể Loại...';
+                }
+            }
+
+            let combined = [];
+            const seen = new Set();
+
+            if (q) {
+                // Khi có từ khóa tìm kiếm: Ưu tiên hiển thị kết quả từ SEARCH_RESULTS_DB trước, sau đó đến các phim khớp trong kho
+                for (const m of [...SEARCH_RESULTS_DB, ...GENRE_CLOUD_DB, ...MOVIES_DB]) {
+                    if (!m || !m.id || seen.has(m.id)) continue;
+                    const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.year} ${m.slug || ''} ${m.tmdbId || ''}`.toLowerCase());
+                    const isDirectResult = SEARCH_RESULTS_DB.includes(m);
+                    if (isDirectResult || hay.includes(q)) {
+                        if (state.genre === 'all' || (m.genres || []).includes(state.genre)) {
+                            seen.add(m.id);
+                            combined.push(m);
+                        }
+                    }
+                }
+            } else {
+                // Khi duyệt theo Thể Loại: lấy từ GENRE_CLOUD_DB + MOVIES_DB
+                for (const m of [...GENRE_CLOUD_DB, ...MOVIES_DB]) {
+                    if (!m || !m.id || seen.has(m.id)) continue;
+                    if (state.genre === 'all' || (m.genres || []).includes(state.genre)) {
+                        seen.add(m.id);
+                        combined.push(m);
+                    }
+                }
+            }
+
+            updateActiveGenreBanner(combined.length);
+
+            if (!combined.length) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-3 bg-vex-card/40 rounded-3xl border border-vex-border">
+                        <i class="fa-solid fa-magnifying-glass text-3xl text-emerald-400"></i>
+                        <p class="text-sm text-slate-300 font-semibold">${rawQ ? `Đang quét hoặc không tìm thấy phim khớp với "${escapeHtmlAttr(rawQ)}" trong thể loại này.` : 'Chưa có bộ phim nào trong thể loại này.'}</p>
+                        <div class="flex items-center justify-center gap-2 pt-1">
+                            ${rawQ ? `<button onclick="fetchLiveSearchFromApi('${escapeHtmlAttr(rawQ)}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-extrabold"><i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Quét Sâu Trên 7Movies & Movy Cloud</button>` : ''}
+                            <button onclick="resetGenreAndSearchPage()" class="px-4 py-2 rounded-xl bg-vex-surface border border-vex-border hover:border-cyan-400 text-slate-200 text-xs font-bold">Đặt Lại Bộ Lọc</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = combined.map(m => createMovieCardHtml(m)).join('');
         }
 
         // ==============================================================
@@ -2392,21 +2669,43 @@
 
         function clearSearch() {
             const input = document.getElementById('searchInput');
-            input.value = '';
-            document.getElementById('clearSearchBtn').classList.add('hidden');
-            applyFilters('');
+            if (input) input.value = '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            SEARCH_RESULTS_DB = [];
+            renderGenreSearchPageGrid();
             openSearchSuggestions();
-            input.focus();
+            if (input) input.focus();
+        }
+
+        function triggerImmediateCloudSearch() {
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+            const val = input.value.trim();
+            if (!val) {
+                input.focus();
+                return;
+            }
+            closeSearchSuggestions();
+            fetchLiveSearchFromApi(val);
         }
 
         function handleSearch(value) {
+            if (state.category !== 'genres') {
+                openGenresTab(false);
+            }
             const trimmed = value.trim();
-            document.getElementById('clearSearchBtn').classList.toggle('hidden', !trimmed);
-            document.getElementById('searchSuggestionDropdown').classList.remove('hidden');
-            applyFilters(trimmed);
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.toggle('hidden', !trimmed);
+            const dropdown = document.getElementById('searchSuggestionDropdown');
+            if (dropdown) dropdown.classList.remove('hidden');
+            if (!trimmed) {
+                SEARCH_RESULTS_DB = [];
+            }
+            renderGenreSearchPageGrid();
             renderSearchSuggestions(trimmed);
 
-            // Tự động tìm kiếm trực tiếp trên toàn bộ 25.000+ phim của PhimAPI
+            // Tự động tìm kiếm trực tiếp trên 7Movies.ac, Movy & PhimAPI (Tách biệt hoàn toàn khỏi MOVIES_DB)
             clearTimeout(searchDebounceTimer);
             if (trimmed.length >= 2) {
                 const spinner = document.getElementById('searchApiSpinner');
@@ -2535,18 +2834,40 @@
                 if (phimApiRes?.value?.data?.items && Array.isArray(phimApiRes.value.data.items)) {
                     for (let it of phimApiRes.value.data.items) {
                         const mapped = mapPhimApiItem(it);
+                        mapped.hasVietsub = true;
+                        mapped.phimapiSlug = mapped.slug;
+                        mapped.quality = sanitizeQualityBadge(mapped.quality, true, !!mapped.tmdbId);
                         newItems.push(mapped);
                     }
                 }
 
-                if (newItems.length > 0) {
-                    const addedCount = mergeMoviesIntoDb(newItems, true); // Đưa phim vừa tìm được lên đầu
-                    applyFilters(query);
-                    renderSearchSuggestions(query);
-
-                    if (addedCount > 0) {
-                        showToast(`Đã tìm thấy ${newItems.length} phim từ 7Movies, Movy & Vietsub!`, 'fa-magnifying-glass', 'text-cyan-400');
+                // Khử trùng lặp ngay trong tập kết quả tìm kiếm (TUYỆT ĐỐI KHÔNG ĐẨY VÀO MOVIES_DB ĐỂ TRÁNH DÍNH PHIM SANG MỤC KHÁC)
+                const dedupSearchList = [];
+                for (const item of newItems) {
+                    registerExtraMovie(item);
+                    const existing = findMatchingMovie(item, dedupSearchList);
+                    if (existing) {
+                        if (!existing.tmdbId && item.tmdbId) existing.tmdbId = item.tmdbId;
+                        if (item.source === 'phimapi' || item.hasVietsub) {
+                            existing.phimapiSlug = item.slug || item.phimapiSlug;
+                            existing.slug = item.slug || existing.slug;
+                            existing.hasVietsub = true;
+                            existing.title = item.title || existing.title;
+                        }
+                        if (item.has7Movies) existing.has7Movies = true;
+                        if (item.hasMovy) existing.hasMovy = true;
+                        existing.quality = sanitizeQualityBadge(existing.quality, existing.hasVietsub, existing.hasMovy || !!existing.tmdbId);
+                    } else {
+                        dedupSearchList.push(item);
                     }
+                }
+
+                SEARCH_RESULTS_DB = dedupSearchList;
+                renderGenreSearchPageGrid();
+                renderSearchSuggestions(query);
+
+                if (dedupSearchList.length > 0) {
+                    showToast(`Đã tìm thấy ${dedupSearchList.length} phim từ 7Movies, Movy & Vietsub!`, 'fa-magnifying-glass', 'text-emerald-400');
                 }
             } catch (e) {
                 console.warn("Lỗi tìm kiếm trực tiếp trên máy chủ:", e);
@@ -2605,10 +2926,17 @@
 
             // Khi người dùng đang gõ từ khóa: Gợi ý từ khóa khớp + Danh sách phim có Poster
             const matchedKeywords = TRENDING_KEYWORDS.filter(k => removeVietnameseTones(k.toLowerCase()).includes(qNorm));
-            const matchedMovies = MOVIES_DB.filter(m => {
-                const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.slug || ''}`.toLowerCase());
-                return hay.includes(qNorm);
-            }).slice(0, 8);
+            const seenSug = new Set();
+            const matchedMovies = [];
+            for (const m of [...SEARCH_RESULTS_DB, ...GENRE_CLOUD_DB, ...MOVIES_DB]) {
+                if (!m || !m.id || seenSug.has(m.id)) continue;
+                const hay = removeVietnameseTones(`${m.title} ${m.originTitle} ${(m.actors || []).join(' ')} ${(m.genres || []).join(' ')} ${m.slug || ''} ${m.tmdbId || ''}`.toLowerCase());
+                if (SEARCH_RESULTS_DB.includes(m) || hay.includes(qNorm)) {
+                    seenSug.add(m.id);
+                    matchedMovies.push(m);
+                    if (matchedMovies.length >= 8) break;
+                }
+            }
 
             container.innerHTML = `
                 <div class="p-3">
@@ -2714,8 +3042,8 @@
                     saveSearchHistory(val);
                     closeSearchSuggestions();
                     clearTimeout(searchDebounceTimer);
-                    // Lọc tức thì & gọi trực tiếp máy chủ PhimAPI
-                    applyFilters(val);
+                    // Hiển thị ngay tại Trang Tìm Kiếm & Thể Loại riêng biệt
+                    renderGenreSearchPageGrid();
                     fetchLiveSearchFromApi(val);
                 }
             }
@@ -2727,7 +3055,7 @@
                 window.location.href = `watch.html?id=tmdb-${m7[1]}`;
                 return;
             }
-            const movie = MOVIES_DB.find(m => m.id === id);
+            const movie = findMovieById(id);
             if (movie) {
                 try {
                     sessionStorage.setItem('cinevex_active_movie', JSON.stringify(movie));
@@ -2752,7 +3080,11 @@
             }
             localStorage.setItem('cinevex_watchlist', JSON.stringify(state.watchlist));
             updateWatchlistBadge();
-            applyFilters(document.getElementById('searchInput').value);
+            if (state.category === 'genres') {
+                renderGenreSearchPageGrid();
+            } else {
+                applyFilters();
+            }
         }
 
         function updateWatchlistBadge() {
