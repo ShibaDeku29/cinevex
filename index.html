@@ -31,14 +31,39 @@
                         display: ['Space Grotesk', 'sans-serif'],
                     },
                     colors: {
+                        cyan: {
+                            200: 'rgb(var(--t-p200) / <alpha-value>)',
+                            300: 'rgb(var(--t-p300) / <alpha-value>)',
+                            400: 'rgb(var(--t-p400) / <alpha-value>)',
+                            500: 'rgb(var(--t-p500) / <alpha-value>)',
+                            600: 'rgb(var(--t-p600) / <alpha-value>)',
+                        },
+                        violet: {
+                            200: 'rgb(var(--t-s200) / <alpha-value>)',
+                            300: 'rgb(var(--t-s300) / <alpha-value>)',
+                            400: 'rgb(var(--t-s400) / <alpha-value>)',
+                            500: 'rgb(var(--t-s500) / <alpha-value>)',
+                            600: 'rgb(var(--t-s600) / <alpha-value>)',
+                        },
+                        blue: {
+                            500: 'rgb(var(--t-p500) / <alpha-value>)',
+                            600: 'rgb(var(--t-s500) / <alpha-value>)',
+                        },
+                        emerald: {
+                            200: 'rgb(var(--t-a200) / <alpha-value>)',
+                            300: 'rgb(var(--t-a300) / <alpha-value>)',
+                            400: 'rgb(var(--t-a400) / <alpha-value>)',
+                            500: 'rgb(var(--t-a500) / <alpha-value>)',
+                            600: 'rgb(var(--t-a600) / <alpha-value>)',
+                        },
                         vex: {
                             bg: 'rgb(var(--vex-bg-rgb) / <alpha-value>)',
                             surface: 'rgb(var(--vex-surface-rgb) / <alpha-value>)',
                             card: 'rgb(var(--vex-card-rgb) / <alpha-value>)',
                             border: 'rgb(var(--vex-border-rgb) / <alpha-value>)',
-                            cyan: '#38bdf8',
-                            violet: '#a78bfa',
-                            emerald: '#34d399'
+                            cyan: 'rgb(var(--t-p400) / <alpha-value>)',
+                            violet: 'rgb(var(--t-s400) / <alpha-value>)',
+                            emerald: 'rgb(var(--t-a400) / <alpha-value>)'
                         }
                     }
                 }
@@ -55,7 +80,7 @@
 
 
         /* ==============================================================
-           HỆ THỐNG BẢNG MÀU NHẠT DỊU MẮT (SOFT PASTEL THEME MODE)
+           HỆ THỐNG BẢNG MÀU NHẠT DỊU MẮT ĐỒNG BỘ CẢ NỀN & NÚT BẤM (SOFT PASTEL THEME)
            ============================================================== */
         :root,
         html[data-theme="slate-mist"] {
@@ -68,6 +93,22 @@
             --vex-bg-hex: #151c28;
             --vex-card-hex: #242f42;
             --vex-border-hex: #34435c;
+            /* Màu nút & điểm nhấn: Xanh Sương Mù Pastel */
+            --t-p200: 186 230 253;
+            --t-p300: 147 197 253;
+            --t-p400: 125 211 252;
+            --t-p500: 96 165 250;
+            --t-p600: 59 130 246;
+            --t-s200: 199 210 254;
+            --t-s300: 165 180 252;
+            --t-s400: 129 140 248;
+            --t-s500: 109 120 235;
+            --t-s600: 91 102 215;
+            --t-a200: 167 243 208;
+            --t-a300: 110 231 183;
+            --t-a400: 94 234 212;
+            --t-a500: 52 211 153;
+            --t-a600: 20 184 166;
         }
 
         html[data-theme="matcha-sage"] {
@@ -80,6 +121,22 @@
             --vex-bg-hex: #15201d;
             --vex-card-hex: #243631;
             --vex-border-hex: #364f48;
+            /* Màu nút & điểm nhấn: Xanh Trà Matcha Pastel */
+            --t-p200: 187 247 208;
+            --t-p300: 134 239 172;
+            --t-p400: 110 231 183;
+            --t-p500: 74 222 128;
+            --t-p600: 52 211 153;
+            --t-s200: 167 243 208;
+            --t-s300: 110 231 183;
+            --t-s400: 52 211 153;
+            --t-s500: 45 190 140;
+            --t-s600: 20 168 125;
+            --t-a200: 217 249 157;
+            --t-a300: 190 242 100;
+            --t-a400: 134 239 172;
+            --t-a500: 74 222 128;
+            --t-a600: 34 197 94;
         }
 
         html[data-theme="lavender-haze"] {
@@ -92,6 +149,22 @@
             --vex-bg-hex: #1b1926;
             --vex-card-hex: #2d2940;
             --vex-border-hex: #423c5e;
+            /* Màu nút & điểm nhấn: Tím Oải Hương Pastel */
+            --t-p200: 233 213 255;
+            --t-p300: 216 180 254;
+            --t-p400: 196 181 253;
+            --t-p500: 167 139 250;
+            --t-p600: 147 114 238;
+            --t-s200: 245 208 254;
+            --t-s300: 240 171 252;
+            --t-s400: 216 180 254;
+            --t-s500: 192 132 252;
+            --t-s600: 168 85 247;
+            --t-a200: 221 214 254;
+            --t-a300: 196 181 253;
+            --t-a400: 167 139 250;
+            --t-a500: 139 92 246;
+            --t-a600: 124 58 237;
         }
 
         html[data-theme="rose-milk"] {
@@ -104,6 +177,22 @@
             --vex-bg-hex: #22191e;
             --vex-card-hex: #362931;
             --vex-border-hex: #4e3b47;
+            /* Màu nút & điểm nhấn: Hồng Phấn Sương Mai Pastel */
+            --t-p200: 254 205 211;
+            --t-p300: 253 164 175;
+            --t-p400: 251 146 165;
+            --t-p500: 244 114 150;
+            --t-p600: 225 90 130;
+            --t-s200: 251 207 232;
+            --t-s300: 249 168 212;
+            --t-s400: 244 114 182;
+            --t-s500: 236 100 165;
+            --t-s600: 219 75 145;
+            --t-a200: 254 205 211;
+            --t-a300: 253 164 175;
+            --t-a400: 251 113 133;
+            --t-a500: 244 114 150;
+            --t-a600: 225 90 130;
         }
 
         html[data-theme="warm-sand"] {
@@ -116,6 +205,22 @@
             --vex-bg-hex: #211e1a;
             --vex-card-hex: #35302a;
             --vex-border-hex: #4c453c;
+            /* Màu nút & điểm nhấn: Kem Cát Latte Ấm Pastel */
+            --t-p200: 254 240 138;
+            --t-p300: 253 230 138;
+            --t-p400: 252 211 77;
+            --t-p500: 245 185 82;
+            --t-p600: 217 148 56;
+            --t-s200: 254 215 170;
+            --t-s300: 253 186 116;
+            --t-s400: 251 165 96;
+            --t-s500: 234 138 68;
+            --t-s600: 205 112 48;
+            --t-a200: 254 240 138;
+            --t-a300: 253 224 71;
+            --t-a400: 250 204 21;
+            --t-a500: 234 179 8;
+            --t-a600: 202 138 4;
         }
 
         html[data-theme="pastel-daylight"] {
@@ -123,11 +228,27 @@
             --vex-surface-rgb: 226 232 240;
             --vex-card-rgb: 248 250 252;
             --vex-border-rgb: 203 213 225;
-            --vex-accent: #0284c7;
-            --vex-accent-rgb: 2 132 199;
+            --vex-accent: #38bdf8;
+            --vex-accent-rgb: 56 189 248;
             --vex-bg-hex: #eef2f6;
             --vex-card-hex: #f8fafc;
             --vex-border-hex: #cbd5e1;
+            /* Màu nút & điểm nhấn: Xanh Lam Sương Sớm Pastel */
+            --t-p200: 186 230 253;
+            --t-p300: 125 211 252;
+            --t-p400: 56 189 248;
+            --t-p500: 14 165 233;
+            --t-p600: 2 132 199;
+            --t-s200: 199 210 254;
+            --t-s300: 165 180 252;
+            --t-s400: 129 140 248;
+            --t-s500: 99 102 241;
+            --t-s600: 79 70 229;
+            --t-a200: 167 243 208;
+            --t-a300: 110 231 183;
+            --t-a400: 52 211 153;
+            --t-a500: 16 185 129;
+            --t-a600: 5 150 105;
         }
 
         /* Tương thích chữ & bề mặt cho chế độ Sáng Kem Sương Sớm (pastel-daylight) */
@@ -200,7 +321,7 @@
         }
         .poster-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 20px 35px -10px rgba(6, 182, 212, 0.22);
+            box-shadow: 0 20px 35px -10px rgb(var(--t-p400) / 0.25);
         }
         .poster-card:hover .poster-img {
             transform: scale(1.08);
@@ -211,9 +332,9 @@
 
         /* Số thứ tự Top 10 Viền Neon */
         .rank-stroke {
-            -webkit-text-stroke: 2px rgba(6, 182, 212, 0.55);
+            -webkit-text-stroke: 2px rgb(var(--t-p400) / 0.65);
             color: transparent;
-            text-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+            text-shadow: 0 0 25px rgb(var(--t-p400) / 0.28);
         }
 
         /* Chế độ Tắt Đèn Rạp Phim */
@@ -241,7 +362,7 @@
             width: 100%;
             height: 100%;
             aspect-ratio: 16 / 9;
-            --media-accent-color: #06b6d4;
+            --media-accent-color: var(--vex-accent);
         }
     </style>
 </head>
