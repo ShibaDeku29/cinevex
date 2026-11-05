@@ -434,15 +434,35 @@
         </section>
 
         <!-- ============================================================== -->
-        <!-- TOP 10 THỊNH HÀNH TOÀN CẦU (SỐ THỨ TỰ VIỀN NEON HIỆN ĐẠI) -->
+        <!-- TOP 10 THỊNH HÀNH TOÀN CẦU REAL-TIME (SỐ THỨ TỰ VIỀN NEON HIỆN ĐẠI) -->
         <!-- ============================================================== -->
         <section id="trendingRibbonSection" class="max-w-[1440px] w-full mx-auto px-4 sm:px-8 pt-8">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2.5">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5 flex-wrap">
                     <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-cyan-400 to-violet-500"></span>
                     <h2 class="text-lg sm:text-xl font-display font-bold text-white">Top Xu Hướng Trên CINEVEX Hôm Nay</h2>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="trendingLiveTimestamp">LIVE REAL-TIME</span>
+                    </span>
                 </div>
-                <span class="text-xs text-cyan-400 font-medium">Cập nhật thời gian thực</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="inline-flex items-center bg-vex-surface border border-vex-border rounded-xl p-1 gap-1">
+                        <button onclick="setTrendingSourceMode('all')" data-trend-mode="all" class="trend-mode-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyan-500 text-slate-950 transition">
+                            <i class="fa-solid fa-fire mr-1"></i>Tổng Hợp Hôm Nay
+                        </button>
+                        <button onclick="setTrendingSourceMode('intl')" data-trend-mode="intl" class="trend-mode-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-globe mr-1 text-cyan-400"></i>7Movies / TMDB
+                        </button>
+                        <button onclick="setTrendingSourceMode('vietsub')" data-trend-mode="vietsub" class="trend-mode-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-bolt mr-1 text-amber-400"></i>Mới Lên Sóng Vietsub
+                        </button>
+                    </div>
+                    <button onclick="refreshLiveTrendingNow(true)" id="refreshTrendingBtn" class="px-3 py-1.5 rounded-xl bg-vex-card border border-vex-border hover:border-cyan-400 text-cyan-300 text-[11px] font-bold transition flex items-center gap-1.5">
+                        <i id="refreshTrendingIcon" class="fa-solid fa-arrows-rotate"></i>
+                        <span>Làm Mới</span>
+                    </button>
+                </div>
             </div>
             <div id="topTrendingRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"></div>
         </section>
@@ -931,10 +951,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             // Xóa cache v1/v2 cũ từng bị dính kết quả tìm kiếm hoặc phân loại nhầm
             try {
-                localStorage.removeItem('cinevex_movies_cache_v3');
+                localStorage.removeItem('cinevex_movies_cache_v2');
                 localStorage.removeItem('cinevex_movies_cache');
             } catch (e) {}
-            // 1. NẠP TOÀN BỘ PHIM VÀ TIẾN TRÌNH ĐỒNG BỘ ĐÃ LƯU TRƯỚC ĐÓ VÀO MOVIES_DB TỨC THÌ (0ms)
+            // 1. NẠP TOÀN BỘ PHIM, LIVE TRENDING VÀ TIẾN TRÌNH ĐỒNG BỘ TỨC THÌ (0ms)
+            loadLiveTrendingCache();
             loadMoviesCache();
             deduplicateMoviesDb();
             updateSyncUI();
@@ -2067,48 +2088,261 @@
             }
         }
 
-        // Tự động kéo kho phim Trending quốc tế từ TMDB (Chuẩn Movy.sx)
-        async function fetchTmdbTrending() {
+        // ==============================================================
+        // HỆ THỐNG TOP XU HƯỚNG & HERO BANNER THỜI GIAN THỰC (REAL-TIME TRENDING ENGINE)
+        // Tự động kéo trực tiếp từ TMDB Global/Vi-VN Daily Trending & PhimAPI Mới Cập Nhật
+        // ==============================================================
+        let LIVE_TRENDING_ALL = [];
+        let LIVE_TRENDING_INTL = [];
+        let LIVE_TRENDING_VIETSUB = [];
+        let LIVE_HERO_LIST = [...CINEVEX_CATALOG];
+        let trendingSourceMode = 'all'; // 'all' | 'intl' | 'vietsub'
+        let liveTrendingInterval = null;
+        let heroAutoRotateInterval = null;
+
+        function getActiveTrendingList() {
+            if (trendingSourceMode === 'intl' && LIVE_TRENDING_INTL.length) return LIVE_TRENDING_INTL.slice(0, 10);
+            if (trendingSourceMode === 'vietsub' && LIVE_TRENDING_VIETSUB.length) return LIVE_TRENDING_VIETSUB.slice(0, 10);
+            if (LIVE_TRENDING_ALL.length) return LIVE_TRENDING_ALL.slice(0, 10);
+            return MOVIES_DB.slice(0, 10);
+        }
+
+        function getActiveHeroList() {
+            if (LIVE_HERO_LIST && LIVE_HERO_LIST.length >= 5) return LIVE_HERO_LIST.slice(0, 6);
+            if (LIVE_TRENDING_ALL && LIVE_TRENDING_ALL.length >= 5) return LIVE_TRENDING_ALL.slice(0, 6);
+            return CINEVEX_CATALOG.slice(0, 6);
+        }
+
+        function setTrendingSourceMode(mode) {
+            trendingSourceMode = mode;
+            document.querySelectorAll('.trend-mode-btn').forEach(btn => {
+                const active = btn.getAttribute('data-trend-mode') === mode;
+                btn.className = active
+                    ? 'trend-mode-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyan-500 text-slate-950 transition shadow'
+                    : 'trend-mode-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white transition';
+            });
+            renderTopTrending();
+        }
+
+        function updateTrendingTimestampUI() {
+            const el = document.getElementById('trendingLiveTimestamp');
+            if (!el) return;
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            el.textContent = `LIVE • Cập nhật ${hh}:${mm}:${ss}`;
+        }
+
+        async function fetchTmdbTrending(isManual = false) {
+            const icon = document.getElementById('refreshTrendingIcon');
+            if (icon) icon.classList.add('animate-spin');
+
+            const cacheBust = Date.now();
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=vi-VN`);
-                const data = await res.json();
-                if (data && Array.isArray(data.results)) {
-                    const valid = data.results.filter(it => (it.media_type === 'movie' || it.media_type === 'tv') && (it.poster_path || it.backdrop_path));
-                    const mapped = valid.map(it => mapTmdbItem(it));
-                    mergeMoviesIntoDb(mapped, false);
+                // Kéo đồng thời 3 luồng dữ liệu Xu Hướng Hôm Nay theo thời gian thực (chống cache bằng timestamp)
+                const [tmdbViRes, tmdbGlobalRes, phimMoiRes] = await Promise.allSettled([
+                    fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&language=vi-VN&_t=${cacheBust}`, { cache: 'no-store' })
+                        .then(r => r.json()).catch(() => null),
+                    fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}&_t=${cacheBust}`, { cache: 'no-store' })
+                        .then(r => r.json()).catch(() => null),
+                    fetch(`${_dec(0)}1&_t=${cacheBust}`, { cache: 'no-store' })
+                        .then(r => r.json()).catch(() => null)
+                ]);
+
+                // 1. Xử lý danh sách Phim Mới Lên Sóng Vietsub (Real-time PhimAPI)
+                const vietsubItems = [];
+                const rawPhimMoi = phimMoiRes?.value?.items || [];
+                for (const raw of rawPhimMoi) {
+                    if (!raw || !raw.slug) continue;
+                    const mapped = mapPhimApiItem(raw);
+                    mapped.hasVietsub = true;
+                    mapped.phimapiSlug = mapped.slug;
+                    mapped.isRealtimeNew = true;
+                    mapped.quality = sanitizeQualityBadge(mapped.quality, true, !!mapped.tmdbId);
+                    registerExtraMovie(mapped);
+                    vietsubItems.push(mapped);
+                }
+
+                // 2. Xử lý danh sách Top Xu Hướng Quốc Tế Hôm Nay (7Movies / TMDB Daily Trending)
+                const globalMap = new Map();
+                const enResults = tmdbGlobalRes?.value?.results || [];
+                for (const enItem of enResults) {
+                    if (enItem && enItem.id) globalMap.set(String(enItem.id), enItem);
+                }
+
+                const intlItems = [];
+                const viResults = tmdbViRes?.value?.results || enResults;
+                for (const it of viResults) {
+                    if (!it || (it.media_type !== 'movie' && it.media_type !== 'tv')) continue;
+                    const enFallback = globalMap.get(String(it.id)) || {};
+                    const mergedRaw = {
+                        ...enFallback,
+                        ...it,
+                        title: it.title || enFallback.title || it.name || enFallback.name,
+                        name: it.name || enFallback.name || it.title || enFallback.title,
+                        overview: (it.overview && it.overview.trim().length > 10) ? it.overview : (enFallback.overview || ''),
+                        poster_path: it.poster_path || enFallback.poster_path,
+                        backdrop_path: it.backdrop_path || enFallback.backdrop_path
+                    };
+                    if (!mergedRaw.poster_path && !mergedRaw.backdrop_path) continue;
+
+                    const mapped = mapTmdbItem(mergedRaw);
+                    mapped.has7Movies = true;
+                    mapped.hasMovy = true;
+                    mapped.isRealtimeTrending = true;
+
+                    // Kiểm tra xem bộ phim Trending này đã có bản Vietsub trong kho hoặc trong đợt mới cập nhật chưa
+                    const matchVi = findMatchingMovie(mapped, vietsubItems) || findMatchingMovie(mapped, MOVIES_DB);
+                    if (matchVi && (matchVi.hasVietsub || matchVi.phimapiSlug)) {
+                        mapped.hasVietsub = true;
+                        mapped.phimapiSlug = matchVi.phimapiSlug || matchVi.slug;
+                        mapped.slug = matchVi.slug || mapped.slug;
+                    }
+                    mapped.quality = sanitizeQualityBadge(mapped.quality, mapped.hasVietsub, true);
+                    registerExtraMovie(mapped);
+                    intlItems.push(mapped);
+                }
+
+                if (intlItems.length > 0) {
+                    LIVE_TRENDING_INTL = intlItems.slice(0, 15);
+                    mergeMoviesIntoDb(intlItems.slice(0, 12), false);
+                }
+                if (vietsubItems.length > 0) {
+                    LIVE_TRENDING_VIETSUB = vietsubItems.slice(0, 15);
+                    mergeMoviesIntoDb(vietsubItems.slice(0, 12), false);
+                }
+
+                // 3. Tạo danh sách Tổng Hợp Hot Hôm Nay (Đan xen Top Quốc Tế 7Movies/TMDB & Phim Mới Lên Sóng Vietsub)
+                const combined = [];
+                const seenIds = new Set();
+                const maxLen = Math.max(LIVE_TRENDING_INTL.length, LIVE_TRENDING_VIETSUB.length);
+                for (let i = 0; i < maxLen; i++) {
+                    if (i < LIVE_TRENDING_INTL.length) {
+                        const m1 = LIVE_TRENDING_INTL[i];
+                        if (m1 && !seenIds.has(m1.id)) {
+                            seenIds.add(m1.id);
+                            combined.push(m1);
+                        }
+                    }
+                    if (i < LIVE_TRENDING_VIETSUB.length) {
+                        const m2 = LIVE_TRENDING_VIETSUB[i];
+                        if (m2 && !seenIds.has(m2.id)) {
+                            seenIds.add(m2.id);
+                            combined.push(m2);
+                        }
+                    }
+                }
+
+                if (combined.length > 0) {
+                    LIVE_TRENDING_ALL = combined.slice(0, 15);
+                }
+
+                // 4. Cập nhật danh sách Hero Banner bằng các siêu phẩm Trending Hôm Nay có ảnh Backdrop HD nét nhất
+                const heroCandidates = [...LIVE_TRENDING_INTL, ...LIVE_TRENDING_VIETSUB].filter(m => m && m.backdrop && !m.backdrop.startsWith('data:image/svg+xml'));
+                if (heroCandidates.length >= 5) {
+                    LIVE_HERO_LIST = heroCandidates.slice(0, 6);
+                }
+
+                // Lưu cache Trending Real-time để khi F5 hiển thị ngay lập tức trước khi luồng mới trả về
+                try {
+                    localStorage.setItem('cinevex_live_trending_v1', JSON.stringify({
+                        time: Date.now(),
+                        all: LIVE_TRENDING_ALL.slice(0, 10),
+                        intl: LIVE_TRENDING_INTL.slice(0, 10),
+                        vietsub: LIVE_TRENDING_VIETSUB.slice(0, 10),
+                        hero: LIVE_HERO_LIST.slice(0, 6)
+                    }));
+                } catch (e) {}
+
+                updateTrendingTimestampUI();
+                renderTopTrending();
+                renderHero(state.heroIndex || 0);
+
+                if (isManual) {
+                    showToast('Đã cập nhật Top Xu Hướng Hôm Nay theo thời gian thực!', 'fa-bolt', 'text-emerald-400');
                 }
             } catch (e) {
-                console.warn("Lỗi đồng bộ TMDB Trending:", e);
+                console.warn("Lỗi đồng bộ Real-time Trending:", e);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
             }
+        }
+
+        async function refreshLiveTrendingNow(isManual = true) {
+            await fetchTmdbTrending(isManual);
+        }
+
+        function loadLiveTrendingCache() {
+            try {
+                const raw = localStorage.getItem('cinevex_live_trending_v1');
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (parsed) {
+                    if (Array.isArray(parsed.all) && parsed.all.length) {
+                        LIVE_TRENDING_ALL = parsed.all;
+                        parsed.all.forEach(registerExtraMovie);
+                    }
+                    if (Array.isArray(parsed.intl) && parsed.intl.length) {
+                        LIVE_TRENDING_INTL = parsed.intl;
+                        parsed.intl.forEach(registerExtraMovie);
+                    }
+                    if (Array.isArray(parsed.vietsub) && parsed.vietsub.length) {
+                        LIVE_TRENDING_VIETSUB = parsed.vietsub;
+                        parsed.vietsub.forEach(registerExtraMovie);
+                    }
+                    if (Array.isArray(parsed.hero) && parsed.hero.length) {
+                        LIVE_HERO_LIST = parsed.hero;
+                        parsed.hero.forEach(registerExtraMovie);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function initLiveTrendingAutoRefresh() {
+            if (liveTrendingInterval) clearInterval(liveTrendingInterval);
+            // Tự động làm mới Top Xu Hướng mỗi 60 giây khi người dùng đang mở trang
+            liveTrendingInterval = setInterval(() => {
+                if (!document.hidden) {
+                    fetchTmdbTrending(false);
+                }
+            }, 60000);
+
+            if (heroAutoRotateInterval) clearInterval(heroAutoRotateInterval);
+            heroAutoRotateInterval = setInterval(() => {
+                if (!document.hidden && state.category === 'all') {
+                    const heroList = getActiveHeroList();
+                    if (heroList.length > 1) {
+                        const nextIdx = ((state.heroIndex || 0) + 1) % heroList.length;
+                        renderHero(nextIdx);
+                    }
+                }
+            }, 9000);
         }
 
         // Khởi động toàn bộ cơ chế Auto-Sync khi mở trang
         async function initAutoSyncEngine() {
             // Nạp cache tức thời nếu có
+            loadLiveTrendingCache();
             loadMoviesCache();
             deduplicateMoviesDb();
             updateSyncUI();
+
+            // Luôn ưu tiên kéo Top Xu Hướng Real-Time ngay lập tức khi mở trang
+            fetchTmdbTrending(false);
+            initLiveTrendingAutoRefresh();
 
             if (MOVIES_DB.length > CINEVEX_CATALOG.length) {
                 // ĐÃ CÓ KHO PHIM CACHE SẴN (F5 HOẶC QUAY LẠI TRANG) -> HIỂN THỊ NGAY 0ms KHÔNG CHỜ ĐỢI
                 updateSyncUI(`Kho phim sẵn sàng (${MOVIES_DB.length} phim)`, 100);
                 applyFilters();
                 renderGenreHubCards();
-
-                // Chạy đồng bộ nhẹ TMDB trending ngầm để cập nhật mới nhất mà không đè pagination
-                (async () => {
-                    try {
-                        await fetchTmdbTrending();
-                        saveMoviesCache();
-                    } catch (e) {}
-                })();
             } else {
                 // Lần đầu tiên truy cập chưa có cache -> Kéo đợt đầu tiên song song
                 autoSync.isSyncing = true;
                 updateSyncUI("Tự động đồng bộ đợt đầu từ nguồn gốc...", 25);
                 try {
                     await Promise.allSettled([
-                        fetchTmdbTrending(),
                         fetchPhimMoiApi(1),
                         fetchCategoryApi('movie', 1),
                         fetchCategoryApi('tv', 1),
@@ -2265,11 +2499,16 @@
         }
 
         // ==============================================================
-        // HERO BANNER & TOP TRENDING
+        // HERO BANNER & TOP TRENDING (ĐỒNG BỘ TRỰC TIẾP TỪ LIVE TRENDING HÔM NAY)
         // ==============================================================
         function renderHero(index) {
-            state.heroIndex = index;
-            const m = CINEVEX_CATALOG[index] || CINEVEX_CATALOG[0];
+            const heroList = getActiveHeroList();
+            const safeIdx = (index >= 0 && index < heroList.length) ? index : 0;
+            state.heroIndex = safeIdx;
+            const m = heroList[safeIdx] || CINEVEX_CATALOG[0];
+            if (!m) return;
+            registerExtraMovie(m);
+
             const hb = document.getElementById('heroBackdrop');
             if (hb) {
                 hb.dataset.backdrop = m.poster || '';
@@ -2280,11 +2519,12 @@
                 hb.onerror = () => handleCardPosterError(hb);
                 hb.src = m.backdrop || m.poster;
             }
+            const genreStr = (Array.isArray(m.genres) && m.genres.length) ? ` • ${m.genres.join(' / ')}` : '';
             document.getElementById('heroTitle').textContent = m.title;
-            document.getElementById('heroOriginTitle').textContent = `${m.originTitle} (${m.year}) • ${m.genres.join(' / ')}`;
-            document.getElementById('heroSynopsis').textContent = m.synopsis;
-            document.getElementById('heroQuality').textContent = m.quality;
-            document.getElementById('heroImdb').innerHTML = `<i class="fa-solid fa-star mr-1"></i>${m.rating} IMDb`;
+            document.getElementById('heroOriginTitle').textContent = `${m.originTitle || m.title} (${m.year || 2026})${genreStr}`;
+            document.getElementById('heroSynopsis').textContent = m.synopsis || '';
+            document.getElementById('heroQuality').textContent = sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId);
+            document.getElementById('heroImdb').innerHTML = `<i class="fa-solid fa-star mr-1"></i>${m.rating || 8.5} IMDb`;
 
             const inWl = state.watchlist.includes(m.id);
             const wlBtn = document.getElementById('heroWatchlistBtn');
@@ -2299,10 +2539,11 @@
         function renderHeroThumbnails() {
             const bar = document.getElementById('heroThumbnailsBar');
             if (!bar) return;
-            bar.innerHTML = CINEVEX_CATALOG.slice(0, 5).map((m, idx) => `
+            const heroList = getActiveHeroList();
+            bar.innerHTML = heroList.map((m, idx) => `
                 <button onclick="renderHero(${idx})" class="relative group shrink-0 w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all ${idx === state.heroIndex ? 'border-cyan-400 scale-105 shadow-lg shadow-cyan-500/30' : 'border-white/15 opacity-60 hover:opacity-100'}">
-                    <img src="${m.poster}" 
-                         data-backdrop="${m.backdrop || ''}" 
+                    <img src="${m.backdrop || m.poster}" 
+                         data-backdrop="${m.poster || ''}" 
                          data-tmdb="${m.tmdbId || ''}" 
                          data-title="${escapeHtmlAttr(m.title)}" 
                          data-year="${m.year || 2026}" 
@@ -2312,7 +2553,7 @@
                          onerror="handleCardPosterError(this)" 
                          class="w-full h-full object-cover" 
                          alt="${escapeHtmlAttr(m.title)}">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-1.5">
                         <span class="text-[9px] font-bold text-white truncate">${escapeHtmlAttr(m.title)}</span>
                     </div>
                 </button>
@@ -2320,22 +2561,32 @@
         }
 
         function openHeroMovie() {
-            const m = CINEVEX_CATALOG[state.heroIndex] || CINEVEX_CATALOG[0];
-            openPlayer(m.id);
+            const heroList = getActiveHeroList();
+            const m = heroList[state.heroIndex] || heroList[0] || CINEVEX_CATALOG[0];
+            if (m) openPlayer(m.id);
         }
 
         function toggleHeroWatchlist() {
-            const m = CINEVEX_CATALOG[state.heroIndex] || CINEVEX_CATALOG[0];
-            toggleWatchlist(m.id);
-            renderHero(state.heroIndex);
+            const heroList = getActiveHeroList();
+            const m = heroList[state.heroIndex] || heroList[0] || CINEVEX_CATALOG[0];
+            if (m) {
+                toggleWatchlist(m.id);
+                renderHero(state.heroIndex);
+            }
         }
 
         function renderTopTrending() {
             const row = document.getElementById('topTrendingRow');
             if (!row) return;
-            row.innerHTML = CINEVEX_CATALOG.slice(0, 5).map((m, i) => `
-                <div onclick="openPlayer('${m.id}')" class="group cursor-pointer relative bg-vex-card/70 hover:bg-vex-card border border-vex-border hover:border-cyan-500/50 rounded-2xl p-3 flex items-center gap-3.5 transition">
-                    <span class="font-display font-extrabold text-4xl sm:text-5xl rank-stroke select-none pl-1">${i + 1}</span>
+            const trendingList = getActiveTrendingList();
+            row.innerHTML = trendingList.map((m, i) => {
+                registerExtraMovie(m);
+                const liveTag = m.isRealtimeNew
+                    ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">MỚI LÊN SÓNG</span>`
+                    : `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">HOT HÔM NAY</span>`;
+                return `
+                <div onclick="openPlayer('${m.id}')" class="group cursor-pointer relative bg-vex-card/75 hover:bg-vex-card border border-vex-border hover:border-cyan-500/50 rounded-2xl p-3 flex items-center gap-3.5 transition shadow-lg">
+                    <span class="font-display font-extrabold text-3xl sm:text-4xl rank-stroke select-none pl-1 shrink-0">${i + 1}</span>
                     <img src="${m.poster}" 
                          data-backdrop="${m.backdrop || ''}" 
                          data-tmdb="${m.tmdbId || ''}" 
@@ -2348,13 +2599,19 @@
                          class="w-14 h-20 object-cover rounded-xl shrink-0 shadow-md group-hover:scale-105 transition" 
                          alt="${escapeHtmlAttr(m.title)}">
                     <div class="min-w-0 flex-1">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            ${liveTag}
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 truncate">${sanitizeQualityBadge(m.quality, m.hasVietsub, m.hasMovy || !!m.tmdbId)}</span>
+                        </div>
                         <h3 class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-400 truncate mt-1">${escapeHtmlAttr(m.title)}</h3>
-                        <p class="text-[11px] text-slate-400 truncate">${escapeHtmlAttr(m.originTitle)}</p>
-                        <div class="text-[10px] text-amber-400 font-semibold mt-1"><i class="fa-solid fa-star mr-1"></i>${m.rating}</div>
+                        <p class="text-[11px] text-slate-400 truncate">${escapeHtmlAttr(m.originTitle || '')}</p>
+                        <div class="flex items-center justify-between text-[10px] mt-1">
+                            <span class="text-amber-400 font-semibold"><i class="fa-solid fa-star mr-1"></i>${m.rating || 8.2}</span>
+                            <span class="text-slate-400 font-medium">${m.year || 2026}</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // ==============================================================
