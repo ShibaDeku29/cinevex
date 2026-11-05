@@ -444,6 +444,10 @@
             --media-object-fit: contain !important;
         }
 
+        .hidden, [hidden] {
+            display: none !important;
+        }
+
         html, body {
             overflow-x: hidden !important;
             width: 100% !important;
@@ -552,19 +556,19 @@
             <div class="flex items-center gap-2.5 text-sm">
                 <span id="playerBreadcrumbTitle" class="text-white font-bold text-base sm:text-lg truncate max-w-[320px]">Tên Phim</span>
                 <span id="playerCurrentEpBadge" class="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-extrabold text-xs">Full HD</span>
-                <span class="px-2.5 py-0.5 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 font-bold text-[10px] flex items-center gap-1">
+                <span id="vjsTopEngineBadge" style="display: none;" class="hidden px-2.5 py-0.5 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 font-bold text-[10px] items-center gap-1">
                     <i class="fa-solid fa-circle-play text-cyan-400"></i> Video.js v10
                 </span>
             </div>
 
-            <!-- CỤM NÚT ĐIỀU KHIỂN VIDEO.JS V10, PHỤ ĐỀ CC & TẮT ĐÈN -->
+            <!-- CỤM NÚT ĐIỀU KHIỂN VIDEO.JS V10 (CHỈ HIỂN THỊ Ở SERVER VIETSUB HLS), PHỤ ĐỀ CC & TẮT ĐÈN -->
             <div class="flex flex-wrap items-center gap-2">
-                <!-- Đổi Skin Video.js v10 -->
-                <button onclick="toggleScreenFitMode()" id="screenFitBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5 cursor-pointer" title="Chuyển đổi giữa Căn giữa chuẩn 16:9 và Tràn viền toàn màn hình (Hoặc chạm đúp vào video)">
+                <!-- Đổi Tỉ lệ & Skin Video.js v10 (Chỉ hiện khi đang phát Server Vietsub HLS) -->
+                <button onclick="toggleScreenFitMode()" id="screenFitBtn" style="display: none;" class="hidden px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition items-center gap-1.5 cursor-pointer" title="Chuyển đổi giữa Căn giữa chuẩn 16:9 và Tràn viền toàn màn hình (Hoặc chạm đúp vào video)">
                     <i class="fa-solid fa-arrows-left-right text-cyan-400" id="screenFitBtnIcon"></i>
                     <span id="screenFitBtnLabel">Tỉ Lệ: Căn Giữa</span>
                 </button>
-                <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition flex items-center gap-1.5">
+                <button onclick="toggleVjs10Skin()" id="vjs10SkinBtn" style="display: none;" class="hidden px-3 py-2 rounded-xl text-xs font-semibold bg-vex-card border border-vex-border text-slate-200 hover:border-cyan-400 transition items-center gap-1.5">
                     <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
                     <span id="vjs10SkinLabel">VJS10: Frosted Skin</span>
                 </button>
@@ -597,8 +601,8 @@
 
         <!-- KHUNG VIDEO CHÍNH (TRÌNH PHÁT VIDEO.JS V10 HOẶC IFRAME EMBED) -->
         <div id="videoPlayerWrapper" class="relative rounded-3xl overflow-hidden bg-black border border-vex-border shadow-[0_0_80px_-15px_rgba(6,182,212,0.3)] aspect-video w-full max-h-[78vh] group">
-            <!-- Loading Spinner -->
-            <div id="playerLoadingOverlay" class="hidden absolute inset-0 z-30 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center gap-3">
+            <!-- Loading Spinner (Chỉ dùng cho Server Vietsub HLS) -->
+            <div id="playerLoadingOverlay" style="display: none;" class="hidden absolute inset-0 z-30 bg-black/85 backdrop-blur-md flex-col items-center justify-center gap-3 pointer-events-none">
                 <div class="w-14 h-14 rounded-full border-4 border-cyan-500/25 border-t-cyan-400 animate-spin"></div>
                 <p id="playerLoadingText" class="text-xs sm:text-sm text-cyan-300 font-medium">Đang khởi tạo Video.js v10 Engine...</p>
             </div>
@@ -660,8 +664,8 @@
                 </div>
             </div>
 
-            <!-- NÚT ĐỔI TỈ LỆ NỔI TRONG PLAYER (GÓC TRÊN TRÁI, TỰ ẨN/HIỆN THEO ĐIỀU KHIỂN, HOÀN TOÀN KHÔNG CHẶN TUA 10S) -->
-            <div id="inPlayerFitControl" class="absolute top-3.5 left-3.5 z-30 flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto data-[visible=true]:opacity-100 data-[visible=true]:pointer-events-auto">
+            <!-- NÚT ĐỔI TỈ LỆ NỔI TRONG PLAYER (CHỈ HIỂN THỊ KHI DÙNG SERVER VIETSUB HLS) -->
+            <div id="inPlayerFitControl" style="display: none;" class="hidden absolute top-3.5 left-3.5 z-30 items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto data-[visible=true]:opacity-100 data-[visible=true]:pointer-events-auto">
                 <button onclick="toggleScreenFitMode()" id="inPlayerFitBtn" class="px-3 py-1.5 rounded-xl bg-black/80 backdrop-blur-md border border-cyan-500/40 text-cyan-300 hover:text-white text-[11px] font-bold flex items-center gap-1.5 transition hover:scale-105 cursor-pointer shadow-lg shadow-cyan-500/10" title="Chuyển đổi Tỉ lệ: Căn Giữa (16:9) hoặc Tràn Toàn Màn Hình">
                     <i class="fa-solid fa-arrows-left-right text-cyan-400" id="inPlayerFitIcon"></i>
                     <span id="inPlayerFitLabel">Tỉ Lệ: Căn Giữa</span>
@@ -669,7 +673,7 @@
             </div>
 
             <!-- Nhãn Video.js nổi trên video (Chỉ hiển thị khi đang dùng trình phát Video.js HLS gốc) -->
-            <div id="vjsFloatingBadge" class="hidden sm:flex absolute top-3.5 right-3.5 z-30 items-center gap-2 opacity-90 group-hover:opacity-100 transition pointer-events-none">
+            <div id="vjsFloatingBadge" style="display: none;" class="hidden absolute top-3.5 right-3.5 z-30 items-center gap-2 opacity-90 group-hover:opacity-100 transition pointer-events-none">
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
                     <i class="fa-solid fa-bolt text-cyan-400"></i> Video.js v10.2
                 </span>
@@ -1050,6 +1054,7 @@
 
         let inPlayerFitTimeout = null;
         function showInPlayerFitControlTemporary() {
+            if (state.activeServerKey !== 'hls') return;
             const ctrl = document.getElementById('inPlayerFitControl');
             if (!ctrl) return;
             ctrl.setAttribute('data-visible', 'true');
@@ -1481,8 +1486,6 @@
 
         // Tự động kéo dữ liệu nếu người dùng mở trực tiếp link
         async function fetchMovieDirectly(movieId) {
-            const loadingEl = document.getElementById('playerLoadingOverlay');
-            if (loadingEl) loadingEl.classList.remove('hidden');
             try {
                 try {
                     // Thử tìm slug nếu ID có dạng api-slug
@@ -1552,7 +1555,11 @@
 
                 return null;
             } finally {
-                if (loadingEl) loadingEl.classList.add('hidden');
+                const loadingEl = document.getElementById('playerLoadingOverlay');
+                if (loadingEl) {
+                    loadingEl.classList.add('hidden');
+                    loadingEl.style.display = 'none';
+                }
             }
         }
 
@@ -1664,14 +1671,72 @@
         }
 
         // ==============================================================
+        // ĐỒNG BỘ ẨN/HIỆN VIDEO.JS V10 ENGINE (CHỈ XUẤT HIỆN Ở SERVER VIETSUB HLS)
+        // Các server khác (7Movies, Movy VidSrc, MultiEmbed, Vietsub Embed) đã có Engine riêng
+        // ==============================================================
+        function hidePlayerLoadingOverlay() {
+            const loadingOverlay = document.getElementById('playerLoadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                loadingOverlay.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        function setVjs10EngineMode(isHlsServer) {
+            hidePlayerLoadingOverlay();
+            const topBadge = document.getElementById('vjsTopEngineBadge');
+            const fitBtn = document.getElementById('screenFitBtn');
+            const skinBtn = document.getElementById('vjs10SkinBtn');
+            const inPlayerFit = document.getElementById('inPlayerFitControl');
+            const floatingBadge = document.getElementById('vjsFloatingBadge');
+            const vjsPlayer = document.getElementById('vjs10Player');
+            const hud = document.getElementById('screenFitHud');
+
+            if (isHlsServer) {
+                if (topBadge) {
+                    topBadge.classList.remove('hidden');
+                    topBadge.style.display = 'inline-flex';
+                }
+                if (fitBtn) {
+                    fitBtn.classList.remove('hidden');
+                    fitBtn.style.display = 'inline-flex';
+                }
+                if (skinBtn) {
+                    skinBtn.classList.remove('hidden');
+                    skinBtn.style.display = 'inline-flex';
+                }
+                if (inPlayerFit) {
+                    inPlayerFit.classList.remove('hidden');
+                    inPlayerFit.style.display = 'flex';
+                }
+                if (floatingBadge) {
+                    floatingBadge.classList.remove('hidden', '!hidden');
+                    floatingBadge.style.display = 'flex';
+                }
+                if (vjsPlayer) {
+                    vjsPlayer.classList.remove('hidden');
+                    vjsPlayer.style.display = 'block';
+                }
+            } else {
+                [topBadge, fitBtn, skinBtn, inPlayerFit, floatingBadge, vjsPlayer, hud].forEach(el => {
+                    if (el) {
+                        el.classList.add('hidden');
+                        el.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            }
+        }
+
+        // ==============================================================
         // KHỞI CHẠY TRÌNH PHÁT (ƯU TIÊN VIETSUB HLS, 7MOVIES & MOVY VIDSRC)
         // ==============================================================
         async function initPlayerPlayback(movie) {
+            hidePlayerLoadingOverlay();
             let phimSlug = movie.phimapiSlug || CATALOG_VIETSUB_MAP[movie.id] || (movie.source === 'phimapi' ? movie.slug : null);
 
             // Tự động tìm kiếm nguồn Vietsub qua tiêu đề nếu phim chưa có slug
             if (!phimSlug && movie.title) {
-                document.getElementById('playerLoadingOverlay').classList.remove('hidden');
                 const searchKeys = [movie.title, movie.originTitle].filter(Boolean);
                 for (const q of searchKeys) {
                     try {
@@ -1686,18 +1751,15 @@
                         }
                     } catch (e) {}
                 }
-                document.getElementById('playerLoadingOverlay').classList.add('hidden');
             }
 
             state.activeServerKey = phimSlug ? 'hls' : 'vidrift';
 
             // 1. Ưu tiên nguồn Vietsub từ PhimAPI (Server Vietsub HLS)
             if (phimSlug) {
-                document.getElementById('playerLoadingOverlay').classList.remove('hidden');
                 try {
                     const res = await fetch(_dec(1) + phimSlug);
                     const data = await res.json();
-                    document.getElementById('playerLoadingOverlay').classList.add('hidden');
                     if (data && data.episodes && data.episodes.length > 0) {
                         if (data.movie && data.movie.content) {
                             document.getElementById('playerSynopsis').textContent = data.movie.content.replace(/<[^>]*>?/gm, '');
@@ -1716,7 +1778,7 @@
                         return;
                     }
                 } catch (e) {
-                    document.getElementById('playerLoadingOverlay').classList.add('hidden');
+                    hidePlayerLoadingOverlay();
                 }
             }
 
@@ -1728,6 +1790,7 @@
             state.currentEp = null;
             state.currentServers = null;
             state.activeServerKey = 'vidrift';
+            setVjs10EngineMode(false);
             renderUnifiedServerBar(null, null, 0, 0);
 
             const tmdb = movie.tmdbId || '693134';
@@ -1741,6 +1804,7 @@
         // ==============================================================
         function switchServer(key, url, label, isHls = false) {
             state.activeServerKey = key;
+            setVjs10EngineMode(!!isHls);
             if (isHls) {
                 playHlsStream(url, label);
             } else {
@@ -1904,8 +1968,10 @@
             } else if (state.activeServerKey === 'multiembed' && tmdb) {
                 playIframeStream(`https://multiembed.mov/?video_id=${tmdb}&tmdb=1&s=1&e=${eIdx + 1}`, 'MultiEmbed VIP');
             } else if (ep.link_m3u8) {
+                state.activeServerKey = 'hls';
                 playHlsStream(ep.link_m3u8, 'CINEVEX HLS Vietsub (Tốc độ cao)');
             } else if (ep.link_embed) {
+                state.activeServerKey = 'embed';
                 playIframeStream(ep.link_embed, 'Server Vietsub Embed');
             }
         }
@@ -1928,12 +1994,9 @@
         }
 
         function playHlsStream(url, label) {
-            const loadingOverlay = document.getElementById('playerLoadingOverlay');
-            if (loadingOverlay) loadingOverlay.classList.add('hidden');
-            const fitCtrl = document.getElementById('inPlayerFitControl');
-            if (fitCtrl) fitCtrl.classList.remove('hidden');
-            const vjsBadge = document.getElementById('vjsFloatingBadge');
-            if (vjsBadge) vjsBadge.classList.remove('!hidden');
+            state.activeServerKey = 'hls';
+            setVjs10EngineMode(true);
+            hidePlayerLoadingOverlay();
 
             const vjsPlayer = document.getElementById('vjs10Player');
             const video = document.getElementById('mainVideoElement');
@@ -1941,7 +2004,9 @@
 
             iframe.src = 'about:blank';
             iframe.classList.add('hidden');
+            iframe.style.setProperty('display', 'none', 'important');
             vjsPlayer.classList.remove('hidden');
+            vjsPlayer.style.display = 'block';
 
             video.removeEventListener('loadedmetadata', updatePlayerAspectRatio);
             video.addEventListener('loadedmetadata', updatePlayerAspectRatio);
@@ -1961,6 +2026,7 @@
                 hlsInstance.loadSource(url);
                 hlsInstance.attachMedia(video);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                    hidePlayerLoadingOverlay();
                     video.play().catch(() => {});
                     updatePlayerAspectRatio();
                 });
@@ -1972,24 +2038,29 @@
         }
 
         function playIframeStream(url, label) {
-            const loadingOverlay = document.getElementById('playerLoadingOverlay');
-            if (loadingOverlay) loadingOverlay.classList.add('hidden');
-            const fitCtrl = document.getElementById('inPlayerFitControl');
-            if (fitCtrl) fitCtrl.classList.add('hidden');
-            const vjsBadge = document.getElementById('vjsFloatingBadge');
-            if (vjsBadge) vjsBadge.classList.add('!hidden');
+            // Ẩn triệt để toàn bộ Video.js v10 Engine & các nút/nhãn Video.js vì server ngoài đã có Engine riêng
+            setVjs10EngineMode(false);
+            hidePlayerLoadingOverlay();
 
             const vjsPlayer = document.getElementById('vjs10Player');
             const video = document.getElementById('mainVideoElement');
             const iframe = document.getElementById('embedIframePlayer');
             const wrapper = document.getElementById('videoPlayerWrapper');
 
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             if (wrapper) wrapper.style.aspectRatio = '16 / 9';
-            video.pause();
-            vjsPlayer.classList.add('hidden');
+            if (video) {
+                video.pause();
+                video.removeAttribute('src');
+            }
+            if (vjsPlayer) {
+                vjsPlayer.classList.add('hidden');
+                vjsPlayer.style.setProperty('display', 'none', 'important');
+            }
             iframe.classList.remove('hidden');
+            iframe.style.display = 'block';
             iframe.onload = () => {
-                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                hidePlayerLoadingOverlay();
             };
             iframe.src = url;
             showToast(`Đã chuyển sang ${label}`, 'fa-server', 'text-violet-400');
